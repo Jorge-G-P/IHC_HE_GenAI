@@ -1,4 +1,16 @@
 # IHC_HE_GenAI
+
+### With Conda
+Create a conda environment by running
+```
+conda create --name IHC_HE_GenAI python=3.8
+```
+Then, activate the environment
+```
+conda activate IHC_HE_GenAI
+```
+and install the dependencies
+
 ```
 pip install -r requirements.txt
 ```
