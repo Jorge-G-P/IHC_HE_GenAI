@@ -3,6 +3,7 @@ import torch
 import config
 import torch.nn as nn
 import torch.optim as optim
+#from HE_IHC_dataset import GanDataset
 from HE_IHC_dataset import GanDataset
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -73,7 +74,7 @@ def train_func(disc_HE, disc_IHC, gen_HE, gen_IHC, opt_disc, opt_gen, g_scaler, 
         g_scaler.step(opt_gen)
         g_scaler.update()
 
-        if idx % 200 == 0:
+        if idx % 5 == 0:
             #*0.5+0.5 normalices the image
             save_image(HE * 0.5 + 0.5, f"/Users/josep/Desktop/aidl-2024-spring-mlops/BCI/BCI_dataset/Saved images/HE_{idx}.png")
             save_image(fake_HE * 0.5 + 0.5, f"/Users/josep/Desktop/aidl-2024-spring-mlops/BCI/BCI_dataset/Saved images/fake_HE_{idx}.png")

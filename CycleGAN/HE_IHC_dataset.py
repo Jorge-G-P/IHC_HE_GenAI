@@ -1,5 +1,6 @@
 import os
 from PIL import Image
+import torch
 import torch.utils.data as data
 import random
 import glob
@@ -71,10 +72,20 @@ class GanDataset(data.Dataset):
         random_index = random.randint(0, min(len(A_patches), len(B_patches)) - 1)
         A_patch = A_patches[random_index]
         B_patch = B_patches[random_index]
+        A_patch = np.array(A_patch)
+        B_patch = np.array(B_patch)
+
+        #if self.transform:
+        #    A_patch = self.transform(A_patch)
+        #if self.target_transform:
+        #    B_patch = self.transform(B_patch)
 
         if self.transform:
-            A_patch = self.transform(A_patch)
-        if self.target_transform:
-            B_patch = self.transform(B_patch)
+            augmentations = self.transform(image = A_patch, image0 = B_patch)
+            A_patch = augmentations['image']
+            B_patch = augmentations['image0']
 
-        return {'A': A_patch, 'B': B_patch} #, 'A_img': A_img, 'B_img': B_img, 'A_index': index, 'B_index': index, 'B_initial_index': B_initial_index, 'patch_index': random_index}
+        #A_patch = torch.tensor(A_patch).permute(2, 0, 1).float()
+        #B_patch = torch.tensor(B_patch).permute(2, 0, 1).float()
+
+        return A_patch,B_patch #{'A': A_patch, 'B': B_patch} #, 'A_img': A_img, 'B_img': B_img, 'A_index': index, 'B_index': index, 'B_initial_index': B_initial_index, 'patch_index': random_index}
