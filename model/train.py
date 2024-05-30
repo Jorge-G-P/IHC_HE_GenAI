@@ -9,6 +9,8 @@ from discriminator import Discriminator
 from generator import Generator
 from utils import load_checkpoint, save_checkpoint
 from torchvision.utils import save_image
+from torch.utils.tensorboard import SummaryWriter
+
 
 def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, loss, loader, epoch):
     
@@ -43,6 +45,7 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
             D_IHC_loss = D_IHC_real_loss + D_IHC_fake_loss
 
             D_loss = (D_HE_loss + D_IHC_loss) / 2   # Using simple averaging for the discriminator loss
+            writer.add_scalar("Discriminator Loss (mean)/Epochs", D_loss, epoch)
 
         optim_D.zero_grad()
         D_scaler.scale(D_loss).backward()
@@ -74,18 +77,33 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
                 + cycle_IHC_loss * config.LAMBDA_CYCLE
                 + cycle_HE_loss * config.LAMBDA_CYCLE
             )
-        
+
+        writer.add_scalar("Total Generator Loss/Epochs", G_loss, epoch)
+
         optim_G.zero_grad()
         G_scaler.scale(G_loss).backward()
         G_scaler.step(optim_G)
         G_scaler.update()
 
+#    if idx % 5 == 0:
+
+            #*0.5+0.5 normalices the image
+
+            #(HE * 0.5 + 0.5, config.dir_path + "/saved_results/HE_" + str(idx) + ".png")
+
+            #save_image(fake_HE * 0.5 + 0.5, config.dir_path + "/saved_results/fake_HE_" + str(idx) + ".png")
+
+            #save_image(IHC * 0.5 + 0.5, config.dir_path + "/saved_results/IHC_" + str(idx) + ".png")
+
+            #save_image(fake_IHC * 0.5 + 0.5, config.dir_path + "/saved_results/fake_IHC_" + str(idx) + ".png")
+
         if idx % 200 == 0:
             for i in range(len(ihc)):
-                save_image(he[i], f"/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/joao_model/data/HE_Images/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                save_image(fake_HE[i], f"/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/joao_model/data/HE_Images/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                save_image(ihc[i], f"/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/joao_model/data/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                save_image(fake_IHC[i], f"/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/joao_model/data/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                save_image(he[i], f"C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\generated_images\\HE_Images\\epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                #save_image(he[i], str(config.parent_path) + f"/generated_images/HE_Images/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                #save_image(fake_HE[i], str(config.parent_path) + f"/generated_images/HE_Images/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                #save_image(ihc[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                #save_image(fake_IHC[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
             print(f"\nEpoch: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
                 + f" G_loss: {G_loss}, D_loss: {D_loss}")
@@ -157,4 +175,5 @@ def main():
 
 
 if __name__ == "__main__":
+    writer = SummaryWriter()
     main()
