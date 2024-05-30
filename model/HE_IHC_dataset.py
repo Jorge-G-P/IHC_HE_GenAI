@@ -13,7 +13,7 @@ IMG_EXTENSIONS = [
 
 class GanDataset(data.Dataset):
 
-    def __init__(self, A_dir, B_dir, patch_size=512, transform=None, target_transform=None):
+    def __init__(self, A_dir, B_dir, patch_size=512, transform=None, target_transform=None, shuffle=False):
         super().__init__()
         self.A_dir = A_dir
         self.B_dir = B_dir
@@ -32,8 +32,7 @@ class GanDataset(data.Dataset):
             self.B_initial_paths[i] = path
 
         # np.random.shuffle(self.A_paths)
-        np.random.shuffle(self.B_paths)
-        # self.B_index = 0
+        # np.random.shuffle(self.B_paths)
         
         self.A_size = len(self.A_paths)
         self.B_size = len(self.B_paths)
@@ -57,7 +56,6 @@ class GanDataset(data.Dataset):
     def __getitem__(self, index):
         A_path = self.A_paths[index % self.A_size]
         B_path = self.B_paths[index % self.B_size]
-        # self.B_index += 1
 
         for idx, value in self.B_initial_paths.items():
             if B_path == value:
