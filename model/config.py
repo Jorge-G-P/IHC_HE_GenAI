@@ -15,6 +15,10 @@ TRAIN_DIR_HE = "C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\BCI_dataset\
 VAL_DIR_IHC = str(parent_path) + "/BCI_dataset/IHC/val"
 #TRAIN_DIR_HE = str(parent_path) + "/BCI_dataset/HE/train"
 VAL_DIR_HE = str(parent_path) + "/BCI_dataset/HE/val"
+TRAIN_DIR_HE = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/HE/train'
+VAL_DIR_HE = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/HE/test'        # Use for testing not validation
+TRAIN_DIR_IHC = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/IHC/train'
+VAL_DIR_IHC = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/IHC/test'      # Use for testing not validation
 BATCH_SIZE = 2
 LEARNING_RATE = 1e-5
 LAMBDA_IDENTITY = 0.0
@@ -22,15 +26,15 @@ LAMBDA_CYCLE = 10
 NUM_WORKERS = 4
 NUM_EPOCHS = 6
 LOAD_MODEL = False
-SAVE_MODEL = False
+SAVE_MODEL = True
+DISCRIMINATOR_FEATURES = [64, 128, 256, 512]    # Not implemented yet
 CHECKPOINT_GEN_HE = "genh.pth.tar"
 CHECKPOINT_GEN_IHC = "genz.pth.tar"
 CHECKPOINT_CRITIC_HE = "critich.pth.tar"
 CHECKPOINT_CRITIC_IHC = "criticz.pth.tar"
-# Most implementations of GANs and CycleGANs use images resized to 256x256 pixels for training
-transforms = A.Compose(
-    [
-        A.Resize(width=256, height=256),
+
+transforms = A.Compose([
+        # A.Resize(width=256, height=256),
         A.HorizontalFlip(p=0.5),
         A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
         ToTensorV2(),
