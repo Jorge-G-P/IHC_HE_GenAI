@@ -99,10 +99,10 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
                 #save_image(fake_IHC[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
         if idx % 250 == 0:
             for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
-                save_image(he[i]*0.5 + 0.5, config.repo_path / f"/generated_images/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"/generated_images/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                save_image(ihc[i]*0.5 + 0.5, config.repo_path / f"/generated_images/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"/generated_images/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                save_image(he[i]*0.5 + 0.5, config.parent_path / f"generated_images/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"generated_images/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"generated_images/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"generated_images/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
                 #save_image(he[i]*0.5 + 0.5, f"/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/examples_gen_imgs/HE_Images/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
                 #save_image(fake_HE[i]*0.5 + 0.5, f"/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/examples_gen_imgs/HE_Images/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
                 #save_image(ihc[i]*0.5 + 0.5, f"/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/examples_gen_imgs/IHC_Images/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
