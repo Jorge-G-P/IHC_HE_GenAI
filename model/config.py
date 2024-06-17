@@ -1,12 +1,29 @@
 import torch
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+import os
+from pathlib import Path
 
 DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-TRAIN_DIR_HE = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/HE/train'
-VAL_DIR_HE = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/HE/test'        # Use for testing not validation
-TRAIN_DIR_IHC = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/IHC/train'
-VAL_DIR_IHC = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/IHC/test'      # Use for testing not validation
+
+dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
+repo_path = dir_path.parent
+parent_path = repo_path.parent
+
+#TRAIN_DIR_IHC = "C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\BCI_dataset\IHC\\train"
+#TRAIN_DIR_HE = "C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\BCI_dataset\HE\\train"
+#TEST_DIR_IHC = "C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\BCI_dataset\IHC\\test"
+#TEST_DIR_HE = "C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\BCI_dataset\HE\\test"
+
+TRAIN_DIR_IHC = parent_path / "BCI_dataset/IHC/train"
+TEST_DIR_IHC = parent_path / "BCI_dataset/IHC/val"
+TRAIN_DIR_HE = parent_path / "BCI_dataset/HE/train"
+TEST_DIR_HE = parent_path / "BCI_dataset/HE/val"
+
+#TRAIN_DIR_HE = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/HE/train'
+#VAL_DIR_HE = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/HE/test'        # Use for testing not validation
+#TRAIN_DIR_IHC = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/IHC/train'
+#VAL_DIR_IHC = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/IHC/test'      # Use for testing not validation
 BATCH_SIZE = 2
 LEARNING_RATE = 1e-5
 LAMBDA_IDENTITY = 0.0
@@ -26,6 +43,6 @@ transforms = A.Compose([
         A.HorizontalFlip(p=0.5),
         A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
         ToTensorV2(),
-        ],
+     ],
     additional_targets={"image0": "image"},
 )
