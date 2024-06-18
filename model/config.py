@@ -29,7 +29,7 @@ LEARNING_RATE = 1e-5
 LAMBDA_IDENTITY = 0.0
 LAMBDA_CYCLE = 10
 NUM_WORKERS = 4
-NUM_EPOCHS = 6
+NUM_EPOCHS = 10
 LOAD_MODEL = False
 SAVE_MODEL = True
 DISCRIMINATOR_FEATURES = [64, 128, 256, 512]    # Not implemented yet
@@ -39,7 +39,7 @@ CHECKPOINT_CRITIC_HE = "critich.pth.tar"
 CHECKPOINT_CRITIC_IHC = "criticz.pth.tar"
 
 transforms = A.Compose([
-        # A.Resize(width=256, height=256),
+        A.Resize(width=256, height=256),
         A.HorizontalFlip(p=0.5),
         A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
         ToTensorV2(),
