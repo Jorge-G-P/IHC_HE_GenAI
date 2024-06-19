@@ -10,6 +10,7 @@ from generator import Generator
 from utils import load_checkpoint, save_checkpoint
 from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
+import datetime
 
 
 def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, loss, loader, epoch):
@@ -51,7 +52,10 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
             D_IHC_loss = D_IHC_real_loss + D_IHC_fake_loss
 
             D_loss = (D_HE_loss + D_IHC_loss) / 2   # Using simple averaging for the discriminator loss
-            writer.add_scalar("Discriminator Loss (mean)/Epochs", D_loss, epoch)
+
+            writer.add_scalar("HE(True) Discriminator Loss (mean)/Epochs", D_HE_loss, epoch)
+            writer.add_scalar("IHC(True) Discriminator Loss (mean)/Epochs", D_IHC_loss, epoch)
+            writer.add_scalar("Total Discriminator Loss (mean)/Epochs", D_loss, epoch)
 
         optim_D.zero_grad()
         D_scaler.scale(D_loss).backward()
@@ -84,32 +88,37 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
                 + cycle_HE_loss * config.LAMBDA_CYCLE
             )
 
-        writer.add_scalar("Total Generator Loss/Epochs", G_loss, epoch)
+            writer.add_scalar("Cycle IHC Loss/Epochs", cycle_IHC_loss, epoch)
+            writer.add_scalar("Cycle HE Loss/Epochs", cycle_HE_loss, epoch)
+            writer.add_scalar("IHC(False) Fooling Discriminator Loss/Epochs", G_IHC_loss, epoch)
+            writer.add_scalar("HE(False) Fooling Discriminator Loss/Epochs", G_HE_loss, epoch)
+            writer.add_scalar("Total Generator Loss/Epochs", G_loss, epoch)
 
         optim_G.zero_grad()
         G_scaler.scale(G_loss).backward()
         G_scaler.step(optim_G)
         G_scaler.update()
 
-        #if idx % 200 == 0:
-            #for i in range(len(ihc)):
-                #save_image(he[i], f"C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\generated_images\\HE_Images\\epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                #save_image(fake_HE[i], str(config.parent_path) + f"/generated_images/HE_Images/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                #save_image(ihc[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                #save_image(fake_IHC[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
-        if idx % 300 == 0:
-            for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
-                save_image(he[i]*0.5 + 0.5, config.parent_path / f"generated_images/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"generated_images/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"generated_images/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"generated_images/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
-                # save_image(he[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                # save_image(fake_HE[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                # save_image(ihc[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                # save_image(fake_IHC[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+        if epoch % 5 == 0:
+            #if idx % 200 == 0:
+                #for i in range(len(ihc)):
+                    #save_image(he[i], f"C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\generated_images\\HE_Images\\epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                    #save_image(fake_HE[i], str(config.parent_path) + f"/generated_images/HE_Images/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                    #save_image(ihc[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                    #save_image(fake_IHC[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+            if idx % 500 == 0:
+                for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
+                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                    # save_image(he[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                    # save_image(fake_HE[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                    # save_image(ihc[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                    # save_image(fake_IHC[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
-            print(f"\nTRAIN EPOCH: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
-                + f" G_loss: {G_loss}, D_loss: {D_loss}")
+                print(f"\nTRAIN EPOCH: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
+                    + f" G_loss: {G_loss}, D_loss: {D_loss}")
             
 
 def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch):
@@ -119,6 +128,8 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch)
         ihc = sample['A'].to(config.DEVICE)
         he = sample['B'].to(config.DEVICE)
 
+        D_HE.eval()
+        D_IHC.eval()
         G_HE.eval()
         G_IHC.eval()
 
@@ -153,6 +164,10 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch)
 
                 D_loss = (D_HE_loss + D_IHC_loss) / 2   # Using simple averaging for the discriminator loss
 
+                writer.add_scalar("[VAL] - HE(True) Discriminator Loss (mean)/Epochs", D_HE_loss, epoch)
+                writer.add_scalar("[VAL] - IHC(True) Discriminator Loss (mean)/Epochs", D_IHC_loss, epoch)
+                writer.add_scalar("[VAL] - Total Discriminator Loss (mean)/Epochs", D_loss, epoch)
+
             with torch.cuda.amp.autocast():         # For mixed precision training
                 '''Train the Generator of HE and IHC images'''
                 D_fake_HE = D_HE(fake_HE)
@@ -178,21 +193,28 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch)
                     + cycle_IHC_loss * config.LAMBDA_CYCLE
                     + cycle_HE_loss * config.LAMBDA_CYCLE
                 )
+
+                writer.add_scalar("[VAL] - Cycle IHC Loss/Epochs", cycle_IHC_loss, epoch)
+                writer.add_scalar("[VAL] - Cycle HE Loss/Epochs", cycle_HE_loss, epoch)
+                writer.add_scalar("[VAL] - IHC(False) Fooling Discriminator Loss/Epochs", G_IHC_loss, epoch)
+                writer.add_scalar("[VAL] - HE(False) Fooling Discriminator Loss/Epochs", G_HE_loss, epoch)
+                writer.add_scalar("[VAL] - Total Generator Loss/Epochs", G_loss, epoch)
         
-        if idx % 100 == 0:
-            for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
-                save_image(he[i]*0.5 + 0.5, config.repo_path / f"/generated_images/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"/generated_images/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                save_image(ihc[i]*0.5 + 0.5, config.repo_path / f"/generated_images/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"/generated_images/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+        if epoch % 5 == 0:
+            if idx % 100 == 0:
+                for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
+                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
-                # save_image(he[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                # save_image(fake_HE[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                # save_image(ihc[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                # save_image(fake_IHC[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                    # save_image(he[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                    # save_image(fake_HE[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                    # save_image(ihc[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                    # save_image(fake_IHC[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
-            print(f"\nVALIDATION EPOCH: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
-                + f" G_loss: {G_loss}, D_loss: {D_loss}")
+                print(f"\nVALIDATION EPOCH: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
+                    + f" G_loss: {G_loss}, D_loss: {D_loss}")
 
 
 def custom_collate(batch):
@@ -273,7 +295,9 @@ def main():
 
 
 if __name__ == "__main__":
-    writer = SummaryWriter()
+    log_dir = "logs/my_experiment/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    writer = SummaryWriter(log_dir=log_dir)
     main()
+    writer.close()
 
 

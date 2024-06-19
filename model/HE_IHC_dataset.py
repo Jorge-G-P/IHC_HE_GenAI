@@ -4,6 +4,7 @@ import torch.utils.data as data
 import random
 import glob
 import numpy as np
+import config
 
 IMG_EXTENSIONS = [
     '.jpg', '.JPG', '.jpeg', '.JPEG',
@@ -83,8 +84,8 @@ def main():
     ''' Code below is just to make some tests to the dataset class.
         Not necessary for project '''
 
-    x = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/HE/train'
-    y = r'/home/jotapv98/coding/MyProjects/JOAO_HE_IHC/BCI_dataset/IHC/test'
+    x = config.parent_path / "BCI_dataset/HE/train"
+    y = config.parent_path / "BCI_dataset/IHC/test"
 
     A_paths = []
     A_paths.extend(glob.glob(os.path.join(x, '*')))
