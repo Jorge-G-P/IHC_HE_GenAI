@@ -100,22 +100,12 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
         G_scaler.update()
 
         if epoch % 5 == 0:
-            #if idx % 200 == 0:
-                #for i in range(len(ihc)):
-                    #save_image(he[i], f"C:\\Users\\jorge\\Escritorio\\UPC\\12final_project\\generated_images\\HE_Images\\epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                    #save_image(fake_HE[i], str(config.parent_path) + f"/generated_images/HE_Images/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                    #save_image(ihc[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                    #save_image(fake_IHC[i], str(config.parent_path) + f"/generated_images/IHC_Images/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
             if idx % 500 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
                     save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
-                    # save_image(he[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                    # save_image(fake_HE[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                    # save_image(ihc[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                    # save_image(fake_IHC[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
                 print(f"\nTRAIN EPOCH: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
                     + f" G_loss: {G_loss}, D_loss: {D_loss}")
