@@ -10,10 +10,10 @@ from generator import Generator
 from utils import load_checkpoint, save_checkpoint
 from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
-import datetime
+from datetime import datetime
 
 
-def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, loss, loader, epoch):
+def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, loss, loader, epoch, writer):
     
     loop = tqdm(loader, leave=True)         #Loop generates a progress bar while iterating over dataset
     for idx, sample in enumerate(loop):
@@ -111,7 +111,7 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
                     + f" G_loss: {G_loss}, D_loss: {D_loss}")
             
 
-def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch):
+def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch, writer):
 
     loop = tqdm(loader, leave=True)
     for idx, sample in enumerate(loop):
@@ -198,11 +198,6 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch)
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
-                    # save_image(he[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                    # save_image(fake_HE[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                    # save_image(ihc[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                    # save_image(fake_IHC[i]*0.5 + 0.5, f"/home/joaojpedrop/joao_stuff/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
-
                 print(f"\nVALIDATION EPOCH: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
                     + f" G_loss: {G_loss}, D_loss: {D_loss}")
 
@@ -240,15 +235,24 @@ def main():
         betas=(0.5, 0.999)
     )
 
+    # Losses used during training
     cycle_loss = nn.L1Loss()
-    discrim_loss = nn.MSELoss() 
+    discrim_loss = nn.MSELoss()
+
+    start_epoch = 0
+    log_dir = None
 
     # Load checkpoints if necessary
     if config.LOAD_MODEL:
-        load_checkpoint(config.CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)
-        load_checkpoint(config.CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)
-        load_checkpoint(config.CHECKPOINT_CRITIC_HE, disc_HE, optim_disc, config.LEARNING_RATE)
-        load_checkpoint(config.CHECKPOINT_CRITIC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)
+        start_epoch, log_dir = load_checkpoint(config.CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)
+        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0])
+    
+    if log_dir is None:
+        log_dir = f"logs/GAN_{config.NUM_EPOCHS}_epochs_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+
+    writer = SummaryWriter(log_dir=log_dir)
 
     '''Initialize datasets and dataloaders:
         1) Create dataset for later split between training/validation
@@ -270,24 +274,21 @@ def main():
     d_scaler = torch.cuda.amp.GradScaler()
 
     # Training loop
-    for epoch in range(config.NUM_EPOCHS):
+    for epoch in range(start_epoch, config.NUM_EPOCHS):
         print("TRAINING MODEL:")
-        train_func(disc_HE, disc_IHC, gen_HE, gen_IHC, optim_disc, optim_gen, g_scaler, d_scaler, cycle_loss, discrim_loss, train_loader, epoch)
-        eval_single_epoch(disc_HE, disc_IHC, gen_HE, gen_IHC, cycle_loss, discrim_loss, val_loader, epoch)
-
+        train_func(disc_HE, disc_IHC, gen_HE, gen_IHC, optim_disc, optim_gen, g_scaler, d_scaler, cycle_loss, discrim_loss, train_loader, epoch, writer)
+        eval_single_epoch(disc_HE, disc_IHC, gen_HE, gen_IHC, cycle_loss, discrim_loss, val_loader, epoch, writer)
 
         # Save model checkpoints
         if config.SAVE_MODEL:
-           save_checkpoint(gen_HE, optim_gen, filename=config.CHECKPOINT_GEN_HE)
-           save_checkpoint(gen_IHC, optim_gen, filename=config.CHECKPOINT_GEN_IHC)
-           save_checkpoint(disc_HE, optim_disc, filename=config.CHECKPOINT_CRITIC_HE)
-           save_checkpoint(disc_IHC, optim_disc, filename=config.CHECKPOINT_CRITIC_IHC)
+           save_checkpoint(epoch, gen_HE, optim_gen, filename=config.CHECKPOINT_GEN_HE, log_dir=log_dir)
+           save_checkpoint(epoch, gen_IHC, optim_gen, filename=config.CHECKPOINT_GEN_IHC, log_dir=log_dir)
+           save_checkpoint(epoch, disc_HE, optim_disc, filename=config.CHECKPOINT_DISC_HE, log_dir=log_dir)
+           save_checkpoint(epoch, disc_IHC, optim_disc, filename=config.CHECKPOINT_DISC_IHC, log_dir=log_dir)
 
+    writer.close()
 
 if __name__ == "__main__":
-    log_dir = "logs/my_experiment/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    writer = SummaryWriter(log_dir=log_dir)
     main()
-    writer.close()
 
 
