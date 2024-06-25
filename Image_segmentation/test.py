@@ -20,7 +20,6 @@ from dataset import SimDataset
 from model import ResNetUNet
 import re
 
-
 numbers = re.compile(r'(\d+)')
 def numericalSort(value):
     parts = numbers.split(value)
@@ -43,13 +42,11 @@ imgs_test_paths = get_file_paths(imgs_test_path)
 masks_train_paths = get_file_paths(masks_train_path)
 masks_test_paths = get_file_paths(masks_test_path)
 
-
 # Define the transformations
 trans = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  # imagenet
 ])
-
 
 # Create the datasets
 train_set = SimDataset(imgs_train_paths, masks_train_paths, transform=trans)
@@ -63,19 +60,15 @@ dataloaders = {
     'test': DataLoader(test_set, batch_size=batch_size, shuffle=True, num_workers=0) 
 }
 
-#Function to reverse the normalization
+# Function to reverse the normalization
 def reverse_transform(inp):
-    inp = inp.numpy().transpose((1, 2, 0))
+    inp = inp.numpy().transpose((1, 2, 0))  # Cambia las dimensiones a HWC
     mean = np.array([0.485, 0.456, 0.406])
     std = np.array([0.229, 0.224, 0.225])
-    inp = std * inp + mean
-    #inp = np.clip(inp, 0, 1)
-    inp = np.clip(inp, 0, 255)
-    #inp = (inp * 255).astype(np.uint8)
-    inp = inp.astype(np.uint8)
+    inp = std * inp + mean  # Desnormaliza
+    inp = np.clip(inp, 0, 1)  # Asegúrate de que los valores estén en el rango [0, 1]
+    inp = (inp * 255).astype(np.uint8)  # Convierte a rango [0, 255] y a tipo uint8
     return inp
-
-
 
 def print_metrics(metrics, epoch_samples, phase):
     outputs = []
@@ -131,44 +124,3 @@ for i in range(num_images_to_display):
 
 
 
-#     # Select the first index for train and test
-# first_index_train = 0
-# first_index_test = 0
-
-# # Get a batch of training data
-# train_images, train_masks = next(iter(dataloaders['train']))
-# test_images, test_masks = next(iter(dataloaders['test']))
-
-# # Display the first image and mask from the training set
-# display_image_and_mask(train_images, train_masks, first_index_train, 'Train')
-
-# # Display the first image and mask from the test set
-# display_image_and_mask(test_images, test_masks, first_index_test, 'Test')
-
-# # Select an example index
-# example_index = 3
-
-# # Get the initial image, normalized image, and corresponding mask
-# initial_image = reverse_transform(train_images[example_index])
-# normalized_image = reverse_transform(train_images[example_index])
-# mask = train_masks[example_index].squeeze()  # Remove channel dimension
-
-# # Plot the initial image, normalized image, and mask side by side
-# plt.figure(figsize=(15, 5))
-
-# # Initial image
-# plt.subplot(1, 3, 1)
-# plt.title('Initial Image')
-# plt.imshow(initial_image)
-
-# # Normalized image (reversed transformation)
-# plt.subplot(1, 3, 2)
-# plt.title('Normalized Image (Reversed)')
-# plt.imshow(normalized_image)
-
-# # Corresponding mask
-# plt.subplot(1, 3, 3)
-# plt.title('Mask')
-# plt.imshow(mask, cmap='gray')
-
-# plt.show()
