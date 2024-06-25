@@ -100,7 +100,7 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
         G_scaler.update()
 
         if epoch % 5 == 0:
-            if idx % 500 == 0:
+            if idx % 900 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
                     save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
@@ -191,7 +191,7 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch,
                 writer.add_scalar("[VAL] - Total Generator Loss/Epochs", G_loss, epoch)
         
         if epoch % 5 == 0:
-            if idx % 100 == 0:
+            if idx % 230 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
                     save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
@@ -259,7 +259,7 @@ def main():
         2) Split between training and validation size
         3) Create train and validation sets and loaders
     '''
-    my_dataset = GanDataset(config.TRAIN_DIR_IHC, config.TRAIN_DIR_HE, transform=config.transforms)
+    my_dataset = GanDataset(config.TRAIN_DIR_IHC, config.TRAIN_DIR_HE, subset_percentage=80, transform=config.transforms)
     
     dataset_lenght = len(my_dataset)
     train_size = int(0.8 * dataset_lenght)
