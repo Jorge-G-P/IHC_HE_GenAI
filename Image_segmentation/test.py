@@ -113,17 +113,62 @@ for i in range(num_images_to_display):
     plt.imshow(reverse_transform(images[i].cpu()))
     plt.axis('off')
 
-    # True Mask (selecting the last channel)
+    # True Mask
     plt.subplot(1, 3, 2)
     plt.title('True Mask')
-    true_mask = true_masks[i, :, -1].cpu().numpy()  # Select the last channel
+    true_mask = true_masks[i].cpu().numpy().squeeze()  # Convert tensor to numpy array and remove channel dimension
     plt.imshow(true_mask, cmap='gray')
     plt.axis('off')
 
     # Predicted Mask
     plt.subplot(1, 3, 3)
     plt.title('Predicted Mask')
-    plt.imshow(pred_masks[i].cpu().numpy().squeeze(), cmap='gray')
+    pred_mask = pred_masks[i].cpu().numpy().squeeze()  # Convert tensor to numpy array and remove channel dimension
+    plt.imshow(pred_mask, cmap='gray')
     plt.axis('off')
 
     plt.show()
+
+
+
+#     # Select the first index for train and test
+# first_index_train = 0
+# first_index_test = 0
+
+# # Get a batch of training data
+# train_images, train_masks = next(iter(dataloaders['train']))
+# test_images, test_masks = next(iter(dataloaders['test']))
+
+# # Display the first image and mask from the training set
+# display_image_and_mask(train_images, train_masks, first_index_train, 'Train')
+
+# # Display the first image and mask from the test set
+# display_image_and_mask(test_images, test_masks, first_index_test, 'Test')
+
+# # Select an example index
+# example_index = 3
+
+# # Get the initial image, normalized image, and corresponding mask
+# initial_image = reverse_transform(train_images[example_index])
+# normalized_image = reverse_transform(train_images[example_index])
+# mask = train_masks[example_index].squeeze()  # Remove channel dimension
+
+# # Plot the initial image, normalized image, and mask side by side
+# plt.figure(figsize=(15, 5))
+
+# # Initial image
+# plt.subplot(1, 3, 1)
+# plt.title('Initial Image')
+# plt.imshow(initial_image)
+
+# # Normalized image (reversed transformation)
+# plt.subplot(1, 3, 2)
+# plt.title('Normalized Image (Reversed)')
+# plt.imshow(normalized_image)
+
+# # Corresponding mask
+# plt.subplot(1, 3, 3)
+# plt.title('Mask')
+# plt.imshow(mask, cmap='gray')
+
+# plt.show()
