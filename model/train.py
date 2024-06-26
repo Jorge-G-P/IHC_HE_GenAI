@@ -109,9 +109,6 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
         G_scaler.step(optim_G)
         G_scaler.update()
 
-        print(f"\nTRAIN EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx}/{len(loader)},"
-                    + f" G_loss: {G_loss}, D_loss: {D_loss}")
-
         if epoch % 5 == 0:
             if idx % 800 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
@@ -120,6 +117,8 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
+    print(f"\nTRAIN EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx}/{len(loader)},"
+                    + f" G_loss: {G_loss}, D_loss: {D_loss}\n")
 
 def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch, writer):
 
@@ -210,9 +209,6 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch,
                 writer.add_scalar("[VAL] - HE(False) Fooling Discriminator Loss", G_HE_loss, epoch)
                 writer.add_scalar("[VAL] - Total Generator Loss", G_loss, epoch)
         
-        print(f"\nVALIDATION EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx}/{len(loader)},"
-                    + f" G_loss: {G_loss}, D_loss: {D_loss}")
-        
         if epoch % 5 == 0:
             if idx % 210 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
@@ -221,7 +217,8 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch,
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
-
+    print(f"\nVALIDATION EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx}/{len(loader)},"
+            + f" G_loss: {G_loss}, D_loss: {D_loss}\n")
 
 def custom_collate(batch):
     # Create separate lists for each key in the batch
