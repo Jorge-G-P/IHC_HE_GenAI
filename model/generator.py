@@ -7,9 +7,9 @@ class ConvBlock(nn.Module):
         '''Creates a convolutional block, with option to be applied on encoder or decoder part, depending if downsampling is used or not
         
         Flags:
-            down (bool)     -- wether downsampling (True) or upsampling (False)
-            use_act (bool)  -- use activation or not
-            **kwargs        -- allows us to provide any additional keyword arguments that are accepted by the nn.Conv2d or nn.ConvTranspose2d (padding, stride, etc) 
+            down (bool)         -- wether downsampling (True) or upsampling (False)
+            use_act (bool)      -- use activation or not
+            **kwargs            -- allows us to provide any additional keyword arguments that are accepted by the nn.Conv2d or nn.ConvTranspose2d (padding, stride, etc) 
         '''
     
         super().__init__()
@@ -17,9 +17,10 @@ class ConvBlock(nn.Module):
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, padding_mode="reflect", **kwargs) 
             if down
-            else nn.ConvTranspose2d(in_channels, out_channels, **kwargs),
-            nn.InstanceNorm2d(out_channels),
-            nn.ReLU(inplace=True) if use_act else nn.Identity()
+            else 
+                nn.ConvTranspose2d(in_channels, out_channels, **kwargs),
+                nn.InstanceNorm2d(out_channels),
+                nn.ReLU(inplace=True) if use_act else nn.Identity()
         )
 
     def forward(self, x):
@@ -40,9 +41,9 @@ class Generator(nn.Module):
     def __init__(self, img_channels, num_features = 64, num_residuals=6):
         super().__init__()
         self.initial = nn.Sequential(
-            nn.Conv2d(img_channels, num_features, kernel_size=7, stride=1, padding=3, padding_mode="reflect"),
-            nn.InstanceNorm2d(num_features),
-            nn.ReLU(inplace=True),
+                nn.Conv2d(img_channels, num_features, kernel_size=7, stride=1, padding=3, padding_mode="reflect"),
+                nn.InstanceNorm2d(num_features),
+                nn.ReLU(inplace=True),
         )
         self.down_blocks = nn.ModuleList(
             [

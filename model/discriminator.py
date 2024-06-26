@@ -5,9 +5,9 @@ class CNNBlock(nn.Module):
 
     def __init__(self, in_channels, out_channels, stride=2):
 
-        super(CNNBlock,self).__init__() 
+        super().__init__() 
         self.conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, 4, stride, padding=1, bias=True, padding_mode='reflect'), 
+            nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=2, padding=1, bias=True, padding_mode='reflect'), 
             nn.InstanceNorm2d(out_channels),
             nn.LeakyReLU(0.2,inplace=True)
         )
@@ -40,7 +40,7 @@ class Discriminator(nn.Module):
         x = self.initial(x)
         return torch.sigmoid(self.model(x))
 
-def test():
+def test():  # Just used for testing some features, not applied to training of the model
     x = torch.randn((5, 3, 512, 512))
     model = Discriminator(in_channels=3)
     preds = model(x)

@@ -53,9 +53,9 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
 
             D_loss = (D_HE_loss + D_IHC_loss) / 2   # Using simple averaging for the discriminator loss
 
-            writer.add_scalar("HE(True) Discriminator Loss (mean)/Epochs", D_HE_loss, epoch)
-            writer.add_scalar("IHC(True) Discriminator Loss (mean)/Epochs", D_IHC_loss, epoch)
-            writer.add_scalar("Total Discriminator Loss (mean)/Epochs", D_loss, epoch)
+            writer.add_scalar("HE(True) Discriminator Loss (mean)", D_HE_loss, epoch)
+            writer.add_scalar("IHC(True) Discriminator Loss (mean)", D_IHC_loss, epoch)
+            writer.add_scalar("Total Discriminator Loss (mean)", D_loss, epoch)
 
         optim_D.zero_grad()
         D_scaler.scale(D_loss).backward()
@@ -80,36 +80,46 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
             cycle_IHC_loss = cycle_loss(ihc, cycle_IHC)
             cycle_HE_loss = cycle_loss(he, cycle_HE)
 
+            # Identity loss (remove these for efficiency if you set lambda_identity=0)
+            identity_IHC = G_IHC(ihc)
+            identity_HE = G_HE(he)
+            identity_IHC_loss = cycle_loss(ihc, identity_IHC)
+            identity_HE_loss = cycle_loss(he, identity_HE)
+
             # Total generator loss
             G_loss = (
                 G_IHC_loss
                 + G_HE_loss
                 + cycle_IHC_loss * config.LAMBDA_CYCLE
                 + cycle_HE_loss * config.LAMBDA_CYCLE
-            )
+                + identity_HE_loss * config.LAMBDA_IDENTITY
+                + identity_IHC_loss * config.LAMBDA_IDENTITY
+                )
 
-            writer.add_scalar("Cycle IHC Loss/Epochs", cycle_IHC_loss, epoch)
-            writer.add_scalar("Cycle HE Loss/Epochs", cycle_HE_loss, epoch)
-            writer.add_scalar("IHC(False) Fooling Discriminator Loss/Epochs", G_IHC_loss, epoch)
-            writer.add_scalar("HE(False) Fooling Discriminator Loss/Epochs", G_HE_loss, epoch)
-            writer.add_scalar("Total Generator Loss/Epochs", G_loss, epoch)
+            writer.add_scalar("Cycle IHC Loss", cycle_IHC_loss, epoch)
+            writer.add_scalar("Cycle HE Loss", cycle_HE_loss, epoch)
+            writer.add_scalar("Identity IHC Loss", identity_IHC_loss, epoch)
+            writer.add_scalar("Identity HE Loss", identity_HE_loss, epoch)
+            writer.add_scalar("IHC(False) Fooling Discriminator Loss", G_IHC_loss, epoch)
+            writer.add_scalar("HE(False) Fooling Discriminator Loss", G_HE_loss, epoch)
+            writer.add_scalar("Total Generator Loss", G_loss, epoch)
 
         optim_G.zero_grad()
         G_scaler.scale(G_loss).backward()
         G_scaler.step(optim_G)
         G_scaler.update()
 
+        print(f"\nTRAIN EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx}/{len(loader)},"
+                    + f" G_loss: {G_loss}, D_loss: {D_loss}")
+
         if epoch % 5 == 0:
-            if idx % 900 == 0:
+            if idx % 800 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
                     save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
-                print(f"\nTRAIN EPOCH: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
-                    + f" G_loss: {G_loss}, D_loss: {D_loss}")
-            
 
 def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch, writer):
 
@@ -154,9 +164,9 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch,
 
                 D_loss = (D_HE_loss + D_IHC_loss) / 2   # Using simple averaging for the discriminator loss
 
-                writer.add_scalar("[VAL] - HE(True) Discriminator Loss (mean)/Epochs", D_HE_loss, epoch)
-                writer.add_scalar("[VAL] - IHC(True) Discriminator Loss (mean)/Epochs", D_IHC_loss, epoch)
-                writer.add_scalar("[VAL] - Total Discriminator Loss (mean)/Epochs", D_loss, epoch)
+                writer.add_scalar("[VAL] - HE(True) Discriminator Loss (mean)", D_HE_loss, epoch)
+                writer.add_scalar("[VAL] - IHC(True) Discriminator Loss (mean)", D_IHC_loss, epoch)
+                writer.add_scalar("[VAL] - Total Discriminator Loss (mean)", D_loss, epoch)
 
             with torch.cuda.amp.autocast():         # For mixed precision training
                 '''Train the Generator of HE and IHC images'''
@@ -176,30 +186,41 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, loss, loader, epoch,
                 cycle_IHC_loss = cycle_loss(ihc, cycle_IHC)
                 cycle_HE_loss = cycle_loss(he, cycle_HE)
 
+                # Identity loss (remove these for efficiency if you set lambda_identity=0)
+                identity_IHC = G_IHC(ihc)
+                identity_HE = G_HE(he)
+                identity_IHC_loss = cycle_loss(ihc, identity_IHC)
+                identity_HE_loss = cycle_loss(he, identity_HE)
+
                 # Total generator loss
                 G_loss = (
                     G_IHC_loss
                     + G_HE_loss
                     + cycle_IHC_loss * config.LAMBDA_CYCLE
                     + cycle_HE_loss * config.LAMBDA_CYCLE
+                    + identity_HE_loss * config.LAMBDA_IDENTITY
+                    + identity_IHC_loss * config.LAMBDA_IDENTITY
                 )
 
-                writer.add_scalar("[VAL] - Cycle IHC Loss/Epochs", cycle_IHC_loss, epoch)
-                writer.add_scalar("[VAL] - Cycle HE Loss/Epochs", cycle_HE_loss, epoch)
-                writer.add_scalar("[VAL] - IHC(False) Fooling Discriminator Loss/Epochs", G_IHC_loss, epoch)
-                writer.add_scalar("[VAL] - HE(False) Fooling Discriminator Loss/Epochs", G_HE_loss, epoch)
-                writer.add_scalar("[VAL] - Total Generator Loss/Epochs", G_loss, epoch)
+                writer.add_scalar("[VAL] - Cycle IHC Loss", cycle_IHC_loss, epoch)
+                writer.add_scalar("[VAL] - Cycle HE Loss", cycle_HE_loss, epoch)
+                writer.add_scalar("[VAL] - Identity IHC Loss", identity_IHC_loss, epoch)
+                writer.add_scalar("[VAL] - Identity HE Loss", identity_HE_loss, epoch)
+                writer.add_scalar("[VAL] - IHC(False) Fooling Discriminator Loss", G_IHC_loss, epoch)
+                writer.add_scalar("[VAL] - HE(False) Fooling Discriminator Loss", G_HE_loss, epoch)
+                writer.add_scalar("[VAL] - Total Generator Loss", G_loss, epoch)
+        
+        print(f"\nVALIDATION EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx}/{len(loader)},"
+                    + f" G_loss: {G_loss}, D_loss: {D_loss}")
         
         if epoch % 5 == 0:
-            if idx % 230 == 0:
+            if idx % 210 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
                     save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
-                print(f"\nVALIDATION EPOCH: {epoch+1}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)},"
-                    + f" G_loss: {G_loss}, D_loss: {D_loss}")
 
 
 def custom_collate(batch):
@@ -217,11 +238,11 @@ def custom_collate(batch):
 
 def main():
 
-    disc_HE = Discriminator(in_channels=3).to(config.DEVICE) 
-    disc_IHC = Discriminator(in_channels=3).to(config.DEVICE)
+    disc_HE = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE) 
+    disc_IHC = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE)
 
-    gen_HE = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)
-    gen_IHC = Generator(img_channels=3, num_residuals=9).to(config.DEVICE)
+    gen_HE = Generator(img_channels=3, num_residuals=config.N_RES_BLOCKS).to(config.DEVICE)
+    gen_IHC = Generator(img_channels=3, num_residuals=config.N_RES_BLOCKS).to(config.DEVICE)
 
     optim_disc = optim.Adam(
         list(disc_HE.parameters()) + list(disc_IHC.parameters()),
@@ -259,7 +280,7 @@ def main():
         2) Split between training and validation size
         3) Create train and validation sets and loaders
     '''
-    my_dataset = GanDataset(config.TRAIN_DIR_IHC, config.TRAIN_DIR_HE, subset_percentage=80, transform=config.transforms)
+    my_dataset = GanDataset(config.TRAIN_DIR_IHC, config.TRAIN_DIR_HE, config.SUBSET_PERCENTAGE, patch_size=512, transform=config.transforms, shuffle=config.SHUFFLE_DATA)
     
     dataset_lenght = len(my_dataset)
     train_size = int(0.8 * dataset_lenght)
@@ -275,7 +296,7 @@ def main():
 
     # Training loop
     for epoch in range(start_epoch, config.NUM_EPOCHS):
-        print("TRAINING MODEL:")
+        print(f"TRAINING MODEL [Epoch {epoch}]:")
         train_func(disc_HE, disc_IHC, gen_HE, gen_IHC, optim_disc, optim_gen, g_scaler, d_scaler, cycle_loss, discrim_loss, train_loader, epoch, writer)
         eval_single_epoch(disc_HE, disc_IHC, gen_HE, gen_IHC, cycle_loss, discrim_loss, val_loader, epoch, writer)
 
