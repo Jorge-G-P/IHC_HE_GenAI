@@ -1,4 +1,5 @@
 import torch
+import tqdm
 import numpy as np
 import os
 from torch.nn.functional import adaptive_avg_pool2d
@@ -83,7 +84,8 @@ def evaluate_fid_scores(generator_HE, generator_IHC, dataloader, device, fid_bat
     fake_IHC_images = []
 
     with torch.no_grad():
-        for idx, batch in enumerate(dataloader):
+        loop = tqdm(dataloader, leave=True)
+        for batch in loop:
             ihc_images = batch['A'].to(device)
             he_images = batch['B'].to(device)
 
@@ -94,19 +96,6 @@ def evaluate_fid_scores(generator_HE, generator_IHC, dataloader, device, fid_bat
             fake_HE_images.append(fake_he_images)
             real_IHC_images.append(ihc_images)
             fake_IHC_images.append(fake_ihc_images)
-
-            if idx == len(dataloader) - 1:
-                continue
-
-    # Check if any images were collected
-    if len(real_HE_images) == 0:
-        raise ValueError("No real HE images collected.")
-    if len(fake_HE_images) == 0:
-        raise ValueError("No fake HE images collected.")
-    if len(real_IHC_images) == 0:
-        raise ValueError("No real IHC images collected.")
-    if len(fake_IHC_images) == 0:
-        raise ValueError("No fake IHC images collected.")
     
     real_HE_images = torch.cat(real_HE_images, dim=0)
     fake_HE_images = torch.cat(fake_HE_images, dim=0)
