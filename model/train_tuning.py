@@ -8,10 +8,14 @@ from tqdm import tqdm
 from discriminator import Discriminator
 from generator import Generator
 from evaluate import evaluate_fid_scores
-from utils import load_checkpoint, save_checkpoint, set_seed
+from utils import load_checkpoint, save_checkpoint
 from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
+import ray
+from ray import tune
+from ray.tune import CLIReporter
+from ray.tune.schedulers import ASHAScheduler
 
 
 def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, loss, loader, epoch, writer):
@@ -238,24 +242,24 @@ def custom_collate(batch):
     return {'A': A_patches, 'B': B_patches}  # Return the collated batch as a dictionary
 
 
-def main():
+def main(h_params):
 
     disc_HE = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE) 
     disc_IHC = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE)
 
-    gen_HE = Generator(img_channels=3, num_residuals=config.N_RES_BLOCKS).to(config.DEVICE)
-    gen_IHC = Generator(img_channels=3, num_residuals=config.N_RES_BLOCKS).to(config.DEVICE)
+    gen_HE = Generator(img_channels=3, num_residuals=h_params["num_residuals"]).to(config.DEVICE)
+    gen_IHC = Generator(img_channels=3, num_residuals=h_params["num_residuals"]).to(config.DEVICE)
 
     optim_disc = optim.Adam(
         list(disc_HE.parameters()) + list(disc_IHC.parameters()),
-        lr=config.LEARNING_RATE,
-        betas=(0.5, 0.999)
+        lr=h_params["lr_discriminator"],
+        betas=(h_params["beta1"], h_params["beta2"])
     )
 
     optim_gen = optim.Adam(
         list(gen_HE.parameters()) + list(gen_IHC.parameters()),
-        lr=config.LEARNING_RATE,
-        betas=(0.5, 0.999)
+        lr=h_params["lr_generator"],
+        betas=(h_params["beta1"], h_params["beta2"])
     )
 
     # Losses used during training
@@ -264,13 +268,6 @@ def main():
 
     start_epoch = 0
     log_dir = None
-
-    # Load checkpoints if necessary
-    if config.LOAD_MODEL:
-        start_epoch, log_dir = load_checkpoint(config.CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0])
     
     if log_dir is None:
         log_dir = f"logs/GAN_{config.NUM_EPOCHS}_epochs_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -282,6 +279,7 @@ def main():
         2) Split between training and validation size
         3) Create train and validation sets and loaders
     '''
+
     my_dataset = GanDataset(config.TRAIN_DIR_IHC, config.TRAIN_DIR_HE, config.SUBSET_PERCENTAGE, patch_size=512, transform=config.transforms, shuffle=config.SHUFFLE_DATA)
     
     dataset_lenght = len(my_dataset)
@@ -296,12 +294,6 @@ def main():
     g_scaler = torch.cuda.amp.GradScaler()
     d_scaler = torch.cuda.amp.GradScaler()
 
-    # Early stopping parameters
-    patience = config.EARLY_STOP
-    best_val_loss = float('inf')
-    epochs_no_improve = 0
-    best_epoch = 0
-
     # Training loop
     for epoch in range(start_epoch, config.NUM_EPOCHS):
         print(f"TRAINING MODEL [Epoch {epoch}]:")
@@ -311,6 +303,9 @@ def main():
             fid_he, fid_ihc = evaluate_fid_scores(gen_HE, gen_IHC, val_loader, config.DEVICE, config.FID_BATCH_SIZE)
             print(f"FID Scores - HE: {fid_he}, IHC: {fid_ihc}")
             writer.add_scalars("FID Scores", {"HE": fid_he, "IHC": fid_ihc}, epoch)
+
+            # Report the FID scores separately to Ray Tune
+            tune.report(fid_he=fid_he, fid_ihc=fid_ihc)
 
         print(f"VALIDATING MODEL [Epoch {epoch}]:")
         gen_val_loss, disc_val_loss = eval_single_epoch(disc_HE, disc_IHC, gen_HE, gen_IHC, cycle_loss, discrim_loss, val_loader, epoch, writer)
@@ -340,7 +335,23 @@ def main():
 
     writer.close()
 
+
 if __name__ == "__main__":
-    main()
+
+    hyperparameters = {
+        "num_residuals": tune.choice([6, 9, 12]),
+        "lr_discriminator": tune.choice([1e-2, 1e-3, 1e-4, 1e-5]),
+        "lr_generator": tune.choice([1e-2, 1e-3, 1e-4, 1e-5]),
+        "batch_size": tune.choice([1, 2, 4]),
+        "lambda_identity": tune.choice([0.5, 0.7, 1]),
+        "lambda_cycle": tune.choice([8, 10, 12]),
+        "beta1": tune.choice([0.5, 0.9]),
+        "beta2": tune.choice([0.999, 0.99]),
+        "fid_frequency": tune.choice([5, 10]),
+        "fid_batch_size": tune.choice([16, 32]),
+    }
+    
+    main(hyperparameters)
+
 
 

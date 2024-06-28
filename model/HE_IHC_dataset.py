@@ -94,11 +94,21 @@ class GanDataset(data.Dataset):
         B_patch = B_patches[patch_index]
 
         if self.transform:
-            A_patch = self.transform(image=np.array(A_patch))['image']
-            B_patch = self.transform(image=np.array(B_patch))['image']
+            augmentations = self.transform(image = np.array(A_patch), image0 = np.array(B_patch))
+            A_patch = augmentations['image']
+            B_patch = augmentations['image0']
 
-        return {'A': A_patch, 'B': B_patch, 'A_img': A_img, 'B_img': B_img, 'A_index': image_index, 'B_index': image_index, 'B_initial_index': B_initial_index, 'patch_index': patch_index}
-
+        return {'A': A_patch, 
+                'B': B_patch, 
+                'A_img': A_img, 
+                'B_img': B_img, 
+                'A_index': image_index, 
+                'B_index': image_index, 
+                'B_initial_index': B_initial_index, 
+                'patch_index': patch_index,
+                'A_path': A_path, 
+                'B_path': B_path,
+                }
 
 def main():
 

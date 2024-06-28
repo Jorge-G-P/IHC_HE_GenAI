@@ -1,6 +1,8 @@
 import torch
 import config
 import os
+import random
+import numpy as np
 
 def save_checkpoint(epoch, model, optimizer, filename, log_dir=None):
     print(f"=> Saving checkpoint for Epoch: {epoch}")
@@ -26,4 +28,14 @@ def load_checkpoint(checkpoint_file, model, optimizer, lr):
     except Exception as e:
         print(f"=> Failed to load checkpoint {checkpoint_file}: {str(e)}")
         raise
+
+def set_seed(seed=42):
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 

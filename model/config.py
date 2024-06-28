@@ -54,13 +54,16 @@ NUM_EPOCHS = 200
 NUM_WORKERS = 4
 D_FEATURES = [64, 128, 256, 512]
 IN_CH = 3
-N_RES_BLOCKS = 9
+N_RES_BLOCKS = 6
 TRAIN_DIR_IHC = parent_path / "BCI_dataset/IHC/train"
-TEST_DIR_IHC = parent_path / "BCI_dataset/IHC/val"
+TEST_DIR_IHC = parent_path / "BCI_dataset/IHC/test"
 TRAIN_DIR_HE = parent_path / "BCI_dataset/HE/train"
-TEST_DIR_HE = parent_path / "BCI_dataset/HE/val"
-SUBSET_PERCENTAGE = 60
+TEST_DIR_HE = parent_path / "BCI_dataset/HE/test"
+SUBSET_PERCENTAGE = 50
 SHUFFLE_DATA = False
+EARLY_STOP = 15
+FID_FREQUENCY = 5
+FID_BATCH_SIZE = 32
 
 transforms = A.Compose([
         A.Resize(width=256, height=256),
@@ -71,12 +74,12 @@ transforms = A.Compose([
     additional_targets={"image0": "image"},
 )
 
-LOAD_MODEL = True
+LOAD_MODEL = False
 SAVE_MODEL = True
 if not LOAD_MODEL:    # If LOAD_MODEL = True, must define manually current_time variable name to match an existing file with model learned parameters
     current_time = datetime.now().strftime("%Y%m%d") 
 else:
-    current_time = "20240625"
+    current_time = ""   
 CHECKPOINT_GEN_HE = f"genHE_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
 CHECKPOINT_GEN_IHC = f"genIHC_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
 CHECKPOINT_DISC_HE = f"discHE_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
