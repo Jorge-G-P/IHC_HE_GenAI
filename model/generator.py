@@ -1,77 +1,148 @@
 import torch
 import torch.nn as nn
-
-class ConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, down=True, use_act=True, **kwargs):
-         
-        '''Creates a convolutional block, with option to be applied on encoder or decoder part, depending if downsampling is used or not
         
-        Flags:
-            down (bool)     -- wether downsampling (True) or upsampling (False)
-            use_act (bool)  -- use activation or not
-            **kwargs        -- allows us to provide any additional keyword arguments that are accepted by the nn.Conv2d or nn.ConvTranspose2d (padding, stride, etc) 
+        
+class ConvBlock(nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        is_downsampling: bool = True,
+        add_activation: bool = True,
+        **kwargs
+    ):
+        '''Creates a convolutional block, with option to be applied on encoder or decoder part, depending if downsampling is used or not
+            
+            Flags:
+                is_downsampling (bool)     -- whether downsampling (True) or upsampling (False)
+                add_activation (bool)      -- use activation or not
+                **kwargs                   -- allows us to provide any additional keyword arguments that are accepted by the nn.Conv2d or nn.ConvTranspose2d (padding, stride, etc)
         '''
-    
         super().__init__()
-
-        self.conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, padding_mode="reflect", **kwargs) 
-            if down
-            else nn.ConvTranspose2d(in_channels, out_channels, **kwargs),
-            nn.InstanceNorm2d(out_channels),
-            nn.ReLU(inplace=True) if use_act else nn.Identity()
-        )
+        if is_downsampling:
+            self.conv = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, padding_mode="reflect", **kwargs),
+                nn.InstanceNorm2d(out_channels),
+                nn.ReLU(inplace=True) if add_activation else nn.Identity(),
+            )
+        else:
+            self.conv = nn.Sequential(
+                nn.ConvTranspose2d(in_channels, out_channels, **kwargs),
+                nn.InstanceNorm2d(out_channels),
+                nn.ReLU(inplace=True) if add_activation else nn.Identity(),
+            )
 
     def forward(self, x):
         return self.conv(x)
 
+
 class ResidualBlock(nn.Module):
-    def __init__(self, channels):
+    def __init__(
+        self, 
+        channels: int
+    ):
+
         super().__init__()
         self.block = nn.Sequential(
-            ConvBlock(channels, channels, kernel_size=3, padding=1),
-            ConvBlock(channels, channels, use_act=False, kernel_size=3, padding=1),
+            ConvBlock(channels, channels, add_activation=True, kernel_size=3, padding=1),
+            ConvBlock(channels, channels, add_activation=False, kernel_size=3, padding=1),
         )
 
     def forward(self, x):
         return x + self.block(x)
 
+
 class Generator(nn.Module):
-    def __init__(self, img_channels, num_features = 64, num_residuals=6):
+    def __init__(
+        self, 
+        img_channels: int, 
+        num_features: int = 64, 
+        num_residuals: int = 9
+    ):
+
         super().__init__()
-        self.initial = nn.Sequential(
-            nn.Conv2d(img_channels, num_features, kernel_size=7, stride=1, padding=3, padding_mode="reflect"),
-            nn.InstanceNorm2d(num_features),
+        self.initial_layer = nn.Sequential(
+            nn.Conv2d(
+                img_channels,
+                num_features,
+                kernel_size=7,
+                stride=1,
+                padding=3,
+                padding_mode="reflect",
+            ),
             nn.ReLU(inplace=True),
         )
-        self.down_blocks = nn.ModuleList(
+
+        self.downsampling_layers = nn.ModuleList(
             [
-                ConvBlock(num_features, num_features*2, kernel_size=3, stride=2, padding=1),
-                ConvBlock(num_features*2, num_features*4, kernel_size=3, stride=2, padding=1),
-            ]
-        )
-        self.res_blocks = nn.Sequential(
-            *[ResidualBlock(num_features*4) for _ in range(num_residuals)]
-        )
-        self.up_blocks = nn.ModuleList(
-            [
-                ConvBlock(num_features*4, num_features*2, down=False, kernel_size=3, stride=2, padding=1, output_padding=1),
-                ConvBlock(num_features*2, num_features*1, down=False, kernel_size=3, stride=2, padding=1, output_padding=1),
+                ConvBlock(
+                    num_features, 
+                    num_features * 2,
+                    is_downsampling=True, 
+                    kernel_size=3, 
+                    stride=2, 
+                    padding=1,
+                ),
+                ConvBlock(
+                    num_features * 2,
+                    num_features * 4,
+                    is_downsampling=True,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1,
+                ),
             ]
         )
 
-        self.last = nn.Conv2d(num_features*1, img_channels, kernel_size=7, stride=1, padding=3, padding_mode="reflect")
+        self.residual_layers = nn.Sequential(
+            *[ResidualBlock(num_features * 4) for _ in range(num_residuals)]
+        )
+
+        self.upsampling_layers = nn.ModuleList(
+            [
+                ConvBlock(
+                    num_features * 4,
+                    num_features * 2,
+                    is_downsampling=False,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1,
+                    output_padding=1,
+                ),
+                ConvBlock(
+                    num_features * 2,
+                    num_features * 1,
+                    is_downsampling=False,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1,
+                    output_padding=1,
+                ),
+            ]
+        )
+
+        self.last_layer = nn.Conv2d(
+            num_features * 1,
+            img_channels,
+            kernel_size=7,
+            stride=1,
+            padding=3,
+            padding_mode="reflect",
+        )
 
     def forward(self, x):
-        x = self.initial(x)
-        for layer in self.down_blocks:
+        x = self.initial_layer(x)
+        for layer in self.downsampling_layers:
             x = layer(x)
-        x = self.res_blocks(x)
-        for layer in self.up_blocks:
+        x = self.residual_layers(x)
+        for layer in self.upsampling_layers:
             x = layer(x)
-        return torch.tanh(self.last(x))
+        return torch.tanh(self.last_layer(x))
 
 def test():
+
+    """ Just used to test some features, not applied to training of the model """
+
     img_channels = 3
     img_size = 512
     x = torch.randn((2, img_channels, img_size, img_size))
