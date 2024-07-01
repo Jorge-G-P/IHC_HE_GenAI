@@ -19,6 +19,7 @@ import os
 from dataset import SimDataset
 from model import ResNetUNet
 import re
+import config
 
 numbers = re.compile(r'(\d+)')
 def numericalSort(value):
@@ -27,10 +28,10 @@ def numericalSort(value):
     return parts
 
 # Paths to the image and mask directories
-imgs_train_path = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/datasplit/train/images/'
-imgs_test_path = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/datasplit/test/images/'
-masks_train_path = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/datasplit/train/inst_masks/'
-masks_test_path = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/datasplit/test/inst_masks/'
+imgs_train_path = config.imgs_train_path 
+imgs_test_path =  config.imgs_test_path 
+masks_train_path =  config.masks_train_path 
+masks_test_path = config.masks_test_path 
 
 # Function to get all file paths from a folder
 def get_file_paths(folder):

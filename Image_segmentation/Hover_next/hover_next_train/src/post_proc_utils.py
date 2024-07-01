@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
-# import mahotas as mh
+import mahotas as mh #j-?
 from scipy.ndimage import find_objects
 from src.metrics import crop, per_tile_metrics, get_output, calc_MPQ, get_multi_r2
 from src.constants import (
@@ -33,17 +33,17 @@ def get_pp_params(experiments, cp_root, mit_eval=False, eval_metric="mpq"):
                 dt = json.load(js)
                 fg_threshs.append(dt[f"best_fg_{eval_metric}"])
                 seed_threshs.append(dt[f"best_seed_{eval_metric}"])
-        elif mit_eval:
-            with open(os.path.join(mod_path, "liz_test_param_dict.json"), "r") as js:
-                dt = json.load(js)
-                fg_tmp = dt[f"best_fg_{eval_metric}"]
-                seed_tmp = dt[f"best_seed_{eval_metric}"]
-            with open(os.path.join(mod_path, "mit_test_param_dict.json"), "r") as js:
-                dt = json.load(js)
-                fg_tmp[-1] = dt[f"best_fg_{eval_metric}"][-1]
-                seed_tmp[-1] = dt[f"best_seed_{eval_metric}"][-1]
-            fg_threshs.append(fg_tmp)
-            seed_threshs.append(seed_tmp)
+        # elif mit_eval:
+        #     with open(os.path.join(mod_path, "liz_test_param_dict.json"), "r") as js:
+        #         dt = json.load(js)
+        #         fg_tmp = dt[f"best_fg_{eval_metric}"]
+        #         seed_tmp = dt[f"best_seed_{eval_metric}"]
+        #     with open(os.path.join(mod_path, "mit_test_param_dict.json"), "r") as js:
+        #         dt = json.load(js)
+        #         fg_tmp[-1] = dt[f"best_fg_{eval_metric}"][-1]
+        #         seed_tmp[-1] = dt[f"best_seed_{eval_metric}"][-1]
+        #     fg_threshs.append(fg_tmp)
+        #     seed_threshs.append(seed_tmp)
         else:
             with open(os.path.join(mod_path, "param_dict.json"), "r") as js:
                 dt = json.load(js)
@@ -62,7 +62,7 @@ def center_crop(t, croph, cropw):
     return t[..., starth : starth + croph, startw : startw + cropw]
 
 
-def prep_regression(gt_list, nclasses=6, class_names=CLASS_NAMES):
+def prep_regression(gt_list, nclasses=6, class_names=CLASS_NAMES):#j- inutil creo
     # prepare gt regression
     cns = class_names[:nclasses]
     gt_regression = {}
@@ -95,24 +95,24 @@ def prep_regression(gt_list, nclasses=6, class_names=CLASS_NAMES):
 def process_tile(
     i,
     pred_3c,
-    pred_class,
+#    pred_class,
     best_fg_thresh_cl,
     best_seed_thresh_cl,
     max_hole_size,
     min_threshs,
     max_threshs,
-    nclasses,
-    class_names,
+#    nclasses,
+#    class_names,
 ):
     pred_inst, _ = make_instance_segmentation_cl(
         pred_3c,
-        np.argmax(np.squeeze(pred_class)[1:], axis=0),
+        np.argmax(np.squeeze(pred_class)[1:], axis=0), #j-? esta linea puede ser un problema
         fg_thresh_cl=best_fg_thresh_cl,
         seed_thresh_cl=best_seed_thresh_cl,
     )
     pred_inst = remove_holes_cv2(pred_inst, max_hole_size=max_hole_size)
     pred_inst = instance_wise_connected_components(pred_inst)
-    ct_dict = make_ct(pred_class, pred_inst)
+    ct_dict = make_ct(pred_class, pred_inst) #j-? make_ct necesario? puede ser un problema
     pred_inst, pred_ct, ct_dict, ct_array, conic_crop = remove_obj_cls(
         pred_inst, ct_dict, min_threshs, max_threshs
     )
@@ -172,18 +172,18 @@ def evaluate(
     for key in pred_regression.keys():
         pred_regression[key] = np.array(pred_regression[key])
 
-    if criterium == "lizard":
-        return lizard_eval(
-            gt_list,
-            pred_list,
-            gt_regression,
-            pred_regression,
-            class_names,
-            nclasses,
-            save_path,
-            criterium,
-        )
-    elif criterium == "f1":
+    # if criterium == "lizard":
+    #     return lizard_eval(
+    #         gt_list,
+    #         pred_list,
+    #         gt_regression,
+    #         pred_regression,
+    #         class_names,
+    #         nclasses,
+    #         save_path,
+    #         criterium,
+    #     )
+    if criterium == "f1":
         return alt_eval(
             params, gt_list, pred_list, class_names, nclasses, save_path, criterium
         )
@@ -191,16 +191,16 @@ def evaluate(
         return pannuke_eval(gt_list, pred_list, types, criterium)
     elif criterium == "all":
         return (
-            *lizard_eval(
-                gt_list,
-                pred_list,
-                gt_regression,
-                pred_regression,
-                class_names,
-                nclasses,
-                save_path,
-                criterium,
-            ),
+            # *lizard_eval(
+            #     gt_list,
+            #     pred_list,
+            #     gt_regression,
+            #     pred_regression,
+            #     class_names,
+            #     nclasses,
+            #     save_path,
+            #     criterium,
+            # ),
             pred_list,
             alt_eval(
                 params,
@@ -219,38 +219,38 @@ def evaluate(
         raise NotImplementedError("metric variation not implemented")
 
 
-def lizard_eval(
-    gt_list,
-    pred_list,
-    gt_regression,
-    pred_regression,
-    class_names,
-    nclasses,
-    save_path=None,
-    criterium=None,
-):
-    df, mpq_list = calc_MPQ(pred_list, gt_list, nclasses)
-    pq = df["pq"].values
-    _, r2_list = get_multi_r2(gt_regression, pred_regression, class_names[:nclasses])
-    if save_path is not None:
-        with open(os.path.join(save_path[0], save_path[1] + "_pq.json"), "w") as js:
-            json.dump(
-                {
-                    "pq": np.squeeze(df["pq"].values).tolist(),
-                    "mpq": np.squeeze(df["multi_pq+"].values).tolist(),
-                    "mpq_list": list(mpq_list),
-                    "r2_list": list(r2_list),
-                },
-                js,
-            )
-    if criterium == "all":
-        return mpq_list, r2_list, pq
-    else:
-        return {
-            "optim": mpq_list,
-            "r2": r2_list,
-            "pq": pq,
-        }
+# def lizard_eval(
+#     gt_list,
+#     pred_list,
+#     gt_regression,
+#     pred_regression,
+#     class_names,
+#     nclasses,
+#     save_path=None,
+#     criterium=None,
+# ):
+#     df, mpq_list = calc_MPQ(pred_list, gt_list, nclasses)
+#     pq = df["pq"].values
+#     _, r2_list = get_multi_r2(gt_regression, pred_regression, class_names[:nclasses])
+#     if save_path is not None:
+#         with open(os.path.join(save_path[0], save_path[1] + "_pq.json"), "w") as js:
+#             json.dump(
+#                 {
+#                     "pq": np.squeeze(df["pq"].values).tolist(),
+#                     "mpq": np.squeeze(df["multi_pq+"].values).tolist(),
+#                     "mpq_list": list(mpq_list),
+#                     "r2_list": list(r2_list),
+#                 },
+#                 js,
+#             )
+#     if criterium == "all":
+#         return mpq_list, r2_list, pq
+#     else:
+#         return {
+#             "optim": mpq_list,
+#             "r2": r2_list,
+#             "pq": pq,
+#         }
 
 
 def pannuke_eval(gt_list, pred_list, types, criterium=None, skip=False):
@@ -297,7 +297,7 @@ def alt_eval(
         }
 
 
-def make_instance_segmentation_cl(
+def make_instance_segmentation_cl(#j- bien, pero segundo arg viene de classif...
     prediction, pred_semantic, fg_thresh_cl, seed_thresh_cl
 ):
     # prediction[0] = bg
@@ -358,7 +358,7 @@ def instance_wise_connected_components(pred_inst, connectivity=2):
 def make_ct(pred_class, instance_map):
     slices = find_objects(instance_map)
     pred_class = np.rollaxis(pred_class, 0, 3)
-    # pred_class = softmax(pred_class,0)
+    pred_class = softmax(pred_class,0)
     out = []
     out.append((0, 0))
     for i, sl in enumerate(slices):

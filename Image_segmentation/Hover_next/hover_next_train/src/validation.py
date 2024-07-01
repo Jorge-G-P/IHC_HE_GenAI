@@ -20,7 +20,7 @@ def make_instance_segmentation(prediction, fg_thresh=0.9, seed_thresh=0.9):
     return labelling, ws_surface
 
 
-def make_ct(pred_class, instance_map):
+def make_ct(pred_class, instance_map):#j-? seguramente la necesitemos auqn dependa de class
     # device = pred_class.device
     pred_ct = torch.zeros_like(instance_map)
     pred_class_tmp = pred_class.softmax(1).squeeze(0)
@@ -34,7 +34,7 @@ def make_ct(pred_class, instance_map):
     return pred_ct
 
 
-def make_prediction(pred_inst, pred_ct):
+def make_prediction(pred_inst, pred_ct): #j- pred_ct es pred_class 
     pred_3c = pred_inst[:, 2:].softmax(1).squeeze().numpy()
     pred_inst, _ = make_instance_segmentation(pred_3c, fg_thresh=0.7, seed_thresh=0.3)
     pred_inst = pred_inst.astype(np.int32)  # torch.tensor(pred_inst).long()
@@ -75,11 +75,11 @@ def validation(
             gt_ct = gt_b[:, 1]
             gt_3c = gt_b[:, 2]
             instance_loss = inst_lossfn(pred_inst, gt_inst, gt_3c)
-            class_loss = class_lossfn(pred_class, gt_ct.long())
-            loss = instance_loss + class_loss
+            #class_loss = class_lossfn(pred_class, gt_ct.long())
+            loss = instance_loss #+ class_loss
             val_loss.append(loss)
             val_inst_loss.append(instance_loss.item())
-            val_ct_loss.append(class_loss.item())
+            #val_ct_loss.append(class_loss.item())
             out_ = out_.cpu().detach()
             gt_b = gt_b.cpu().detach()
 
@@ -97,17 +97,17 @@ def validation(
     val_new = torch.mean(torch.stack(val_loss)) / world_size
     dist.all_reduce(val_new, op=dist.ReduceOp.SUM)
     print("Step: ", step)
-    if metric == "lizard":
-        df, _ = calc_MPQ(pred_list, gt_list, nclasses)
-        pq_p = torch.tensor(df["pq"][0]).to(device) / world_size
-        mpq_p = torch.tensor(df["multi_pq+"][0]).to(device) / world_size
-        dist.all_reduce(mpq_p, op=dist.ReduceOp.SUM)
-        dist.all_reduce(pq_p, op=dist.ReduceOp.SUM)
-        print("PQ:", pq_p)
-        print("mPQ+", mpq_p)
-        print("Validation loss: ", val_new)
-        return mpq_p
-    elif metric == "pannuke":
+    # if metric == "lizard":
+    #     df, _ = calc_MPQ(pred_list, gt_list, nclasses)
+    #     pq_p = torch.tensor(df["pq"][0]).to(device) / world_size
+    #     mpq_p = torch.tensor(df["multi_pq+"][0]).to(device) / world_size
+    #     dist.all_reduce(mpq_p, op=dist.ReduceOp.SUM)
+    #     dist.all_reduce(pq_p, op=dist.ReduceOp.SUM)
+    #     print("PQ:", pq_p)
+    #     print("mPQ+", mpq_p)
+    #     print("Validation loss: ", val_new)
+    #     return mpq_p
+    if metric == "pannuke":
         pan_mpq, _, _, _ = get_pannuke_pq(gt_list, pred_list)
         pan_mpq = torch.tensor(pan_mpq).to(device) / world_size
         dist.all_reduce(pan_mpq, op=dist.ReduceOp.SUM)

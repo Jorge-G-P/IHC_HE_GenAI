@@ -11,6 +11,7 @@ import os
 from model import ResNetUNet
 from train import train_model
 from dataset import SimDataset
+import config
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -24,10 +25,10 @@ def numericalSort(value):
     return parts
 
 # Paths to the image and mask directories
-imgs_train_path = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/datasplit/train/images/'
-imgs_val_path = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/datasplit/val/images/'
-masks_train_path = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/datasplit/train/inst_masks/'
-masks_val_path = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/datasplit/val/inst_masks/'
+imgs_train_path = config.imgs_train_path
+imgs_val_path = config.imgs_val_path
+masks_train_path = config.masks_train_path
+masks_val_path = config.masks_val_path
 
 # Function to get all file paths from a folder
 def get_file_paths(folder):
