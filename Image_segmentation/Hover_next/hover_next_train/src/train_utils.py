@@ -84,15 +84,15 @@ class InstanceLoss(torch.nn.Module):
             else self.inst_loss_fn_pannuke
         )
 
-    def inst_loss_fn_lizard(self, input, gt_inst, gt_3c):
-        gt_cpv = parallel_cpvs(gt_inst.to("cpu")).to(gt_inst.device)
-        loss_cpv = F.mse_loss(input=input[:, :2], target=gt_cpv)
-        loss_3c = F.cross_entropy(
-            input=input[:, 2:],
-            target=gt_3c.long(),
-            weight=torch.tensor([1, 1, 2]).type_as(input).to(input.device),
-        )
-        return loss_cpv + loss_3c
+    # def inst_loss_fn_lizard(self, input, gt_inst, gt_3c):
+    #     gt_cpv = parallel_cpvs(gt_inst.to("cpu")).to(gt_inst.device)
+    #     loss_cpv = F.mse_loss(input=input[:, :2], target=gt_cpv)
+    #     loss_3c = F.cross_entropy(
+    #         input=input[:, 2:],
+    #         target=gt_3c.long(),
+    #         weight=torch.tensor([1, 1, 2]).type_as(input).to(input.device),
+    #     )
+    #     return loss_cpv + loss_3c
 
     def inst_loss_fn_pannuke(self, input, gt_inst, gt_3c):
         gt_cpv = parallel_cpvs(gt_inst.to("cpu")).to(gt_inst.device)

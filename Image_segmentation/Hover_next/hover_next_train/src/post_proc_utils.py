@@ -8,13 +8,12 @@ import mahotas as mh #j-?
 from scipy.ndimage import find_objects
 from src.metrics import crop, per_tile_metrics, get_output, calc_MPQ, get_multi_r2
 from src.constants import (
-    CLASS_NAMES,
+    # CLASS_NAMES,
     BEST_MIN_THRESHS,
     BEST_MAX_THRESHS,
     MIN_THRESHS_PANNUKE,
     MAX_THRESHS_PANNUKE,
 )
-
 
 from scipy.special import softmax
 from skimage.segmentation import watershed
@@ -128,7 +127,7 @@ def evaluate(
     best_fg_thresh_cl,
     best_seed_thresh_cl,
     params,
-    criterium="lizard",
+    criterium="pannuke",
     nclasses=6,
     class_names=CLASS_NAMES,
     save_path=None,
@@ -137,8 +136,8 @@ def evaluate(
     # set metrics to "" to skip metrics
     pred_list = []
     pred_regression = {}
-    for i in range(nclasses):
-        pred_regression[class_names[i]] = []
+    # for i in range(nclasses):
+    #     pred_regression[class_names[i]] = []
 
     # max_hole_size = 128 if pannuke else 50
     if params["dataset"] == "pannuke":

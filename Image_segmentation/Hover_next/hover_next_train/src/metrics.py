@@ -25,7 +25,7 @@ from scipy.spatial.distance import directed_hausdorff
 # https://github.com/TissueImageAnalytics/CoNIC/blob/main/misc/utils.py
 
 
-def remap_label(pred, by_size=False): #j- ordena instances
+def remap_label(pred, by_size=False):
     """Rename all instance id so that the id is contiguous i.e [0, 1, 2, 3]
     not [0, 2, 4, 6]. The ordering of instances (which one comes first)
     is preserved unless by_size=True, then the instances will be reordered
@@ -291,41 +291,55 @@ def get_pq(true, pred, match_iou=0.5, remap=True):
     )
 
 
-#def get_multi_r2(true, pred, class_names): #j- clasiff
-    """Get the correlation of determination for each class and then
-    average the results.
+# def get_multi_r2(true, pred, class_names):
+def get_multi_pq_info(true, pred, nr_classes=6, match_iou=0.5):
+    # Get the correlation of determination for each class and then
+    # average the results.
+    # Args:
+    #     true (pd.DataFrame): dataframe indicating the nuclei counts for each image and category.
+    #     pred (pd.DataFrame): dataframe indicating the nuclei counts for each image and category.
+
+    # Returns:
+    #     multi class coefficient of determination
+    """Get the statistical information needed to compute multi-class PQ.
 
     Args:
+    Args:
+        true (ndarray): HxWx2 array. First channel is the instance segmentation map
         true (pd.DataFrame): dataframe indicating the nuclei counts for each image and category.
+            and the second channel is the classification map.
         pred (pd.DataFrame): dataframe indicating the nuclei counts for each image and category.
-
+        pred: HxWx2 array. First channel is the instance segmentation map
+            and the second channel is the classification map.
+        nr_classes (int): Number of classes considered in the dataset.
+        match_iou (float): IoU threshold for determining whether there is a detection.
     Returns:
-        multi class coefficient of determination
+    Returns:
+        statistical info per class needed to compute PQ.
 
     """
-    #  # first check to make sure that the appropriate column headers are there
-    # for col in true.keys():
-    #     if col not in class_names:
-    #         raise ValueError("%s column header not recognised")
+    # first check to make sure that the appropriate column headers are there
+    for col in true.keys():
+        if col not in class_names:
+            raise ValueError("%s column header not recognised")
 
-    # for col in pred.keys():
-    #     if col not in class_names:
-    #         raise ValueError("%s column header not recognised")
+    for col in pred.keys():
+        if col not in class_names:
+            raise ValueError("%s column header not recognised")
 
-    # # for each class, calculate r2 and then take the average
-    # r2_list = []F
-    # for class_ in class_names:
-    #     true_oneclass = true[class_].tolist()
-    #     pred_oneclass = pred[class_].tolist()
-    #     r2_list.append(r2_score(true_oneclass, pred_oneclass))
+    # for each class, calculate r2 and then take the average
+    r2_list = []
+    for class_ in class_names:
+        true_oneclass = true[class_].tolist()
+        pred_oneclass = pred[class_].tolist()
+        r2_list.append(r2_score(true_oneclass, pred_oneclass))
 
-    # print(r2_list)
-    # return np.mean(np.array(r2_list)), np.array(r2_list)
+    print(r2_list)
+    return np.mean(np.array(r2_list)), np.array(r2_list)
 
 
 def calc_MPQ(pred_list, gt_list, nclasses=6):
-    mode = "seg_class" #j- comment aqui debería evitar metricas por clase (daría error nada)
-
+    mode = "seg_class"
     pred_array = np.stack(pred_list, axis=0)
     true_array = np.stack(gt_list, axis=0)
 
@@ -482,10 +496,10 @@ def merge_bboxes(bbi, bbj):
     )
 
 
-# def get_class(regprop, cls_map):
-#     return cls_map[
-#         regprop.bbox[0] : regprop.bbox[2], regprop.bbox[1] : regprop.bbox[3]
-#     ][regprop.image][0]
+def get_class(regprop, cls_map):
+    return cls_map[
+        regprop.bbox[0] : regprop.bbox[2], regprop.bbox[1] : regprop.bbox[3]
+    ][regprop.image][0]
 
 
 def get_contours(mask):
@@ -573,8 +587,8 @@ def per_tile_worker(cnt, gt_tile, pred_tile, match_euc_dist, class_names):
     for i, j in zip(paired_true, paired_pred):
         oi = true_objects[i - 1]
         oj = pred_objects[j - 1]
-        #oi_class = get_class(oi, gt_tile[..., 1])
-        #oj_class = get_class(oj, pred_tile[..., 1])
+        oi_class = get_class(oi, gt_tile[..., 1])
+        oj_class = get_class(oj, pred_tile[..., 1])
 
         comb_bb = merge_bboxes(oi.bbox, oj.bbox)
         gt_mask = gt_inst[comb_bb[0] : comb_bb[2], comb_bb[1] : comb_bb[3]] == oi.label
@@ -593,93 +607,93 @@ def per_tile_worker(cnt, gt_tile, pred_tile, match_euc_dist, class_names):
         paired_hd.append(general_hausdorff)
         paired_dice.append(f1_custom(gt_mask.flatten(), pred_mask.flatten()))
         paired_mcc.append(mcc_custom(gt_mask.flatten(), pred_mask.flatten()))
-        #class_pairs.append((oi_class, oj_class))
+        class_pairs.append((oi_class, oj_class))
 
-    #class_pairs = np.array(class_pairs)
+    class_pairs = np.array(class_pairs)
     paired_hd = np.array(paired_hd)
     paired_dice = np.array(paired_dice)
     paired_mcc = np.array(paired_mcc)
 
-    #add_fp = []
-    # for i in unpaired_pred:
-    #     o = pred_objects[i - 1]
-    #     o_class = get_class(o, pred_tile[..., 1])
-    #     add_fp.append(o_class)
-    #add_fp = np.array(add_fp)
-    #add_fn = []
-    # for i in unpaired_true:
-    #     o = true_objects[i - 1]
-    #     o_class = get_class(o, gt_tile[..., 1])
-    #     add_fn.append(o_class)
-    #add_fn = np.array(add_fn)
+    add_fp = []
+    for i in unpaired_pred:
+        o = pred_objects[i - 1]
+        o_class = get_class(o, pred_tile[..., 1])
+        add_fp.append(o_class)
+    add_fp = np.array(add_fp)
+    add_fn = []
+    for i in unpaired_true:
+        o = true_objects[i - 1]
+        o_class = get_class(o, gt_tile[..., 1])
+        add_fn.append(o_class)
+    add_fn = np.array(add_fn)
 
     sub_metrics = []
-    # for cls in np.arange(1, len(class_names) + 1):
-    #     tp_hd = np.NaN
-    #     tp_dice = np.NaN
-    #     tp_mcc = np.NaN
-    #     try:
-    #         t = class_pairs[:, 0] == cls
-    #         p = class_pairs[:, 1] == cls
-    #         t_n = class_pairs[:, 0] != cls
-    #         p_n = class_pairs[:, 1] != cls
+    for cls in np.arange(1, len(class_names) + 1):
+        tp_hd = np.NaN
+        tp_dice = np.NaN
+        tp_mcc = np.NaN
+        try:
+            t = class_pairs[:, 0] == cls
+            p = class_pairs[:, 1] == cls
+            t_n = class_pairs[:, 0] != cls
+            p_n = class_pairs[:, 1] != cls
 
-    #         tp_c = np.count_nonzero(t & p)
-    #         if tp_c > 0:
-    #             tp_hd = np.nanmean(paired_hd[t & p])
-    #             tp_dice = np.nanmean(paired_dice[t & p])
-    #             tp_mcc = np.nanmean(paired_mcc[t & p])
+            tp_c = np.count_nonzero(t & p)
+            if tp_c > 0:
+                tp_hd = np.nanmean(paired_hd[t & p])
+                tp_dice = np.nanmean(paired_dice[t & p])
+                tp_mcc = np.nanmean(paired_mcc[t & p])
 
-    #         fp_c = np.count_nonzero(t_n & p) + np.count_nonzero(add_fp == cls)
-    #         fn_c = np.count_nonzero(t & p_n) + np.count_nonzero(add_fn == cls)
-    #         tn_c = np.count_nonzero(t_n & p_n)
-    #     except IndexError:
-    #         # fix no match for any class
-    #         tp_c = 0
-    #         fp_c = np.count_nonzero(add_fp == cls)
-    #         fn_c = np.count_nonzero(add_fn == cls)
-    #         tn_c = 0
+            fp_c = np.count_nonzero(t_n & p) + np.count_nonzero(add_fp == cls)
+            fn_c = np.count_nonzero(t & p_n) + np.count_nonzero(add_fn == cls)
+            tn_c = np.count_nonzero(t_n & p_n)
+        except IndexError:
+            # fix no match for any class
+            tp_c = 0
+            fp_c = np.count_nonzero(add_fp == cls)
+            fn_c = np.count_nonzero(add_fn == cls)
+            tn_c = 0
 
-    #     try:
-    #         f1_c = (2 * tp_c) / ((2 * tp_c) + fp_c + fn_c)
-    #         f1_c_d = (2 * tp_c) / ((2 * tp_c) + (2 * fp_c) + (2 * fn_c))
-    #     except ZeroDivisionError:
-    #         f1_c = np.NaN
-    #         f1_c_d = np.NaN
-    #     # balanced accurracy needs special treatment
-    #     try:
-    #         tpr_c = tp_c / (tp_c + fn_c)
-    #     except ZeroDivisionError:
-    #         tpr_c = np.NaN
-    #     try:
-    #         tnr_c = tn_c / (tn_c + fp_c)
-    #     except ZeroDivisionError:
-    #         tnr_c = np.NaN
-    #     bal_acc_c = (tpr_c + tnr_c) / 2
-    #     try:
-    #         mcc_c = ((tp_c * tn_c) - (fp_c * fn_c)) / math.sqrt(
-    #             (tp_c + fp_c) * (tp_c + fn_c) * (tn_c + fp_c) * (tn_c + fn_c)
-    #         )
-    #     except ZeroDivisionError:
-    #         mcc_c = np.NaN
+        try:
+            f1_c = (2 * tp_c) / ((2 * tp_c) + fp_c + fn_c)
+            f1_c_d = (2 * tp_c) / ((2 * tp_c) + (2 * fp_c) + (2 * fn_c))
+        except ZeroDivisionError:
+            f1_c = np.NaN
+            f1_c_d = np.NaN
+        # balanced accurracy needs special treatment
+        try:
+            tpr_c = tp_c / (tp_c + fn_c)
+        except ZeroDivisionError:
+            tpr_c = np.NaN
+        try:
+            tnr_c = tn_c / (tn_c + fp_c)
+        except ZeroDivisionError:
+            tnr_c = np.NaN
+        bal_acc_c = (tpr_c + tnr_c) / 2
+        try:
+            mcc_c = ((tp_c * tn_c) - (fp_c * fn_c)) / math.sqrt(
+                (tp_c + fp_c) * (tp_c + fn_c) * (tn_c + fp_c) * (tn_c + fn_c)
+            )
+        except ZeroDivisionError:
+            mcc_c = np.NaN
 
-    #     sub_metrics.append(
-    #         {
-    #             "id": cnt,
-    #             "class": class_names[cls - 1],
-    #             "seg_hausdorff_(TP)": tp_hd,
-    #             "seg_dice_(TP)": tp_dice,
-    #             "seg_mcc_(TP)": tp_mcc,
-    #             "TP": tp_c,
-    #             "FP": fp_c,
-    #             "FN": fn_c,
-    #             "TN": tn_c,
-    #             "F1": f1_c,
-    #             "F1_d": f1_c_d,
-    #             "balanced_acc": bal_acc_c,
-    #             "mcc": mcc_c,
-    #         }
-    #     )
+        sub_metrics.append(
+            {
+                "id": cnt,
+                "class": class_names[cls - 1],
+                "seg_hausdorff_(TP)": tp_hd,
+                "seg_dice_(TP)": tp_dice,
+                "seg_mcc_(TP)": tp_mcc,
+                "TP": tp_c,
+                "FP": fp_c,
+                "FN": fn_c,
+                "TN": tn_c,
+                "F1": f1_c,
+                "F1_d": f1_c_d,
+                "balanced_acc": bal_acc_c,
+                "mcc": mcc_c,
+            }
+        )
 
     sub_metrics.append(
         {
@@ -700,7 +714,7 @@ def per_tile_worker(cnt, gt_tile, pred_tile, match_euc_dist, class_names):
     return sub_metrics
 
 
-def per_tile_metrics(gt, pred, class_names, match_euc_dist=6):#j- no debería ejecutar classif 
+def per_tile_metrics(gt, pred, class_names, match_euc_dist=6):
     metrics = []
     with ProcessPoolExecutor(4) as executor:
         future_metrics = []
@@ -725,7 +739,7 @@ def per_tile_metrics(gt, pred, class_names, match_euc_dist=6):#j- no debería ej
     return metrics
 
 
-def get_output(metrics, save_path, class_names):#j-por ahora da igual que calcule metricas por clase
+def get_output(metrics, save_path, class_names):
     metrics_df = pd.DataFrame(metrics)
     if save_path is not None:
         out_path, dataset = save_path

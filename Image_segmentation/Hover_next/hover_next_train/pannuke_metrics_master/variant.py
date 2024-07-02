@@ -66,67 +66,67 @@ def get_pannuke_pq(gt, pred, types=None):
     bPQ_each_image = [np.nanmean(pq_bin) for pq_bin in bPQ_all]
 
     # class metric
-    neo_PQ = np.nanmean([pq[0] for pq in mPQ_all])
-    inflam_PQ = np.nanmean([pq[1] for pq in mPQ_all])
-    conn_PQ = np.nanmean([pq[2] for pq in mPQ_all])
-    dead_PQ = np.nanmean([pq[3] for pq in mPQ_all])
-    nonneo_PQ = np.nanmean([pq[4] for pq in mPQ_all])
+    # neo_PQ = np.nanmean([pq[0] for pq in mPQ_all])
+    # inflam_PQ = np.nanmean([pq[1] for pq in mPQ_all])
+    # conn_PQ = np.nanmean([pq[2] for pq in mPQ_all])
+    # dead_PQ = np.nanmean([pq[3] for pq in mPQ_all])
+    # nonneo_PQ = np.nanmean([pq[4] for pq in mPQ_all])
 
-    tissue_types = [
-        "Adrenal_gland",
-        "Bile-duct",
-        "Bladder",
-        "Breast",
-        "Cervix",
-        "Colon",
-        "Esophagus",
-        "HeadNeck",
-        "Kidney",
-        "Liver",
-        "Lung",
-        "Ovarian",
-        "Pancreatic",
-        "Prostate",
-        "Skin",
-        "Stomach",
-        "Testis",
-        "Thyroid",
-        "Uterus",
-    ]
+    # tissue_types = [
+    #     "Adrenal_gland",
+    #     "Bile-duct",
+    #     "Bladder",
+    #     "Breast",
+    #     "Cervix",
+    #     "Colon",
+    #     "Esophagus",
+    #     "HeadNeck",
+    #     "Kidney",
+    #     "Liver",
+    #     "Lung",
+    #     "Ovarian",
+    #     "Pancreatic",
+    #     "Prostate",
+    #     "Skin",
+    #     "Stomach",
+    #     "Testis",
+    #     "Thyroid",
+    #     "Uterus",
+    # ]
 
-    # Print for each class
-    print("Printing calculated metrics on a single split")
-    print("-" * 40)
-    print("Neoplastic PQ: {}".format(neo_PQ))
-    print("Inflammatory PQ: {}".format(inflam_PQ))
-    print("Connective PQ: {}".format(conn_PQ))
-    print("Dead PQ: {}".format(dead_PQ))
-    print("Non-Neoplastic PQ: {}".format(nonneo_PQ))
-    print("-" * 40)
-    all_tissue_mPQ = None
-    all_tissue_bPQ = None
-    if types is not None:
-        # Print for each tissue
-        all_tissue_mPQ = {}
-        all_tissue_bPQ = {}
-        for tissue_name in tissue_types:
-            indices = [i for i, x in enumerate(types) if x == tissue_name]
-            tissue_PQ = [mPQ_each_image[i] for i in indices]
-            # print("{} PQ: {} ".format(tissue_name, np.nanmean(tissue_PQ)))
-            tissue_PQ_bin = [bPQ_each_image[i] for i in indices]
-            # print("{} PQ binary: {} ".format(tissue_name, np.nanmean(tissue_PQ_bin)))
-            all_tissue_mPQ[tissue_name] = np.nanmean(tissue_PQ)
-            all_tissue_bPQ[tissue_name] = np.nanmean(tissue_PQ_bin)
-        # Show overall metrics - mPQ is average PQ over the classes and the tissues, bPQ is average binary PQ over the tissues
-        at_mpq = np.nanmean(list(all_tissue_mPQ.values()))
-        at_bpq = np.nanmean(list(all_tissue_bPQ.values()))
-        print("-" * 40)
-        print("Average mPQ:{}".format(at_mpq))
-        print("Average bPQ:{}".format(at_bpq))
+    # # Print for each class
+    # print("Printing calculated metrics on a single split")
+    # print("-" * 40)
+    # print("Neoplastic PQ: {}".format(neo_PQ))
+    # print("Inflammatory PQ: {}".format(inflam_PQ))
+    # print("Connective PQ: {}".format(conn_PQ))
+    # print("Dead PQ: {}".format(dead_PQ))
+    # print("Non-Neoplastic PQ: {}".format(nonneo_PQ))
+    # print("-" * 40)
+    # all_tissue_mPQ = None
+    # all_tissue_bPQ = None
+    # if types is not None:
+    #     # Print for each tissue
+    #     all_tissue_mPQ = {}
+    #     all_tissue_bPQ = {}
+    #     for tissue_name in tissue_types:
+    #         indices = [i for i, x in enumerate(types) if x == tissue_name]
+    #         tissue_PQ = [mPQ_each_image[i] for i in indices]
+    #         # print("{} PQ: {} ".format(tissue_name, np.nanmean(tissue_PQ)))
+    #         tissue_PQ_bin = [bPQ_each_image[i] for i in indices]
+    #         # print("{} PQ binary: {} ".format(tissue_name, np.nanmean(tissue_PQ_bin)))
+    #         all_tissue_mPQ[tissue_name] = np.nanmean(tissue_PQ)
+    #         all_tissue_bPQ[tissue_name] = np.nanmean(tissue_PQ_bin)
+    #     # Show overall metrics - mPQ is average PQ over the classes and the tissues, bPQ is average binary PQ over the tissues
+    #     at_mpq = np.nanmean(list(all_tissue_mPQ.values()))
+    #     at_bpq = np.nanmean(list(all_tissue_bPQ.values()))
+    #     print("-" * 40)
+    #     print("Average mPQ:{}".format(at_mpq))
+    #     print("Average bPQ:{}".format(at_bpq))
 
-    return (
-        np.nanmean([neo_PQ, inflam_PQ, conn_PQ, dead_PQ, nonneo_PQ]),
-        np.nanmean(bPQ_each_image),
-        [neo_PQ, inflam_PQ, conn_PQ, dead_PQ, nonneo_PQ],
-        [all_tissue_mPQ, all_tissue_bPQ],
-    )
+    # return (
+    #     np.nanmean([neo_PQ, inflam_PQ, conn_PQ, dead_PQ, nonneo_PQ]),
+    #     np.nanmean(bPQ_each_image),
+    #     [neo_PQ, inflam_PQ, conn_PQ, dead_PQ, nonneo_PQ],
+    #     [all_tissue_mPQ, all_tissue_bPQ],
+    # )
