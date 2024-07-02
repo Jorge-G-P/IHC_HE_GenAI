@@ -13,7 +13,8 @@ from src.inference_utils import run_inference
 from src.post_proc_utils import prep_regression, evaluate, get_pp_params
 from src.spatial_augmenter import SpatialAugmenter
 from src.data_utils import SliceDataset
-from src.constants import CLASS_NAMES, CLASS_NAMES_PANNUKE, PANNUKE_FOLDS
+#j- from src.constants import CLASS_NAMES, CLASS_NAMES_PANNUKE, PANNUKE_FOLDS
+from src.constants import PANNUKE_FOLDS
 from src.color_conversion import color_augmentations  # , get_normalize
 
 
@@ -30,8 +31,8 @@ aug_params_slow = {
     "elastic": {"alpha": [120, 120], "sigma": 8, "prob": 0.0},
 }
 
-
-def process_and_save(res, out_p, dsname, tta, class_names=CLASS_NAMES):
+#j- quito param , class_names=CLASS_NAMES
+def process_and_save(res, out_p, dsname, tta):
     # def process_and_save(res, out_p, dsname):
     # [mpq_list, r2_list, mdict, pq, pan_bpq, pan_pq_list, pan_tiss]
     mean_dict = {}
@@ -124,17 +125,17 @@ def process_and_save(res, out_p, dsname, tta, class_names=CLASS_NAMES):
         }
 
     if res[0][0] is not None:
-        mean_dict["old_metrics"] = [
-            {"class": k, "mpq": mpq, "r2": r2}
-            for k, mpq, r2 in zip(class_names, mpq_m.tolist(), r2_m.tolist())
-        ]
+ #j-    # mean_dict["old_metrics"] = [
+        #     {"class": k, "mpq": mpq, "r2": r2}
+        #     for k, mpq, r2 in zip(class_names, mpq_m.tolist(), r2_m.tolist())
+        # ]
         mean_dict["old_metrics"].append(
             {"class": "all", "mpq": pq_m.tolist()[0], "r2": 0}
         )
-        std_dict["old_metrics"] = [
-            {"class": k, "mpq": mpq, "r2": r2}
-            for k, mpq, r2 in zip(class_names, mpq_s.tolist(), r2_s.tolist())
-        ]
+        # std_dict["old_metrics"] = [
+        #     {"class": k, "mpq": mpq, "r2": r2}
+        #     for k, mpq, r2 in zip(class_names, mpq_s.tolist(), r2_s.tolist())
+        # ]
         std_dict["old_metrics"].append(
             {"class": "all", "mpq": pq_s.tolist()[0], "r2": 0}
         )
@@ -158,8 +159,8 @@ def evaluate_tile_dataset(
     dsname,
     experiments,
     params,
-    nclasses=7,
-    class_names=CLASS_NAMES,
+    # nclasses=7,
+    # class_names=CLASS_NAMES,
     rank=0,
     types=None,
 ):
@@ -185,7 +186,8 @@ def evaluate_tile_dataset(
     for i in range(params["n_rounds"]):
         print(f"round {i}")
 
-        pred_emb_list, pred_class_list, gt_list, raw_list = run_inference(
+#j-    pred_emb_list, pred_class_list, gt_list, raw_list = run_inference(    
+        pred_emb_list, gt_list, raw_list = run_inference(
             data_loader,
             models,
             aug,
@@ -195,7 +197,9 @@ def evaluate_tile_dataset(
         )
         if i == 0:
             gt_regression = prep_regression(
-                gt_list, nclasses=nclasses, class_names=class_names
+                gt_list
+#j-                , nclasses=nclasses
+#                , class_names=class_names
             )
         (
             mpq_list,
@@ -253,18 +257,19 @@ def main(nclasses, class_names, cp_paths, params, rank=0):
         )
         ds_list.append(SliceDataset(raw=raw_fold, labels=gt_fold))
         ds_names.append("pannuke_test")
-    else:
-        # load complete lizard
-        liz_test_ds = SliceDataset(
-            raw=np.load(
-                os.path.join(params["data_path_liz"], "test_images.npy"), mmap_mode="r"
-            ),
-            labels=np.load(
-                os.path.join(params["data_path_liz"], "test_labels.npy"), mmap_mode="r"
-            ),
-        )
-        ds_list.extend([liz_test_ds])
-        ds_names.extend(["lizard_test"])
+    #j-
+    # else:
+    #     # load complete lizard
+    #     liz_test_ds = SliceDataset(
+    #         raw=np.load(
+    #             os.path.join(params["data_path_liz"], "test_images.npy"), mmap_mode="r"
+    #         ),
+    #         labels=np.load(
+    #             os.path.join(params["data_path_liz"], "test_labels.npy"), mmap_mode="r"
+    #         ),
+    #     )
+    #     ds_list.extend([liz_test_ds])
+    #     ds_names.extend(["lizard_test"])
 
         # load mitosis
         mit_test_ds = SliceDataset(

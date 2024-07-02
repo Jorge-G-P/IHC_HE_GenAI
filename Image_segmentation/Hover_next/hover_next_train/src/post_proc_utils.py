@@ -61,27 +61,28 @@ def center_crop(t, croph, cropw):
     return t[..., starth : starth + croph, startw : startw + cropw]
 
 
-def prep_regression(gt_list, nclasses=6, class_names=CLASS_NAMES):#j- inutil creo
+#def prep_regression(gt_list, nclasses=6, class_names=CLASS_NAMES):#j-? inutil creo
+def prep_regression(gt_list):
     # prepare gt regression
-    cns = class_names[:nclasses]
+    #cns = class_names[:nclasses]
     gt_regression = {}
-    for i in range(nclasses):
-        gt_regression[cns[i]] = []
+    #for i in range(nclasses):
+    #    gt_regression[cns[i]] = []
 
     for gt in gt_list:
         gt_inst, gt_ct = gt[..., 0], gt[..., 1]
-        ct_list = np.zeros(nclasses + 1)
+        #ct_list = np.zeros(nclasses + 1)
         instance_map_tmp = center_crop(gt_inst, 224, 224)
         for instance in np.unique(instance_map_tmp):
             if instance == 0:
                 continue
             ct_tmp = gt_ct[gt_inst == instance][0]
-            if ct_tmp > nclasses:
-                continue
-            ct_list[int(ct_tmp)] += 1
+            #if ct_tmp > nclasses:
+            #    continue
+            #ct_list[int(ct_tmp)] += 1
         gt_reg = {}
-        for i in range(nclasses):
-            gt_reg[cns[i]] = ct_list[i + 1]
+        #for i in range(nclasses):
+        #    gt_reg[cns[i]] = ct_list[i + 1]
 
         for key in gt_regression.keys():
             gt_regression[key].append(gt_reg[key])

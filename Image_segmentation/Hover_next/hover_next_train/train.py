@@ -101,7 +101,8 @@ def supervised_training(params):
     # normalization = get_normalize(use_norm=params["dataset"] == "pannuke")
 
     # load data
-    train_dataloaders, validation_dataloader, sz, dist_samp, class_names = get_data(
+    #j- elimino class_names al final
+    train_dataloaders, validation_dataloader, sz, dist_samp = get_data(
         params
     )
     if "step" in params.keys() and params["step"] != None:
@@ -169,8 +170,8 @@ def supervised_training(params):
                     rank,
                     step,
                     world_size,
-                    nclasses=len(class_names),
-                    class_names=class_names,
+                    #j- nclasses=len(class_names),
+                    #j- class_names=class_names,
                     use_amp=True,
                     metric=params["optim_metric"],
                 )

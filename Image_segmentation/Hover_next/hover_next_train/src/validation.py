@@ -51,8 +51,8 @@ def validation(
     device,
     step,
     world_size,
-    nclasses=7,
-    class_names=CLASS_NAMES,
+    #j- nclasses=7,
+    #j- class_names=CLASS_NAMES,
     use_amp=True,
     metric="lizard",
 ):
