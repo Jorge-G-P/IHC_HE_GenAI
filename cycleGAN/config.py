@@ -45,8 +45,8 @@ parent_path = repo_path.parent
 
 """
 
-DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-BATCH_SIZE = 1
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+BATCH_SIZE = 2
 LEARNING_RATE = 1e-5
 LAMBDA_IDENTITY = 0.5
 LAMBDA_CYCLE = 10
@@ -54,14 +54,14 @@ NUM_EPOCHS = 200
 NUM_WORKERS = 4
 D_FEATURES = [64, 128, 256, 512]
 IN_CH = 3
-N_RES_BLOCKS = 6
+N_RES_BLOCKS = 9
 TRAIN_DIR_IHC = parent_path / "BCI_dataset/IHC/train"
 TEST_DIR_IHC = parent_path / "BCI_dataset/IHC/test"
 TRAIN_DIR_HE = parent_path / "BCI_dataset/HE/train"
 TEST_DIR_HE = parent_path / "BCI_dataset/HE/test"
-SUBSET_PERCENTAGE = 50
+SUBSET_PERCENTAGE = 60
 SHUFFLE_DATA = False
-EARLY_STOP = 15
+EARLY_STOP = 35
 FID_FREQUENCY = 5
 FID_BATCH_SIZE = 32
 

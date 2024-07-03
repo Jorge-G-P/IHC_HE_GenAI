@@ -196,7 +196,7 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_los
                 writer.add_scalar("[VAL] - Fake_HE Discriminator Loss", D_gen_HE_loss, epoch)
                 writer.add_scalar("[VAL] - Total Generator Loss", G_loss, epoch)
         
-        if epoch % 5 == 0 and idx % 210 == 0:
+        if epoch % 5 == 0 and idx % 170 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
                     save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
@@ -221,7 +221,6 @@ def custom_collate(batch):
     batch_dict['B'] = torch.stack(batch_dict['B'])
     
     return batch_dict
-
 
 def main():
     set_seed(42) # To ensure reproducibility
@@ -248,21 +247,6 @@ def main():
     cycle_loss = nn.L1Loss()
     identity_loss = nn.L1Loss()
     discrim_loss = nn.MSELoss()
-
-    start_epoch = 0
-    log_dir = None
-
-    # Load checkpoints if necessary
-    if config.LOAD_MODEL:
-        start_epoch, log_dir = load_checkpoint(config.CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0])
-    
-    if log_dir is None:
-        log_dir = f"logs/GAN_{config.NUM_EPOCHS}_epochs_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
-
-    writer = SummaryWriter(log_dir=log_dir)
 
     '''Initialize datasets and dataloaders:
         1) Create dataset for later split between training/validation
@@ -308,12 +292,30 @@ def main():
     g_scaler = torch.cuda.amp.GradScaler()
     d_scaler = torch.cuda.amp.GradScaler()
 
+    start_epoch = 0
+    log_dir = None
+    val_loss = None
+
+    # Load checkpoints if necessary
+    if config.LOAD_MODEL:
+        start_epoch, log_dir, val_loss = load_checkpoint(config.CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)
+        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0])
+    
+    if log_dir is None:
+        log_dir = f"logs/GAN_{config.NUM_EPOCHS}_epochs_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    if val_loss is None:
+        val_loss = float('inf')
+
+    writer = SummaryWriter(log_dir=log_dir)
+
     # Early stopping parameters
     patience = config.EARLY_STOP
-    best_val_loss = float('inf')
+    best_val_loss = val_loss
     epochs_no_improve = 0
     best_epoch = 0
-
+    print(f"Val_loss of loading is {best_val_loss}")
     # Training loop
     for epoch in range(start_epoch, config.NUM_EPOCHS):
         print(f"TRAINING MODEL [Epoch {epoch}]:")
@@ -331,9 +333,8 @@ def main():
         if epoch % config.FID_FREQUENCY == 0:
             print(f"CALCULATING FID SCORES [Epoch {epoch}]:")
             fid_he, fid_ihc = evaluate_fid_scores(gen_HE, gen_IHC, val_loader, config.DEVICE, config.FID_BATCH_SIZE)
-            print(f"FID Scores - HE: {fid_he}, IHC: {fid_ihc}")
+            print(f"\nFID Scores - HE: {fid_he}, IHC: {fid_ihc}\n")
             writer.add_scalars("FID Scores", {"HE": fid_he, "IHC": fid_ihc}, epoch)
-
 
         print(f"VALIDATING MODEL [Epoch {epoch}]:")
         gen_val_loss = eval_single_epoch(
@@ -354,12 +355,13 @@ def main():
             epochs_no_improve = 0
             # Save the best model
             if config.SAVE_MODEL:
-                save_checkpoint(epoch, gen_HE, optim_gen, filename=config.CHECKPOINT_GEN_HE, log_dir=log_dir)
-                save_checkpoint(epoch, gen_IHC, optim_gen, filename=config.CHECKPOINT_GEN_IHC, log_dir=log_dir)
-                save_checkpoint(epoch, disc_HE, optim_disc, filename=config.CHECKPOINT_DISC_HE, log_dir=log_dir)
-                save_checkpoint(epoch, disc_IHC, optim_disc, filename=config.CHECKPOINT_DISC_IHC, log_dir=log_dir)
+                save_checkpoint(epoch, gen_HE, optim_gen, filename=config.CHECKPOINT_GEN_HE, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, gen_IHC, optim_gen, filename=config.CHECKPOINT_GEN_IHC, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, disc_HE, optim_disc, filename=config.CHECKPOINT_DISC_HE, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, disc_IHC, optim_disc, filename=config.CHECKPOINT_DISC_IHC, log_dir=log_dir, loss=best_val_loss)
         else:
             epochs_no_improve += 1
+            print(f"Best epoch so far was {epoch}\n")
 
         # Check for early stopping
         if epochs_no_improve >= patience:
@@ -372,4 +374,18 @@ def main():
 if __name__ == "__main__":
     main()
 
+    # # Check if CUDA is available
+    # cuda_available = torch.cuda.is_available()
 
+    # # Print the result
+    # print("CUDA Available:", cuda_available)
+
+    # # If CUDA is available, print the number of GPUs and the current device
+    # if cuda_available:
+    #     num_gpus = torch.cuda.device_count()
+    #     current_device = torch.cuda.current_device()
+    #     device_name = torch.cuda.get_device_name(current_device)
+        
+    #     print("Number of GPUs:", num_gpus)
+    #     print("Current CUDA device:", current_device)
+    #     print("CUDA device name:", device_name)

@@ -16,6 +16,14 @@ from datetime import datetime
 
 def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, disc_loss, ident_loss, lambda_identity, lambda_cycle, loader, epoch, writer):
     
+    # device = config.DEVICE
+    # if torch.cuda.is_available():
+    #     device = torch.device("cuda")
+    # else:
+    #     device = torch.device("cpu")
+    # print(f"TRAIN FUNC - Using device: {device}")
+
+
     '''Set the generators and discriminators to training mode'''
     D_HE.train()
     D_IHC.train()
@@ -27,14 +35,8 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
         ihc = sample['A'].to(config.DEVICE)
         he = sample['B'].to(config.DEVICE)
 
-        # ## DEBUGGING
-        # # Log the paths and indices
-        # A_path = sample["A_path"]
-        # B_path = sample["B_path"]
-        # A_index = sample['A_index']
-        # B_index = sample['B_index']
-        # patch_index = sample['patch_index']
-        # print(f"Epoch {epoch}, Batch {idx}: A_path: {A_path}, B_path: {B_path}, A_index: {A_index}, B_index: {B_index}, Patch_index: {patch_index}")
+        # print(ihc.device)  # Should print 'cuda:0'
+        # print(he.device)   # Should print 'cuda:0'
 
         with torch.cuda.amp.autocast():     # For mixed precision training
             '''Train the Discriminator of HE images'''
@@ -142,15 +144,6 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_los
         ihc = sample['A'].to(config.DEVICE)
         he = sample['B'].to(config.DEVICE)
 
-        # ## DEBUGGING
-        # # Log the paths and indices
-        # A_path = sample['A_path']
-        # B_path = sample['B_path']
-        # A_index = sample['A_index']
-        # B_index = sample['B_index']
-        # patch_index = sample['patch_index']
-        # print(f"[VALIDATION] Epoch {epoch}, Batch {idx}: A_path: {A_path}, B_path: {B_path}, A_index: {A_index}, B_index: {B_index}, Patch_index: {patch_index}")
-
         with torch.no_grad():
             with torch.cuda.amp.autocast():   
                 fake_HE = G_HE(ihc)
@@ -225,15 +218,25 @@ def custom_collate(batch):
 def main(h_params):
     set_seed(42) # To ensure reproducibility
 
+    device = config.DEVICE
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+    print(f"MAIN - Using device: {device}")
+
     num_residuals = h_params.get("num_residuals")
     lr_discriminator = h_params.get("lr_discriminator")
     lr_generator = h_params.get("lr_generator")
     batch_size = h_params.get("batch_size")
-    lambda_identity = h_params.get("lambda_identity")
-    lambda_cycle = h_params.get("lambda_cycle")
-    beta1 = h_params.get("beta1")
-    beta2 = h_params.get("beta2")
+    # lambda_identity = h_params.get("lambda_identity")
+    # lambda_cycle = h_params.get("lambda_cycle")
+    # beta1 = h_params.get("beta1")
+    # beta2 = h_params.get("beta2")
     log_dir = h_params.get("log_dir")
+
+    lambda_identity = config.LAMBDA_IDENTITY
+    lambda_cycle = config.LAMBDA_CYCLE
 
     disc_HE = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE) 
     disc_IHC = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE)
@@ -244,12 +247,12 @@ def main(h_params):
     optim_disc = optim.Adam(
         list(disc_HE.parameters()) + list(disc_IHC.parameters()),
         lr=lr_discriminator,
-        betas=(beta1, beta2)
+        betas=(0.9, 0.999)
     )
     optim_gen = optim.Adam(
         list(gen_HE.parameters()) + list(gen_IHC.parameters()),
         lr=lr_generator,
-        betas=(beta1, beta2)
+        betas=(0.9, 0.999)
     )
 
     # Losses used during training
@@ -303,12 +306,14 @@ def main(h_params):
 
     writer = SummaryWriter(log_dir=log_dir)
 
+    fid_he = None
+    fid_ihc = None
     step = 1
     checkpoint = train.get_checkpoint()
     if checkpoint:
         with checkpoint.as_directory() as checkpoint_dir:
             print(f"[DEBUGGING] - Checkpoint path is {checkpoint_dir}")
-            checkpoint_dict = torch.load(os.path.join(checkpoint_dir, "checkpoint.pt"))
+            checkpoint_dict = torch.load(os.path.join(checkpoint_dir, "checkpoint.pt"), map_location=config.DEVICE)
 
         disc_HE.load_state_dict(checkpoint_dict["disc_HE_model"])
         disc_IHC.load_state_dict(checkpoint_dict["disc_IHC_model"])
@@ -361,10 +366,10 @@ def main(h_params):
         writer.add_scalars("Generators Losses", {"train": gen_train_loss, "val": gen_val_loss}, step)
         
         metrics = {
-            # "val_loss_gen": gen_val_loss, 
+            "gen_val_loss": gen_val_loss, 
             # "train_loss_disc": disc_train_loss, 
-            "fid_he": fid_he, 
-            "fid_ihc": fid_ihc
+            # "fid_he": fid_he, 
+            # "fid_ihc": fid_ihc
         }
 
         if step % h_params["checkpoint_interval"] == 0:
@@ -409,10 +414,10 @@ if __name__ == "__main__":
         "lr_discriminator": tune.choice([1e-2, 1e-3, 1e-4, 1e-5]),
         "lr_generator": tune.choice([1e-2, 1e-3, 1e-4, 1e-5]),
         "batch_size": tune.choice([1, 2, 4]),
-        "lambda_identity": tune.choice([0, 0.5, 1]),
-        "lambda_cycle": tune.choice([8, 10, 12]),
-        "beta1": tune.choice([0.5, 0.9]),
-        "beta2": tune.choice([0.999, 0.99]),
+        # "lambda_identity": tune.choice([0, 0.5, 1]),
+        # "lambda_cycle": tune.choice([8, 10, 12]),
+        # "beta1": tune.choice([0.5, 0.9]),
+        # "beta2": tune.choice([0.999, 0.99]),
         "checkpoint_interval": perturbation_interval,
         "log_dir" : Path(os.path.dirname(os.path.realpath(__file__))).parent / "logs"
     }
@@ -421,8 +426,9 @@ if __name__ == "__main__":
         time_attr="training_iteration",
         perturbation_interval=perturbation_interval,
         metric=[
-            {"fid_he": "min"},
-            {"fid_ihc": "min"}
+            # {"fid_he": "min"},
+            # {"fid_ihc": "min"}
+            "gen_val_loss"
         ],
         mode="min",
         hyperparam_mutations={
@@ -430,10 +436,10 @@ if __name__ == "__main__":
             "lr_discriminator": tune.uniform(1e-5, 1e-2),
             "lr_generator": tune.uniform(1e-5, 1e-2),
             "batch_size": tune.choice([1, 2, 4]),
-            "lambda_identity": tune.choice([0, 0.5, 1]),
-            "lambda_cycle": tune.choice([8, 10, 12]),
-            "beta1": tune.choice([0.5, 0.9]),
-            "beta2": tune.choice([0.999, 0.99]),
+            # "lambda_identity": tune.choice([0, 0.5, 1]),
+            # "lambda_cycle": tune.choice([8, 10, 12]),
+            # "beta1": tune.choice([0.5, 0.9]),
+            # "beta2": tune.choice([0.999, 0.99]),
         },
     )
 
@@ -441,9 +447,10 @@ if __name__ == "__main__":
         ray.shutdown()
     ray.init()
 
-    stopper = True # For testing purposes: set this to False to run the full experiment
+    stopper = False # For testing purposes: set this to False to run the full experiment
+    trainable_with_resources = tune.with_resources(main, {"cpu": 4, "gpu": 1})
     tuner = tune.Tuner(
-        main,
+        trainable_with_resources,
         run_config=train.RunConfig(
             name="pbt_cycleGAN",
             stop={"training_iteration": 10 if stopper else 150},
@@ -451,7 +458,7 @@ if __name__ == "__main__":
         tune_config=tune.TuneConfig(
             # metric = "fid_ihc",
             # mode="min",
-            num_samples=2 if stopper else 8,
+            num_samples=2 if stopper else 4,
             scheduler = pbt_scheduler,
         ),
         param_space=hyperparameters,
@@ -459,8 +466,9 @@ if __name__ == "__main__":
 
     results_grid = tuner.fit()
     result_dfs = [result.metrics_dataframe for result in results_grid]
-    best_result_he = results_grid.get_best_result(metric="fid_he", mode="min")
-    best_result_ihc = results_grid.get_best_result(metric="fid_ihc", mode="min")
+    best_result_loss = results_grid.get_best_result(metric="gen_val_loss", mode="min")
+    # best_result_he = results_grid.get_best_result(metric="fid_he", mode="min")
+    # best_result_ihc = results_grid.get_best_result(metric="fid_ihc", mode="min")
 
     print("Best hyperparameters found were: ", tuner.best_config)
 

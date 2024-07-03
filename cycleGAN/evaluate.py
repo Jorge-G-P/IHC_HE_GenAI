@@ -1,5 +1,5 @@
 import torch
-import tqdm
+from tqdm import tqdm
 import numpy as np
 import os
 from torch.nn.functional import adaptive_avg_pool2d
