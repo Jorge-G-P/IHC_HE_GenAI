@@ -2,6 +2,7 @@ import torch
 from tqdm import tqdm
 import numpy as np
 import os
+import config
 from torch.nn.functional import adaptive_avg_pool2d
 from torchvision.utils import save_image
 from pytorch_fid.inception import InceptionV3
@@ -104,5 +105,49 @@ def evaluate_fid_scores(generator_HE, generator_IHC, dataloader, device, fid_bat
 
     fid_he = calculate_fid_score(real_HE_images, fake_HE_images, device, fid_batch_size)
     fid_ihc = calculate_fid_score(real_IHC_images, fake_IHC_images, device, fid_batch_size)
+
+    return fid_he, fid_ihc
+
+
+def calculate_incremental_activation_statistics(model, dataloader, generator, key, device, batch_size, dims=2048):
+    model.eval()
+    mu = np.zeros(dims)
+    sigma = np.zeros((dims, dims))
+    n = 0
+
+    with torch.no_grad():
+        for batch in tqdm(dataloader, leave=True):
+            images = batch[key].to(device)
+            fake_images = generator(images)
+
+            activations = get_activations(fake_images, model, batch_size, dims, device)
+
+            n_batch = activations.shape[0]
+            n += n_batch
+            mu += activations.sum(axis=0)
+            sigma += np.dot(activations.T, activations)
+
+    mu /= n
+    sigma = sigma / n - np.outer(mu, mu)
+    return mu, sigma
+
+
+
+def evaluate_fid_scores_2(generator_HE, generator_IHC, dataloader, device, fid_batch_size):
+    block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[2048]
+    model = InceptionV3([block_idx]).to(device)
+
+    # Use identity function for real HE images (from key 'B')
+    mu_real_HE, sigma_real_HE = calculate_incremental_activation_statistics(model, dataloader, lambda x: x, 'B', device, fid_batch_size)
+    # Generate fake HE images from real IHC images (from key 'A')
+    mu_fake_HE, sigma_fake_HE = calculate_incremental_activation_statistics(model, dataloader, generator_HE, 'A', device, fid_batch_size)
+    
+    # Use identity function for real IHC images (from key 'A')
+    mu_real_IHC, sigma_real_IHC = calculate_incremental_activation_statistics(model, dataloader, lambda x: x, 'A', device, fid_batch_size)
+    # Generate fake IHC images from real HE images (from key 'B')
+    mu_fake_IHC, sigma_fake_IHC = calculate_incremental_activation_statistics(model, dataloader, generator_IHC, 'B', device, fid_batch_size)
+
+    fid_he = calculate_frechet_distance(mu_real_HE, sigma_real_HE, mu_fake_HE, sigma_fake_HE)
+    fid_ihc = calculate_frechet_distance(mu_real_IHC, sigma_real_IHC, mu_fake_IHC, sigma_fake_IHC)
 
     return fid_he, fid_ihc

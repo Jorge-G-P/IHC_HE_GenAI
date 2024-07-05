@@ -1,8 +1,0 @@
-matplotlib
-numpy
-Pillow
-torch
-albumentations
-tqdm
-torchvision
-

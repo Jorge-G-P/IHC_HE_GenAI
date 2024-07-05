@@ -22,6 +22,7 @@ class GanDataset(data.Dataset):
         self.patch_size = patch_size
         self.transform = transform
         self.target_transform = target_transform
+        self.num_patches_per_image = (1024 // self.patch_size) ** 2  # 4 patches per image assuming 1024x1024 images
 
         self.A_paths = []
         self.B_paths = []
@@ -29,18 +30,17 @@ class GanDataset(data.Dataset):
             self.A_paths.extend(glob.glob(os.path.join(A_dir, '*' + ext)))
             self.B_paths.extend(glob.glob(os.path.join(B_dir, '*' + ext)))
 
+        self.A_initial_paths = dict()
         self.B_initial_paths = dict()
-        for i, path in enumerate(self.B_paths):
-            self.B_initial_paths[i] = path
+        self.A_initial_paths = {i: path for i, path in enumerate(self.A_paths)}
+        self.B_initial_paths = {i: path for i, path in enumerate(self.B_paths)}
 
         if shuffle is True:
             np.random.shuffle(self.A_paths)
             np.random.shuffle(self.B_paths)
         
         self.A_size = len(self.A_paths)
-        self.B_size = len(self.B_paths)
-
-        self.num_patches_per_image = (1024 // self.patch_size) ** 2  # 4 patches per image assuming 1024x1024 images
+        self.B_size = len(self.B_paths)        
 
         if self.subset_percentage is not None:
             if not (0 < self.subset_percentage <= 100):
@@ -51,6 +51,19 @@ class GanDataset(data.Dataset):
     
 
     def split_image_into_patches(self, image) -> list:   # returns a list of 4 smaller images of patch_size
+        
+        """     
+                +----+----+
+                | 0  |  2 |
+                +----+----+
+                | 1  |  3 |
+                +----+----+
+            The split_image_into_patches crops are according to this representation:
+            - Patch 0 is in the top-left corner.
+            - Patch 1 is in the bottom-left corner.
+            - Patch 2 is in the top-right corner.
+            - Patch 3 is in the bottom-right corner.
+        """
         patches = []
         width, height = image.size
         for i in range(0, width, self.patch_size):
@@ -62,7 +75,6 @@ class GanDataset(data.Dataset):
 
 
     def __len__(self):
-        # return max(self.A_size, self.B_size) * self.num_patches_per_image
         return self.subset_size
     
 
@@ -78,10 +90,9 @@ class GanDataset(data.Dataset):
         A_path = self.A_paths[image_index % self.A_size]
         B_path = self.B_paths[image_index % self.B_size]
 
-        # Used as extra info for datasets with paired data, if we shuffle data first to train GAN with unpaired data
-        for idx, value in self.B_initial_paths.items():
-            if B_path == value:
-                B_initial_index = idx
+        # Useful for paired datasets, if we shuffle data first to train GAN with data unpaired
+        A_initial_index = next((idx for idx, value in self.A_initial_paths.items() if A_path == value), None)
+        B_initial_index = next((idx for idx, value in self.B_initial_paths.items() if B_path == value), None)
 
         A_img = Image.open(A_path).convert('RGB')
         B_img = Image.open(B_path).convert('RGB')
@@ -89,7 +100,6 @@ class GanDataset(data.Dataset):
         A_patches = self.split_image_into_patches(A_img)
         B_patches = self.split_image_into_patches(B_img)
 
-        # random_index = random.randint(0, min(len(A_patches), len(B_patches)) - 1)
         A_patch = A_patches[patch_index]
         B_patch = B_patches[patch_index]
 
@@ -103,7 +113,8 @@ class GanDataset(data.Dataset):
                 'A_img': A_img, 
                 'B_img': B_img, 
                 'A_index': image_index, 
-                'B_index': image_index, 
+                'B_index': image_index,
+                'A_initial_index': A_initial_index, 
                 'B_initial_index': B_initial_index, 
                 'patch_index': patch_index,
                 'A_path': A_path, 
@@ -121,14 +132,14 @@ def main():
     A_paths = []
     A_paths.extend(glob.glob(os.path.join(x, '*')))
 
-    myclass = GanDataset(x, y)
+    myclass = GanDataset(x, y, subset_percentage=None, shuffle=False)
     sample = myclass[0]
-    sample2 = myclass[4]
+    sample2 = myclass[10]
 
     print(f'Original dataset size: {len(A_paths)}')
     print(f'Dataset size: {len(myclass)}')
-    print('\n' f'Index Image A: {sample["A_index"]}', '\n' f'Index Image B: {sample["B_index"]}', '\n' f'Index Image B before shuffle: {sample["B_initial_index"]}')
-    print('\n' f'Index Image A2: {sample2["A_index"]}', '\n' f'Index Image B2: {sample2["B_index"]}', '\n' f'Index Image B2 before shuffle: {sample2["B_initial_index"]}')
+    print('\n' f'Index Image A: {sample["A_index"]}', '\n' f'Index Image B: {sample["B_index"]}', '\n' f'Index Image A before shuffle: {sample["A_initial_index"]}', '\n' f'Index Image B before shuffle: {sample["B_initial_index"]}')
+    print('\n' f'Index Image A2: {sample2["A_index"]}', '\n' f'Index Image B2: {sample2["B_index"]}', '\n' f'Index Image A2 before shuffle: {sample2["A_initial_index"]}', '\n' f'Index Image B2 before shuffle: {sample2["B_initial_index"]}')
 
 if __name__=="__main__":
     main()

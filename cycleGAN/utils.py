@@ -41,3 +41,18 @@ def set_seed(seed=42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+
+def custom_collate(batch):
+    # Initialize dictionaries to store batches for each key
+    batch_dict = {key: [] for key in batch[0]}
+    
+    # Append each item to the corresponding list in the batch_dict
+    for item in batch:
+        for key in item:
+            batch_dict[key].append(item[key])
+    
+    # Convert lists to tensors where applicable (A and B are tensors, others can be left as lists)
+    batch_dict['A'] = torch.stack(batch_dict['A'])
+    batch_dict['B'] = torch.stack(batch_dict['B'])
+    
+    return batch_dict

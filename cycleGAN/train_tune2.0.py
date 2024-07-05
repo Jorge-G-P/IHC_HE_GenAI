@@ -7,12 +7,21 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from discriminator import Discriminator
 from generator import Generator
-from evaluate import evaluate_fid_scores
-from utils import load_checkpoint, save_checkpoint, set_seed
+from evaluate import evaluate_fid_scores, evaluate_fid_scores_2
+from utils import load_checkpoint, save_checkpoint, set_seed, custom_collate
 from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
 
+def convert_tensors(obj):
+    if isinstance(obj, torch.Tensor):
+        return obj.item()
+    elif isinstance(obj, dict):
+        return {k: convert_tensors(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_tensors(v) for v in obj]
+    else:
+        return obj
 
 def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, disc_loss, ident_loss, lambda_identity, lambda_cycle, loader, epoch, writer):
     
@@ -65,8 +74,7 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
 
             D_loss = (D_HE_loss + D_IHC_loss) / 2   # Using simple averaging for the discriminator loss
 
-            writer.add_scalar("[TRAIN] - HE Discriminator Loss", D_HE_loss, epoch)
-            writer.add_scalar("[TRAIN] - IHC Discriminator Loss", D_IHC_loss, epoch)
+            writer.add_scalars("[TRAIN] - HE/IHC Discriminator Loss", {"HE": D_HE_loss, "IHC": D_IHC_loss}, epoch)
             writer.add_scalar("[TRAIN] - Total Discriminator Loss", D_loss, epoch)
 
         optim_D.zero_grad()
@@ -108,12 +116,9 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
                 + identity_IHC_loss * lambda_identity
                 )
 
-            writer.add_scalar("[TRAIN] - Cycle IHC Loss", cycle_IHC_loss, epoch)
-            writer.add_scalar("[TRAIN] - Cycle HE Loss", cycle_HE_loss, epoch)
-            writer.add_scalar("[TRAIN] - Identity IHC Loss", identity_IHC_loss, epoch)
-            writer.add_scalar("[TRAIN] - Identity HE Loss", identity_HE_loss, epoch)
-            writer.add_scalar("[TRAIN] - Fake_IHC Discriminator Loss", D_gen_IHC_loss, epoch)
-            writer.add_scalar("[TRAIN] - Fake_HE Discriminator Loss", D_gen_HE_loss, epoch)
+            writer.add_scalars("[TRAIN] - Cycle Loss", {"HE": cycle_HE_loss, "IHC": cycle_IHC_loss}, epoch)
+            writer.add_scalars("[TRAIN] - Identity Loss", {"HE": identity_HE_loss, "IHC" : identity_IHC_loss}, epoch)
+            writer.add_scalars("[TRAIN] - Gen_Img Discriminator Loss", {"Fake_HE": D_gen_HE_loss, "Fake_IHC" : D_gen_IHC_loss}, epoch)
             writer.add_scalar("[TRAIN] - Total Generator Loss", G_loss, epoch)
 
         optim_G.zero_grad()
@@ -181,12 +186,9 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_los
                     + identity_IHC_loss * lambda_identity
                 )
 
-                writer.add_scalar("[VAL] - Cycle IHC Loss", cycle_IHC_loss, epoch)
-                writer.add_scalar("[VAL] - Cycle HE Loss", cycle_HE_loss, epoch)
-                writer.add_scalar("[VAL] - Identity IHC Loss", identity_IHC_loss, epoch)
-                writer.add_scalar("[VAL] - Identity HE Loss", identity_HE_loss, epoch)
-                writer.add_scalar("[VAL] - Fake_IHC Discriminator Loss", D_gen_IHC_loss, epoch)
-                writer.add_scalar("[VAL] - Fake_HE Discriminator Loss", D_gen_HE_loss, epoch)
+                writer.add_scalars("[VAL] - Cycle Loss", {"HE": cycle_HE_loss, "IHC": cycle_IHC_loss}, epoch)
+                writer.add_scalars("[VAL] - Identity Loss", {"HE": identity_HE_loss, "IHC" : identity_IHC_loss}, epoch)
+                writer.add_scalars("[VAL] - Gen_Img Discriminator Loss", {"Fake_HE": D_gen_HE_loss, "Fake_IHC" : D_gen_IHC_loss}, epoch)
                 writer.add_scalar("[VAL] - Total Generator Loss", G_loss, epoch)
         
         if epoch % 5 == 0 and idx % 210 == 0:
@@ -199,21 +201,6 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_los
     print(f"\nVALIDATION EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)}," + f" G_loss: {G_loss}\n")
 
     return G_loss
-
-def custom_collate(batch):
-    # Initialize dictionaries to store batches for each key
-    batch_dict = {key: [] for key in batch[0]}
-    
-    # Append each item to the corresponding list in the batch_dict
-    for item in batch:
-        for key in item:
-            batch_dict[key].append(item[key])
-    
-    # Convert lists to tensors where applicable (A and B are tensors, others can be left as lists)
-    batch_dict['A'] = torch.stack(batch_dict['A'])
-    batch_dict['B'] = torch.stack(batch_dict['B'])
-    
-    return batch_dict
 
 def main(h_params):
     set_seed(42) # To ensure reproducibility
@@ -366,11 +353,13 @@ def main(h_params):
         writer.add_scalars("Generators Losses", {"train": gen_train_loss, "val": gen_val_loss}, step)
         
         metrics = {
-            "gen_val_loss": gen_val_loss, 
-            # "train_loss_disc": disc_train_loss, 
-            # "fid_he": fid_he, 
-            # "fid_ihc": fid_ihc
+            "gen_val_loss": float(gen_val_loss),
+            "train_loss_disc": float(disc_train_loss),
+            "fid_he": float(fid_he) if fid_he is not None else None,
+            "fid_ihc": float(fid_ihc) if fid_ihc is not None else None
         }
+
+        converted_metrics = convert_tensors(metrics)
 
         if step % h_params["checkpoint_interval"] == 0:
             with tempfile.TemporaryDirectory() as tmpdir:
@@ -386,7 +375,7 @@ def main(h_params):
                 )
                 train.report(metrics, checkpoint=Checkpoint.from_directory(tmpdir))
         else:
-            train.report(metrics)
+            train.report(converted_metrics)
         
         step += 1
 
@@ -407,35 +396,33 @@ from ray.tune.tuner import Tuner
 
 if __name__ == "__main__":
 
-    perturbation_interval = 5
+    # print(Path(os.path.dirname(os.path.realpath(__file__))).parent)
+
+    perturbation_interval = 4
 
     hyperparameters = {
-        "num_residuals": tune.choice([6, 9, 12]),
-        "lr_discriminator": tune.choice([1e-2, 1e-3, 1e-4, 1e-5]),
-        "lr_generator": tune.choice([1e-2, 1e-3, 1e-4, 1e-5]),
-        "batch_size": tune.choice([1, 2, 4]),
+        "num_residuals": tune.choice([6, 9]),
+        "lr_discriminator": tune.choice([1e-4, 1e-5]),
+        "lr_generator": tune.choice([1e-4, 1e-5]),
+        "batch_size": tune.choice([2, 4]),
         # "lambda_identity": tune.choice([0, 0.5, 1]),
         # "lambda_cycle": tune.choice([8, 10, 12]),
         # "beta1": tune.choice([0.5, 0.9]),
         # "beta2": tune.choice([0.999, 0.99]),
         "checkpoint_interval": perturbation_interval,
-        "log_dir" : Path(os.path.dirname(os.path.realpath(__file__))).parent / "logs"
+        "log_dir" : Path(os.path.dirname(os.path.realpath(__file__))).parent / f"logs/GAN_PBT_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     }
 
     pbt_scheduler = PopulationBasedTraining(
         time_attr="training_iteration",
         perturbation_interval=perturbation_interval,
-        metric=[
-            # {"fid_he": "min"},
-            # {"fid_ihc": "min"}
-            "gen_val_loss"
-        ],
+        metric="fid_he",
         mode="min",
         hyperparam_mutations={
-            "num_residuals": tune.choice([6, 9, 12]),
-            "lr_discriminator": tune.uniform(1e-5, 1e-2),
-            "lr_generator": tune.uniform(1e-5, 1e-2),
-            "batch_size": tune.choice([1, 2, 4]),
+            "num_residuals": tune.choice([6, 9]),
+            "lr_discriminator": tune.uniform(1e-5, 1e-4),
+            "lr_generator": tune.uniform(1e-5, 1e-4),
+            "batch_size": tune.choice([2, 4]),
             # "lambda_identity": tune.choice([0, 0.5, 1]),
             # "lambda_cycle": tune.choice([8, 10, 12]),
             # "beta1": tune.choice([0.5, 0.9]),
@@ -453,7 +440,7 @@ if __name__ == "__main__":
         trainable_with_resources,
         run_config=train.RunConfig(
             name="pbt_cycleGAN",
-            stop={"training_iteration": 10 if stopper else 150},
+            stop={"training_iteration": 10 if stopper else config.NUM_EPOCHS},
         ),
         tune_config=tune.TuneConfig(
             # metric = "fid_ihc",
@@ -466,7 +453,7 @@ if __name__ == "__main__":
 
     results_grid = tuner.fit()
     result_dfs = [result.metrics_dataframe for result in results_grid]
-    best_result_loss = results_grid.get_best_result(metric="gen_val_loss", mode="min")
+    best_result = results_grid.get_best_result(metric="fid_he", mode="min")
     # best_result_he = results_grid.get_best_result(metric="fid_he", mode="min")
     # best_result_ihc = results_grid.get_best_result(metric="fid_ihc", mode="min")
 
