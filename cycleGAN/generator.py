@@ -139,6 +139,32 @@ class Generator(nn.Module):
             x = layer(x)
         return torch.tanh(self.last_layer(x))
 
+
+    def get_features(self):     # Used for fine-tuning on small dataset after training with bigger dataset
+        return nn.Sequential(
+                            self.initial_layer,
+                            *self.downsampling_layers,
+                            self.residual_layers,
+                            *self.upsampling_layers
+                        )
+
+    @staticmethod
+    def clone_layer(layer, last_layer=True):
+
+        cloned_layer = nn.Sequential(
+                            type(layer)(
+                                    in_channels=layer.in_channels,
+                                    out_channels=layer.out_channels,
+                                    kernel_size=layer.kernel_size,
+                                    stride=layer.stride,
+                                    padding=layer.padding,
+                                    padding_mode=layer.padding_mode
+                            ),
+                            nn.Tanh() if last_layer else nn.Identity(),
+                        )
+        
+        return cloned_layer
+
 def test():
 
     """ Just used to test some features, not applied to training of the model """
@@ -148,6 +174,17 @@ def test():
     x = torch.randn((2, img_channels, img_size, img_size))
     gen = Generator(img_channels, num_features=64, num_residuals=9)
     print(gen(x).shape)
+
+    new_last_layer = gen.clone_layer(gen.last_layer)
+    print(new_last_layer)
+    print(type(new_last_layer))
+
+    # Compare the weights
+    for param1, param2 in zip(gen.last_layer.parameters(), new_last_layer.parameters()):
+        if torch.equal(param1.data, param2.data):
+            print("Weights are the same")
+        else:
+            print("Weights are different")
 
 if __name__ == "__main__":
     test()

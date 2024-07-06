@@ -82,6 +82,13 @@ class Discriminator(nn.Module):
         return torch.sigmoid(self.model(x))
 
 
+    def get_features(self):     # Used for fine-tuning on small dataset after training with bigger dataset
+        return nn.Sequential(
+            self.initial_layer,
+            *self.model[:-1]
+        )
+
+
 def test():  
     
     """ Just used to test some features, not applied to training of the model """

@@ -46,22 +46,22 @@ parent_path = repo_path.parent
 """
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 LEARNING_RATE = 1e-5
 LAMBDA_IDENTITY = 0.5
 LAMBDA_CYCLE = 10
-NUM_EPOCHS = 150
+NUM_EPOCHS = 200
 NUM_WORKERS = 4
 D_FEATURES = [64, 128, 256, 512]
 IN_CH = 3
-N_RES_BLOCKS = 9
+N_RES_BLOCKS = 6
 TRAIN_DIR_IHC = parent_path / "BCI_dataset/IHC/train"
 TEST_DIR_IHC = parent_path / "BCI_dataset/IHC/test"
 TRAIN_DIR_HE = parent_path / "BCI_dataset/HE/train"
 TEST_DIR_HE = parent_path / "BCI_dataset/HE/test"
 SUBSET_PERCENTAGE = 15
 SHUFFLE_DATA = False
-EARLY_STOP = 35
+EARLY_STOP = 25
 FID_FREQUENCY = 5
 FID_BATCH_SIZE = 32
 
@@ -88,7 +88,7 @@ SAVE_MODEL = True
 if not LOAD_MODEL:    # If LOAD_MODEL = True, must define manually current_time variable name to match an existing file with model learned parameters
     current_time = datetime.now().strftime("%Y%m%d") 
 else:
-    current_time = ""
+    current_time = "20240628"
 
 CHECKPOINT_GEN_HE = repo_path / f"genHE_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
 CHECKPOINT_GEN_IHC = repo_path / f"genIHC_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
