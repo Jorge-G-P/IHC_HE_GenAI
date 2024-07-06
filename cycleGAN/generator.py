@@ -175,7 +175,7 @@ def test():
     gen = Generator(img_channels, num_features=64, num_residuals=9)
     print(gen(x).shape)
 
-    new_last_layer = gen.clone_layer(gen.last_layer)
+    new_last_layer = gen.clone_layer(gen.last_layer, last_layer=True)
     print(new_last_layer)
     print(type(new_last_layer))
 

@@ -88,7 +88,23 @@ class Discriminator(nn.Module):
             *self.model[:-1]
         )
 
+    @staticmethod
+    def clone_layer(layer, last_layer=True):
 
+        cloned_layer = nn.Sequential(
+                            type(layer)(
+                                    in_channels=layer.in_channels,
+                                    out_channels=layer.out_channels,
+                                    kernel_size=layer.kernel_size,
+                                    stride=layer.stride,
+                                    padding=layer.padding,
+                                    padding_mode=layer.padding_mode
+                            ),
+                            nn.Sigmoid() if last_layer else nn.Identity(),
+                        )
+        
+        return cloned_layer
+    
 def test():  
     
     """ Just used to test some features, not applied to training of the model """
@@ -97,7 +113,10 @@ def test():
     model = Discriminator(in_channels=3)
     preds = model(x)
     print(preds.shape)
+    
+    new_last_layer = model.clone_layer(model.model[-1], last_layer=False)
+    print(new_last_layer)
 
-
+    
 if __name__ == "__main__":
     test()
