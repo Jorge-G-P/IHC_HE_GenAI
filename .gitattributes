@@ -1,1 +1,1 @@
-~/joao_stuff/IHC_HE_GenAI/logs/** filter=lfs diff=lfs merge=lfs -text
+*.tfevents filter=lfs diff=lfs merge=lfs -text
