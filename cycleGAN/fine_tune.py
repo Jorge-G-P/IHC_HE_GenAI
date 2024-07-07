@@ -38,7 +38,6 @@ def load_pretrained_model():
 
     return disc_HE, gen_HE, gen_IHC, optim_gen, optim_disc
 
-
 def new_gan_model(disc_HE, gen_HE, gen_IHC, gen_frozen_layers, disc_frozen_layers):
 
     features_discHE = disc_HE.get_features()
@@ -93,7 +92,6 @@ def new_gan_model(disc_HE, gen_HE, gen_IHC, gen_frozen_layers, disc_frozen_layer
     #         print("Weights are different")
 
     return model_discHE, model_genHE, model_genIHC
-
 
 def train_func(D_HE, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, disc_loss, ident_loss, loader, epoch, writer):
     
@@ -233,7 +231,7 @@ def main():
 
     disc_HE, gen_HE, gen_IHC, optim_gen, optim_disc = load_pretrained_model()
 
-    disc_HE, gen_HE, gen_IHC = new_gan_model(disc_HE, gen_HE, gen_IHC, gen_frozen_layers=5, disc_frozen_layers=3)
+    finetuned_discHE, finetuned_genHE, gen_IHC = new_gan_model(disc_HE, gen_HE, gen_IHC, gen_frozen_layers=5, disc_frozen_layers=3)
 
      # Losses used during training
     cycle_loss = nn.L1Loss()
@@ -241,8 +239,8 @@ def main():
     discrim_loss = nn.MSELoss()
 
     endonuke_dataset = GanDataset(
-        config.TRAIN_DIR_IHC, 
-        config.TRAIN_DIR_HE, 
+        config.ENDONUKE_DIR_IHC,
+        config.ENDONUKE_DIR_HE,
         config.SUBSET_PERCENTAGE, 
         patch_size=512, 
         transform=config.transforms, 
@@ -284,8 +282,8 @@ def main():
 
     # Load checkpoints if necessary
     if config.LOAD_MODEL:
-        start_epoch, log_dir, val_loss = load_checkpoint(config.CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch, log_dir, val_loss = load_checkpoint(config.CHECKPOINT_GEN_HE, finetuned_genHE, optim_gen, config.LEARNING_RATE)
+        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, finetuned_discHE, optim_disc, config.LEARNING_RATE)[0])
         print(f"Val_loss of loading is {val_loss} from epoch {start_epoch-1}")
 
     if log_dir is None:
@@ -304,8 +302,8 @@ def main():
     for epoch in range(start_epoch, config.NUM_EPOCHS):
         print(f"TRAINING MODEL [Epoch {epoch}]:")
         gen_train_loss, disc_train_loss = train_func(
-                                            disc_HE,
-                                            gen_HE, gen_IHC, 
+                                            finetuned_discHE,
+                                            finetuned_genHE, gen_IHC, 
                                             optim_disc, optim_gen, 
                                             g_scaler, d_scaler, 
                                             cycle_loss, discrim_loss, identity_loss,
@@ -316,14 +314,14 @@ def main():
 
         if epoch % config.FID_FREQUENCY == 0:
             print(f"CALCULATING FID SCORES [Epoch {epoch}]:")
-            fid_he, fid_ihc = evaluate_fid_scores(gen_HE, gen_IHC, val_loader, config.DEVICE, config.FID_BATCH_SIZE)
+            fid_he, fid_ihc = evaluate_fid_scores(finetuned_genHE, gen_IHC, val_loader, config.DEVICE, config.FID_BATCH_SIZE)
             print(f"\nFID Scores - HE: {fid_he}, IHC: {fid_ihc}")
             writer.add_scalars("FID Scores", {"HE": fid_he, "IHC": fid_ihc}, epoch)
 
         print(f"\nVALIDATING MODEL [Epoch {epoch}]:")
         gen_val_loss = eval_single_epoch(
-                            disc_HE,
-                            gen_HE, gen_IHC, 
+                            finetuned_discHE,
+                            finetuned_genHE, gen_IHC, 
                             cycle_loss, discrim_loss, identity_loss,
                             val_loader, 
                             epoch, 
