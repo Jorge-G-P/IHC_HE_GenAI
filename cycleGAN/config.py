@@ -82,8 +82,9 @@ test_transforms = A.Compose([
                 additional_targets={"image0": "image"},
         )
 
-LOAD_MODEL = True
+LOAD_MODEL = False
 SAVE_MODEL = True
+SUFFIX = "20240628"
 
 if not LOAD_MODEL:    # If LOAD_MODEL = True, must define manually current_time variable name to match an existing file with model learned parameters
     current_time = datetime.now().strftime("%Y%m%d") 
@@ -94,6 +95,11 @@ CHECKPOINT_GEN_HE = repo_path / f"genHE_{NUM_EPOCHS}_epochs_{current_time}.pth.t
 CHECKPOINT_GEN_IHC = repo_path / f"genIHC_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
 CHECKPOINT_DISC_HE = repo_path / f"discHE_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
 CHECKPOINT_DISC_IHC = repo_path / f"discIHC_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
+
+PRETRAINED_GEN_HE = repo_path / f"genHE_{NUM_EPOCHS}_epochs_{SUFFIX}.pth.tar"
+PRETRAINED_GEN_IHC = repo_path / f"genIHC_{NUM_EPOCHS}_epochs_{SUFFIX}.pth.tar"
+PRETRAINED_DISC_HE = repo_path / f"discHE_{NUM_EPOCHS}_epochs_{SUFFIX}.pth.tar"
+PRETRAINED_DISC_IHC = repo_path / f"discIHC_{NUM_EPOCHS}_epochs_{SUFFIX}.pth.tar"
 
 
 if __name__ == "__main__":
