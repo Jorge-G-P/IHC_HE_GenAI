@@ -31,20 +31,20 @@ Advised by [Oscar]()
     - [4.4. Endonuke dataset](#44_endonukedataset) 
 - [5. Experiment's design and results](#5_experimentsdesignandresults)    
     - [5.1. cycleGAN](#51_cycleGAN)
-        - [Data preprocessing](511_datapreprocessing)
-        - [Model architecture](512_modelarchitecture)
-        - [Training configuration](513_trainingconfiguration)
-        - [Fine_tuning procedure](514_finetuningprocedure)
-        - [Test results](515_testresults)
+        - [Data preprocessing](#511_datapreprocessing)
+        - [Model architecture](#512_modelarchitecture)
+        - [Training configuration](#513_trainingconfiguration)
+        - [Fine_tuning procedure](#514_finetuningprocedure)
+        - [Test results](#515_testresults)
     - [5.2. HoverNet](#52_hovernet)
-        - [Data preprocessing](521_datapreprocessing)
-        - [Model architecture??](522_modelarchitecture)
-        - [Training configuration](523_trainingconfiguration)
-        - [Test results](524_testresults)
+        - [Data preprocessing](#521_datapreprocessing)
+        - [Model architecture??](#522_modelarchitecture)
+        - [Training configuration](#523_trainingconfiguration)
+        - [Test results](#524_testresults)
     - [5.3. Pipeline ensemble](#53_gans)
-        - [Data preprocessing](531_datapreprocessing)
-        - [Ensemble](532_ensemble)
-        - [Test results](533_testresults)
+        - [Data preprocessing](#531_datapreprocessing)
+        - [Ensemble](#532_ensemble)
+        - [Test results](#533_testresults)
 - [6. How to Run](#6_howtorun)
 - [7. Conclusions and future work](#7_conclusionsandfuturework) 
 - [8. Acknowledgements](#8_acknowledgements)
@@ -112,7 +112,7 @@ To launch the instance we used Cloud Deep Learning VM Image. We created a Linux 
 
 
 
-## 3. Methodology <a name="3-methodology"></a>
+## 3. Methodology <a name="3_-_methodology"></a>
 
 Under this section we present all the GAN versions implemented. We approach to the proble with our own variation of implementation of the technique and methodology first introduced in [Frid-Adar et al.](https://arxiv.org/abs/1803.01229) in 2018.
 
@@ -152,8 +152,8 @@ HaarPSI |   Ranges from 0 to 1, being 1 the best value.   |
 
 
 
-## 4. Data overview <a name="4-dataoverview"></a>
-### 4.1. Biological Context  <a name="41-biologicalcontext"></a>
+## 4. Data overview <a name="4_dataoverview"></a>
+### 4.1. Biological Context  <a name="41_biologicalcontext"></a>
 
 We selected PyTorch as framwork for our scientific computing package to develop our project. Regarding the image transformations used for standard augmentations, we have selected both Torchvision and Albumentation packages. To approach the imbalance dataset issue we used Torchsampler’s Imbalanced Dataset Sampler library. For visualization, we also used both classical Pyplot and Seaborn packages. For the dataset preprocessing, we made use of the modules available in Scikit-Learn library. Some of the GANs-based implementations developed make use of YAML as the preferred language for defining its configuration parameters files. Lastly, the package Pytorch Image Quality Assessment (PIQA) is used to generate the metrics that evaluate the quality of the synthetic images. And finally, for the model we made use of lukemelas EfficientNet architecture. 
  
@@ -178,17 +178,9 @@ The images input size was variable and with a bigger resolution, we resized them
 
 Here are some of the images before and after applying the transformations.
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/37978771/115211333-c0ff6600-a0ff-11eb-8ee7-fbd3dee7f332.png">
-</p>
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/37978771/115211501-e68c6f80-a0ff-11eb-878f-b2b58ff11400.png">
-</p>
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/37978771/115211526-ef7d4100-a0ff-11eb-9d35-5751703abaca.png">
-</p>
+
 
 
 ### 4.2. BCI Dataset  <a name="42_bcidataset"></a> 
@@ -209,8 +201,8 @@ The GANs were trained using Google Colab. This work environment provided us an e
 - [Training configuration](513_trainingconfiguration)
 - [Fine_tuning procedure](514_finetuningprocedure)
 - [Test results](515_testresults)
-### 5.1. Pannuke Dataset  <a name="43-pannukedataset"></a> 
-### 5.1. Pannuke Dataset  <a name="43-pannukedataset"></a> 
+### 5.2. Pannuke Dataset  <a name="43-pannukedataset"></a> 
+### 5.3. Endonuke Dataset  <a name="43-endonukedataset"></a> 
 
 
 
