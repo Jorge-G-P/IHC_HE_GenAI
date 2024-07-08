@@ -103,12 +103,16 @@ We selected PyTorch as framwork for our scientific computing package to develop 
 
 ### 2.2. Hardware  <a name="22_hardware"></a> 
 
-To be able to feed our dataset into the classifier, we must first condition it to the network and to our resource’s limitations.
+To enhance performance and efficiency, we carefully selected and configured our hardware resources in alignment with the demands of our model and the size of our dataset.
 
 
 - **Google Cloud Platform**
 
-To launch the instance we used Cloud Deep Learning VM Image. We created a Linux VM, with a n1-highmem-2 machine and 1 NVIDIA Tesla k80 GPU. In addition to the Instance, we created a bucket in order to upload the Images from the different datasets (the reduced one, and the ones with the GANs) to then move them to the persistent disk. We firstly implemented our code using the Jupyter Notebook function, but since the training process took a long time and Google Cloud Shell would eventually log off, we switched to SSH and launched our script from the terminal.
+To start, we utilized a VM from Google Cloud Platform (GCP) with an Ubuntu Image, equipped with 1 NVIDIA L4 GPU, and a machine type of n1-standard-4 (4 vCPUs, 15 GB memory). As the computational demands increased for model training and to expedite the process, we upgraded to a VM from GCP with an Ubuntu Image, featuring 1 NVIDIA L4 GPU and a machine type of g2-standard-8 (8 vCPUs, 32 GB memory).
+
+To leverage GPU acceleration, we employed CUDA, significantly enhancing our processing capabilities. We used Google Cloud Buckets to store and import raw dataset files to the VM. Additionally, we utilized the gcloud SDK for seamless data import/export to and from the VM.
+
+For accessing the VM and conducting our work, we established an SSH connection and utilized Visual Studio Code with the remote-ssh extension. This setup provided an efficient and flexible environment for developing and training our AI models.
 
 
 
@@ -185,7 +189,10 @@ Here are some of the images before and after applying the transformations.
 
 ### 4.2. BCI Dataset  <a name="42_bcidataset"></a> 
 
-The GANs were trained using Google Colab. This work environment provided us an easy way to work in teams and to access to GPUs. The Classifier also started as a Google Colab project, however, due to its high computing demands, we were forced to port it to Google Cloud to avoid the time limit of the Colab.  
+For training our model, we used the [BCI dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge. This dataset is specifically designed for medical imaging tasks and is well-suited for our project's objectives.
+It proposes a breast cancer immunohistochemical (BCI) benchmark attempting to synthesize IHC data directly with the paired hematoxylin and eosin (HE) stained images. BCI dataset contains 9746 images (4873 pairs), 3896 pairs for train and 977 for test, covering a variety of HER2 expression levels. Some sample HE-IHC image pairs are shown below:
+
+![BCI dataset example](C:\Users\João Pedro Vieira\Desktop\BCIdatasetpreview.png)
 
 ### 4.3. Pannuke Dataset  <a name="43_pannukedataset"></a> 
 
