@@ -38,3 +38,4 @@ def resize_coordinates(coordinates, original_size, target_size):
     y_ratio = target_size[0] / original_size[0]
     resized_coords = [(int(x * x_ratio), int(y * y_ratio)) for x, y in coordinates]
     return resized_coords
+

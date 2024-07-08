@@ -5,13 +5,11 @@ import numpy as np
 import shutil
 from crop import read_coordinates, specific_crops_with_centroids, copy_txt_files, copy_images, delete_images_without_txt
 from resize import resize_image, save_image, read_coordinates, save_coordinates, resize_coordinates
-from pathlib import Path
+import config
 
 
-dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
-repo_path = dir_path.parent
-parent_path = repo_path.parent
-endonuke_dataset = parent_path / "endonuke_dataset/data"
+# Define the paths
+endonuke_dataset = config.PATH
 
 #Group txt files
 copy_txt_files(endonuke_dataset)
@@ -37,6 +35,8 @@ os.makedirs(resized_images, exist_ok=True)
 os.makedirs(crop_images, exist_ok=True)
 os.makedirs(resized_txt, exist_ok=True)
 os.makedirs(crop_txt, exist_ok=True)
+os.makedirs(original_images, exist_ok=True)
+os.makedirs(original_txt, exist_ok=True)
 
 # Define the target size
 target_size = (400, 400)
