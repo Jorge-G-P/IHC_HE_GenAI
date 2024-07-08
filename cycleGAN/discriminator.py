@@ -82,11 +82,15 @@ class Discriminator(nn.Module):
         return torch.sigmoid(self.model(x))
 
 
-    def get_features(self):     # Used for fine-tuning on small dataset after training with bigger dataset
+    def get_features(self, all=False):     # Used for fine-tuning on small dataset after training with bigger dataset
         return nn.Sequential(
-            self.initial_layer,
-            *self.model[:-1]
-        )
+                            self.initial_layer,
+                            *self.model[:-1]
+                        ) if not all else nn.Sequential(
+                                                        self.initial_layer,
+                                                        *self.model,
+                                                        nn.Sigmoid()
+                                                    )
 
     @staticmethod
     def clone_layer(layer, last_layer=True):

@@ -140,13 +140,20 @@ class Generator(nn.Module):
         return torch.tanh(self.last_layer(x))
 
 
-    def get_features(self):     # Used for fine-tuning on small dataset after training with bigger dataset
+    def get_features(self, all=False):     # Used for fine-tuning on small dataset after training with bigger dataset
         return nn.Sequential(
                             self.initial_layer,
                             *self.downsampling_layers,
                             self.residual_layers,
                             *self.upsampling_layers
-                        )
+                        ) if not all else nn.Sequential(
+                                                        self.initial_layer,
+                                                        *self.downsampling_layers,
+                                                        self.residual_layers,
+                                                        *self.upsampling_layers,
+                                                        self.last_layer,
+                                                        nn.Tanh(),
+                                                    )
 
     @staticmethod
     def clone_layer(layer, last_layer=True):

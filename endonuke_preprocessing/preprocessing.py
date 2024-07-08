@@ -5,10 +5,13 @@ import numpy as np
 import shutil
 from crop import read_coordinates, specific_crops_with_centroids, copy_txt_files, copy_images, delete_images_without_txt
 from resize import resize_image, save_image, read_coordinates, save_coordinates, resize_coordinates
+from pathlib import Path
 
 
-# Define the paths
-endonuke_dataset = "/Users/josep/Desktop/aidl-2024-spring-mlops/BCI/Endonuke_Preprocessing/data"
+dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
+repo_path = dir_path.parent
+parent_path = repo_path.parent
+endonuke_dataset = parent_path / "endonuke_dataset/data"
 
 #Group txt files
 copy_txt_files(endonuke_dataset)
