@@ -247,10 +247,9 @@ def main():
     my_dataset = GanDataset(
         config.TRAIN_DIR_IHC, 
         config.TRAIN_DIR_HE, 
-        config.SUBSET_PERCENTAGE, 
-        patch_size=512, 
+        config.SUBSET_PERCENTAGE,
         transform=config.transforms, 
-        shuffle=config.SHUFFLE_DATA
+        shuffle=config.SHUFFLE_DATASET
     )
     dataset_length = len(my_dataset)
     train_size = int(0.8 * len(my_dataset))
