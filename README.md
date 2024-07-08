@@ -58,6 +58,20 @@ On the other hand, since their introduction by [Goodfellowet al.](https://papers
 
 ### 1.1. Motivation <a name="11_motivation"></a>
 
+Histopathological imaging plays a **crucial role** in medical diagnosis and research. It provides a detailed view of the biological tissues at a microscopic level, enabling the identification of diseases such as cancer. Two common staining techniques used in histopathology are **Immunohistochemistry (IHC)** and **Hematoxylin and Eosin (HE)** staining.
+
+**IHC staining** is a special staining process used to detect specific antigens in tissues with the help of antibodies. It is particularly useful in the identification of abnormal cells such as those found in cancerous tumors. On the other hand, **HE staining** is the most widely used staining technique in medical diagnosis. It uses hematoxylin, which stains nuclei blue, and eosin, which stains the cytoplasm and extracellular matrix pink. This results in a high contrast image that allows pathologists to distinguish different tissue structures and cell types.
+
+However, the process of staining is time-consuming and requires expert knowledge to interpret the results. Moreover, each staining technique provides different information, and often, pathologists need to review slides under both stains for accurate diagnosis. This is where **Deep Learning** can make a significant impact.
+
+In this project, we propose a novel approach that uses **CycleGAN**, a type of Generative Adversarial Network (GAN), to translate **IHC stained images to HE staining**. CycleGAN has shown remarkable results in image-to-image translation tasks, even when there are no paired examples in the training set. By training a CycleGAN model on unpaired IHC and HE stained images, we aim to generate synthetic HE images from IHC input. This could potentially save a significant amount of time and resources in the staining process.
+
+After that, another deep learning model was employed to calculate **cell centroids** from the translated HE images. The location of cell centroids can provide valuable information about the spatial distribution of cells, which is often an important factor in disease diagnosis.
+
+By leveraging deep learning to translate between different stainings and calculate cell centroids, we aim to enhance the efficiency and accuracy of histopathological imaging analysis. This could lead to faster and more accurate diagnoses, ultimately improving patient outcomes. We believe that our project will contribute significantly to the field of digital pathology and demonstrate the transformative potential of deep learning in medical imaging.
+
+--------------------------------
+
 Breast cancer is a leading cause of death for women. Histopathological checking is a gold standard to identify breast cancer.  To achieve this, the tumor materials are first made into hematoxylin and eosin (HE) stained slices (Figure 1). Then, the diagnosis is performed by pathologists by observing the HE slices under the microscope or analyzing the digitized whole slide images (WSI).
 
 For diagnosed breast cancer, it is essential to formulate a precise treatment plan by checking the expression of specific proteins, such as human epidermal growth factor receptor 2 (HER2). The routine evaluation of HER2 expression is conducted with immunohistochemical techniques (IHC). An IHC-stained slice is shown in Figure 1. Intuitively, the higher the level of HER2 expression, the darker the color of the IHC image (Figure 2).
@@ -72,7 +86,11 @@ Therefore, we hope to be able to directly generate IHC images based on HE images
 
 ### 1.2. Objectives <a name="12_objectives"></a>
 
-The main purpose of this project is to demonstrate the potential solution to the problem of insufficiency data volume in the medical domain. The proposed solution consists of using GANs for synthetic medical data augmentation for improving a CNN-based classifier's performance. To tackle this task, it can be further broken down into the following sub-objectives:
+The main purpose of this project is to elaborate a method in which the more scarce IHC images can be 
+
+In order to achieve it, a pipeline
+
+To tackle this task, it haas been further broken down into the following sub-objectives:
 - Explore, clean and process the data that will be used for training and evaluating the implemented Deep Neural Networks.
 - Research, develop, implement and train a classifier model. This classifier will be based on a scaled up CNN whose function will be to detect malign dermathological lesions from the different augmented images.
 - Perform classifier performance tests. In order to establish a solid base evaluation model to compare with, there wil be necessary to undertake several experiments for fine tuning appropriately the model to our data.
@@ -92,8 +110,6 @@ After some filtering for rebalancing the missing or non-labeled images and cutti
 
 ### 2.1. Software  <a name="21_software"></a>
 
-Through the API available in the ISIC home page we have been able to download all the images collection with its descriptions associated. The whole database is about 110 gigabytes (GB). The format of the colour images is both JPEG and PNG with a high variety of resolution sizes. Each image has a corresponding JSON-based description file with the image metadata information. From these metadata files we have been conducted a quick Exploratory Data Analysis (EDA) to acquire more awareness of how distributed it is. Initially, there were 27 metadata fields from which we later filtered out and kept only 8 of them. Some meaningful classes worthy to mention are the dcm_name field which identifies the image associated; the benign_malignant class from which we later classify; and finally the diagnosis class which details the diagnosis of the dermatological image lesion is referred to.
-
 
 We selected PyTorch as framwork for our scientific computing package to develop our project. Regarding the image transformations used for standard augmentations, we have selected both Torchvision and Albumentation packages. To approach the imbalance dataset issue we used Torchsampler’s Imbalanced Dataset Sampler library. For visualization, we also used both classical Pyplot and Seaborn packages. For the dataset preprocessing, we made use of the modules available in Scikit-Learn library. Some of the GANs-based implementations developed make use of YAML as the preferred language for defining its configuration parameters files. Lastly, the package Pytorch Image Quality Assessment (PIQA) is used to generate the metrics that evaluate the quality of the synthetic images. And finally, for the model we made use of lukemelas EfficientNet architecture. 
  
@@ -105,40 +121,33 @@ We selected PyTorch as framwork for our scientific computing package to develop 
 
 To be able to feed our dataset into the classifier, we must first condition it to the network and to our resource’s limitations.
 
+- **Students' personal laptops**
+-
+-
+-
+-
 
 - **Google Cloud Platform**
 
-To launch the instance we used Cloud Deep Learning VM Image. We created a Linux VM, with a n1-highmem-2 machine and 1 NVIDIA Tesla k80 GPU. In addition to the Instance, we created a bucket in order to upload the Images from the different datasets (the reduced one, and the ones with the GANs) to then move them to the persistent disk. We firstly implemented our code using the Jupyter Notebook function, but since the training process took a long time and Google Cloud Shell would eventually log off, we switched to SSH and launched our script from the terminal.
+To launch the instance Cloud Deep Learning VM Image was used. We created a Linux VM, with a n1-highmem-2 machine and 1 NVIDIA Tesla k80 GPU. In addition to the Instance, we created a bucket in order to upload the Images from the different datasets (the reduced one, and the ones with the GANs) to then move them to the persistent disk. We firstly implemented our code using the Jupyter Notebook function, but since the training process took a long time and Google Cloud Shell would eventually log off, we switched to SSH and launched our script from the terminal.
 
 
 
 ## 3. Methodology <a name="3_-_methodology"></a>
 
-Under this section we present all the GAN versions implemented. We approach to the proble with our own variation of implementation of the technique and methodology first introduced in [Frid-Adar et al.](https://arxiv.org/abs/1803.01229) in 2018.
+One-hour meetings were held weekly between the team and the advisor. Besides from that, another two two-hour meetings were held weekly by the team without the advisor.
+Moreover two sprints were done during the development procedure. The last week before the critical review, and three weeks before the final presentation. During those sprints, the amount of time spent by each student on the project was roughly doubled.
 
 ### 3.1. Time costs  <a name="31_timecosts"></a>
 
-Since we lack from any medical expertise for assessing the quality of the generated images, we have implemented several metrics to measure traits of our output pictures.
+??Gantt-diagram
 
-- #### Peak Signal-to-Noise Ratio (PSNR)
 
-This metric is used to measure the quality of a given image (noise), which underwent some transformation, compared to the its original (signal). In our case, the original picture is the real batch of images feeded into our network and the noise is represented by a given generated image.
+--------------------??métricas??
+- #### ?? (FID)
 
-- #### Structural Similarity (SSIM)
 
-SSIM aims to predict the perceived the quality of a digital image. It is a perception based model that computes the degradation in an image comparison as in the preceived change in the structural information. This metric captures the perceptual changes in traits such as luminance and contrast.
 
-- #### Multi-Scale Gradient Magnitude Similarity Deviation (MS GMSD)
-
-MS-GMSD works on a similar version as SSIM, but it also accounts for different scales for computing luminance and incorporates chromatic distortion support.
-
-- #### Mean Deviation Similarity Index (MDSI)
-
-MDSI computes the joint similarity map of two chromatic channels through standard deviation pooling, which serves as an estimate of color changes. 
-
-- #### Haar Perceptural Similarity Index (HaarPSI)
-
-HaarPSI works on the Haar wavelet decomposition and assesses local similarities between two images and the relative importance of those local regions. This metric is the current state-of-the-art as for the agreement with human opinion on image quality. 
 
 - #### Measure Assessment
 
@@ -155,8 +164,7 @@ HaarPSI |   Ranges from 0 to 1, being 1 the best value.   |
 ## 4. Data overview <a name="4_dataoverview"></a>
 ### 4.1. Biological Context  <a name="41_biologicalcontext"></a>
 
-We selected PyTorch as framwork for our scientific computing package to develop our project. Regarding the image transformations used for standard augmentations, we have selected both Torchvision and Albumentation packages. To approach the imbalance dataset issue we used Torchsampler’s Imbalanced Dataset Sampler library. For visualization, we also used both classical Pyplot and Seaborn packages. For the dataset preprocessing, we made use of the modules available in Scikit-Learn library. Some of the GANs-based implementations developed make use of YAML as the preferred language for defining its configuration parameters files. Lastly, the package Pytorch Image Quality Assessment (PIQA) is used to generate the metrics that evaluate the quality of the synthetic images. And finally, for the model we made use of lukemelas EfficientNet architecture. 
- 
+
 
 
 #### CSV files
@@ -196,14 +204,20 @@ The GANs were trained using Google Colab. This work environment provided us an e
 
 
 ### 5.1. cycleGAN  <a name="51_cyclegan"></a> 
-- [Data preprocessing]<a name="511_datapreprocessing"></a>
-- [Model architecture](512_modelarchitecture)<a name="512_modelarchitecture"></a>
-- [Training configuration](513_trainingconfiguration)
-- [Fine_tuning procedure](514_finetuningprocedure)
-- [Test results](515_testresults)
-### 5.2. Pannuke Dataset  <a name="43-pannukedataset"></a> 
-### 5.3. Endonuke Dataset  <a name="43-endonukedataset"></a> 
-
+- Data preprocessing<a name="511_datapreprocessing"></a>
+- Model architecture<a name="512_modelarchitecture"></a>
+- Training configuration<a name="513_modelarchitecture"></a>
+- Fine_tuning procedure<a name="514_modelarchitecture"></a>
+- Test results<a name="515_modelarchitecture"></a>
+### 5.2. Pannuke Dataset  <a name="52-pannukedataset"></a>
+- Data preprocessing<a name="521_datapreprocessing"></a>
+- Model architecture<a name="522_modelarchitecture"></a>
+- Training configuration<a name="523_modelarchitecture"></a>
+- Test results<a name="524_modelarchitecture"></a> 
+### 5.3. Endonuke Dataset  <a name="53-endonukedataset"></a> 
+- Data preprocessing<a name="531_datapreprocessing"></a>
+- Ensemble<a name="532_emsemble"></a>
+- Test results<a name="533_modelarchitecture"></a>
 
 
 ## 6. How to Run <a name="6_howtorun"></a>
@@ -238,6 +252,19 @@ The GANs were trained using Google Colab. This work environment provided us an e
 
 ## 8. Acknowledgements <a name="8_acknowledgements"></a>
 
-We would like to thank all the staff from the Prostgraduate Course on Artificial Intelligence with Deep Learning for all the effort and care that they took and showed preparing the materials and lecture which provided us with the tools to build this project.
+We would like to thank all the staff from the Prostgraduate Course on Artificial Intelligence with Deep Learning for all the effort and care that they took and showed preparing the materials and lectures which provided us with the tools to build this project.
 
 We would like to give a special thanks to Oscar, our advisor, who provided very helpful advise and spent numerous hours revising our material and searching tricks and tips for our project.
+
+
+## Refs??
+Essam H. Houssein, Marwa M. Emam, Abdelmgeid A. Ali, Ponnuthurai Nagaratnam Suganthan,
+Deep and machine learning techniques for medical imaging-based breast cancer: A comprehensive review,
+Expert Systems with Applications,
+Volume 167,
+2021,
+114161,
+ISSN 0957-4174,
+https://doi.org/10.1016/j.eswa.2020.114161.
+
+??Ejemplo cite: [Frid-Adar et al.](https://arxiv.org/abs/1803.01229)
