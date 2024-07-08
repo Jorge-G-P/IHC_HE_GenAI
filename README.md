@@ -1,18 +1,18 @@
-# AIDL21: GAN-based synthetic medical image augmentation
+# [AIDL24] AI-Driven Histopathology: Transforming Immunohistochemistry to H&E Stained Images for Enhanced Nuclei Segmentation Using CycleGAN and HoverNet
 
 This repository contains 
 
 
 
 ### About
-Final Project for the UPC [Artificial Intelligence with Deep Learning Postgraduate Course](https://www.talent.upc.edu/ing/estudis/formacio/curs/310402/postgraduate-course-artificial-intelligence-deep-learning/) 2020-2021 online edition, authored by:
+Final Project for the UPC [Artificial Intelligence with Deep Learning Postgraduate Course](https://www.talent.upc.edu/ing/estudis/formacio/curs/310402/postgraduate-course-artificial-intelligence-deep-learning/) 2023-2024 edition, authored by:
 
 * [Amaia](linkedin??)
-* []()
-* []()
-* []()
+* [João Pedro Vieira](www.linkedin.com/in/joão-pedro-vieira-1369a51b6)
+* [Jorge Garcia]()
+* [Josep Baradat]()
 
-Advised by [Oscar]()
+Advised by [Oscar Pina]()
 
 ## Table of Contents <a name="toc"></a>
 
