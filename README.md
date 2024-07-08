@@ -1,4 +1,4 @@
-# [AIDL24] AI-Driven Histopathology: Transforming Immunohistochemistry to H&E Stained Images for Enhanced Nuclei Segmentation Using CycleGAN and HoverNet
+# [AIDL24] AI-Driven Histopathology: Transforming IHC to H&E Stained Images for Enhanced Nuclei Segmentation Using CycleGAN and HoverNet
 
 This repository contains 
 
