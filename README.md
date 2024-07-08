@@ -192,7 +192,7 @@ Here are some of the images before and after applying the transformations.
 For training our model, we used the [BCI dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge. This dataset is specifically designed for medical imaging tasks and is well-suited for our project's objectives.
 It proposes a breast cancer immunohistochemical (BCI) benchmark attempting to synthesize IHC data directly with the paired hematoxylin and eosin (HE) stained images. BCI dataset contains 9746 images (4873 pairs), 3896 pairs for train and 977 for test, covering a variety of HER2 expression levels. Some sample HE-IHC image pairs are shown below:
 
-![BCI dataset example]("C:\Users\João Pedro Vieira\Desktop\BCIdatasetpreview.png")
+![BCI dataset example](BCIdatasetpreview.png)
 
 ### 4.3. Pannuke Dataset  <a name="43_pannukedataset"></a> 
 
