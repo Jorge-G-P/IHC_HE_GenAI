@@ -58,7 +58,11 @@ On the other hand, since their introduction by [Goodfellowet al.](https://papers
 
 ### 1.1. Motivation <a name="11_motivation"></a>
 
+
+
 Histopathological imaging plays a **crucial role** in medical diagnosis and research. It provides a detailed view of the biological tissues at a microscopic level, enabling the identification of diseases such as cancer. Two common staining techniques used in histopathology are **Immunohistochemistry (IHC)** and **Hematoxylin and Eosin (HE)** staining.
+
+ but it seems radiology images are not sufficient to have a precise diagnosing and detecting sub-type of cancer [4]. Using of biopsy method is a reliable method to detect cancer by more confidence [3]. The biopsy is a medical procedure involving extraction of sample cells or tissues for fixing a part of them in formalin and paraffin on a glass microscope slide which is achieved by surgery from a breast tissue. This sample will be stained by combination of hematoxylin and eosin (H&E). This staining standard has been used for more than a century and it is first routine in pathology clinics to diagnose cancers. If the experts need to know more information about exact type of cancer they will use different biomarker such as immunohistochemistry (IHC) images or the other specific biomarker such as in situ hybridization (ISH) [4]. These complementary staining are usually used along with H&E to achieve more accurate diagnosis. ??[2]
 
 **IHC staining** is a special staining process used to detect specific antigens in tissues with the help of antibodies. It is particularly useful in the identification of abnormal cells such as those found in cancerous tumors. On the other hand, **HE staining** is the most widely used staining technique in medical diagnosis. It uses hematoxylin, which stains nuclei blue, and eosin, which stains the cytoplasm and extracellular matrix pink. This results in a high contrast image that allows pathologists to distinguish different tissue structures and cell types.
 
@@ -100,9 +104,7 @@ To tackle this task, it haas been further broken down into the following sub-obj
 
 ## 2. Tools and technologies <a name="2_toolstechnologies"></a>
 
-For training and testing our models, we have used the dataset provided by the healthcare organization for informatics in medical imaging, the [Society for Imaging Informatics in Medicine (SIIM)](https://siim.org/) joined by the [International Skin Imaging Collaboration (ISIC)](https://www.isic-archive.com/#!/topWithHeader/wideContentTop/main). 
 
-After some filtering for rebalancing the missing or non-labeled images and cutting off the excess of benign lesions, we finish with a total number of 22,922 images split in Train (16,045 observations) and Test (6,877 observations).
 
 <p align="center">
   <img src="Data/images-sagan/data-tree-background.png">
@@ -111,7 +113,7 @@ After some filtering for rebalancing the missing or non-labeled images and cutti
 ### 2.1. Software  <a name="21_software"></a>
 
 
-We selected PyTorch as framwork for our scientific computing package to develop our project. Regarding the image transformations used for standard augmentations, we have selected both Torchvision and Albumentation packages. To approach the imbalance dataset issue we used Torchsampler’s Imbalanced Dataset Sampler library. For visualization, we also used both classical Pyplot and Seaborn packages. For the dataset preprocessing, we made use of the modules available in Scikit-Learn library. Some of the GANs-based implementations developed make use of YAML as the preferred language for defining its configuration parameters files. Lastly, the package Pytorch Image Quality Assessment (PIQA) is used to generate the metrics that evaluate the quality of the synthetic images. And finally, for the model we made use of lukemelas EfficientNet architecture. 
+We selected PyTorch as framework for our scientific computing package to develop our project. Regarding the image transformations used for standard augmentations, we have selected both Torchvision and Albumentation packages. To approach the imbalance dataset issue we used Torchsampler’s Imbalanced Dataset Sampler library. For visualization, we also used both classical Pyplot and Seaborn packages. For the dataset preprocessing, we made use of the modules available in Scikit-Learn library. Some of the GANs-based implementations developed make use of YAML as the preferred language for defining its configuration parameters files. Lastly, the package Pytorch Image Quality Assessment (PIQA) is used to generate the metrics that evaluate the quality of the synthetic images. And finally, for the model we made use of lukemelas EfficientNet architecture. 
  
 
 
@@ -119,7 +121,7 @@ We selected PyTorch as framwork for our scientific computing package to develop 
 
 ### 2.2. Hardware  <a name="22_hardware"></a> 
 
-To be able to feed our dataset into the classifier, we must first condition it to the network and to our resource’s limitations.
+
 
 - **Students' personal laptops**
 -
@@ -129,8 +131,7 @@ To be able to feed our dataset into the classifier, we must first condition it t
 
 - **Google Cloud Platform**
 
-To launch the instance Cloud Deep Learning VM Image was used. We created a Linux VM, with a n1-highmem-2 machine and 1 NVIDIA Tesla k80 GPU. In addition to the Instance, we created a bucket in order to upload the Images from the different datasets (the reduced one, and the ones with the GANs) to then move them to the persistent disk. We firstly implemented our code using the Jupyter Notebook function, but since the training process took a long time and Google Cloud Shell would eventually log off, we switched to SSH and launched our script from the terminal.
-
+To launch the instance Cloud Deep Learning VM Image was used.??instance specs
 
 
 ## 3. Methodology <a name="3_-_methodology"></a>
@@ -164,36 +165,7 @@ HaarPSI |   Ranges from 0 to 1, being 1 the best value.   |
 ## 4. Data overview <a name="4_dataoverview"></a>
 ### 4.1. Biological Context  <a name="41_biologicalcontext"></a>
 
-
-
-
-#### CSV files
-
-As mentioned before, every image comes with a JSON files with relevant information regarding the patient and the skin spot. This files were all put into a CSV file where each column stands for a field from the JSON file. 
-In addition to the initial fields, we added “dcm_name” to store the name of the image the data belongs to, and “target” which is set to 0 if the skin spot is benign and to 1 in case it is malignant.
-
-#### Dataset reduction
-
-We reduced the dataset to 5K images to diminish the training cost, keeping the malignant/benign ratio so the results can be escalated to the complete dataset.
-
-Given the size of the image’s directory, we modified it so it only contained the images that were going to be fed into the network, in order not to use more storage than necessary in GCP. We did this through a series of automated functions in python.
-
-#### Data augmentation
-
-We applied several transformations to avoid overfitting when training our network with the reduced dataset. To do that, we have used albumentations’ library due to the large number of augmentations it has available.
-
-The images input size was variable and with a bigger resolution, we resized them to 128x128 to fit the synthetically generated images. Furthermore, we applied techniques involving changing the image’s contrast and brightness scale and rotations. We also normalized its mean and standard deviation and finally we converted the images ton tensors so they can be feed into our model.
-
-Here are some of the images before and after applying the transformations.
-
-
-
-
-
-
-### 4.2. BCI Dataset  <a name="42_bcidataset"></a> 
-
-The GANs were trained using Google Colab. This work environment provided us an easy way to work in teams and to access to GPUs. The Classifier also started as a Google Colab project, however, due to its high computing demands, we were forced to port it to Google Cloud to avoid the time limit of the Colab.  
+### 4.2. BCI Dataset  <a name="42_bcidataset"></a>  
 
 ### 4.3. Pannuke Dataset  <a name="43_pannukedataset"></a> 
 
@@ -252,9 +224,9 @@ The GANs were trained using Google Colab. This work environment provided us an e
 
 ## 8. Acknowledgements <a name="8_acknowledgements"></a>
 
-We would like to thank all the staff from the Prostgraduate Course on Artificial Intelligence with Deep Learning for all the effort and care that they took and showed preparing the materials and lectures which provided us with the tools to build this project.
+We’re really grateful to the team from the Postgraduate Course on Artificial Intelligence with Deep Learning. Their hard work and attention to detail in preparing the course materials and lectures gave us everything we needed for this project.
 
-We would like to give a special thanks to Oscar, our advisor, who provided very helpful advise and spent numerous hours revising our material and searching tricks and tips for our project.
+A special thanks goes to Oscar, our advisor. His advice was critical, and the time he spent reviewing our work and finding helpful tips for our project made a big difference.
 
 
 ## Refs??
@@ -268,3 +240,12 @@ ISSN 0957-4174,
 https://doi.org/10.1016/j.eswa.2020.114161.
 
 ??Ejemplo cite: [Frid-Adar et al.](https://arxiv.org/abs/1803.01229)
+
+Pendar Alirezazadeh, Behzad Hejrati, Alireza Monsef-Esfahani, Abdolhossein Fathi,
+Representation learning-based unsupervised domain adaptation for classification of breast cancer histopathology images,
+Biocybernetics and Biomedical Engineering,
+Volume 38, Issue 3,
+2018,
+Pages 671-683,
+ISSN 0208-5216,
+https://doi.org/10.1016/j.bbe.2018.04.008.
