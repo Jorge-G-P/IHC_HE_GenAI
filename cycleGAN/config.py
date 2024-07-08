@@ -8,6 +8,8 @@ from datetime import datetime
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 repo_path = dir_path.parent
 parent_path = repo_path.parent
+# print(repo_path)
+# print(parent_path)
 
 """ All the flags used for control and to choose before training/testing the model
 
@@ -50,8 +52,13 @@ TEST_DIR_IHC = parent_path / "BCI_dataset/IHC/test"
 TRAIN_DIR_HE = parent_path / "BCI_dataset/HE/train"
 TEST_DIR_HE = parent_path / "BCI_dataset/HE/test"
 
-ENDONUKE_DIR_IHC = parent_path / "BCI_dataset/IHC/test"
-ENDONUKE_DIR_HE = parent_path / "BCI_dataset/HE/train"
+ENDONUKE_ORIGINAL = parent_path / "endonuke_dataset/data/clean_images"
+ENDONUKE_CROPPED = parent_path / "endonuke_dataset/data/crop_images"
+
+IMG_ORIGINAL_SIZE = 256
+PATCHES_SIZE = 256
+SUBSET_PERCENTAGE = 100
+SHUFFLE_DATASET = False
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE = 2
@@ -63,14 +70,12 @@ NUM_WORKERS = 4
 D_FEATURES = [64, 128, 256, 512]
 IN_CH = 3
 N_RES_BLOCKS = 6
-SUBSET_PERCENTAGE = 100
-SHUFFLE_DATA = False
 EARLY_STOP = 15
 FID_FREQUENCY = 5
 FID_BATCH_SIZE = 32
 
 transforms = A.Compose([
-                A.Resize(width=256, height=256),
+                # A.Resize(width=256, height=256),
                 A.HorizontalFlip(p=0.5),
                 A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
                 ToTensorV2(),
