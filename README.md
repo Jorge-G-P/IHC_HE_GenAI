@@ -90,25 +90,26 @@ Therefore, we hope to be able to directly generate IHC images based on HE images
 
 ### 1.2. Objectives <a name="12_objectives"></a>
 
-The main purpose of this project is to elaborate a method in which the more scarce IHC images can be 
+The main purpose of this project is to elaborate a method that 
+-translate IHC images to HE and viceversa, getting the most reliable and trustworthy results as possible.
+-being able to locate cells in IHC images, using a classifier that was trained excluxively on HE images, as HE images are much more abundant.
 
-In order to achieve it, a pipeline
+In order to achieve it, two models will be trained:
+- cycleGAN
+- HoverNet
 
-To tackle this task, it haas been further broken down into the following sub-objectives:
-- Explore, clean and process the data that will be used for training and evaluating the implemented Deep Neural Networks.
-- Research, develop, implement and train a classifier model. This classifier will be based on a scaled up CNN whose function will be to detect malign dermathological lesions from the different augmented images.
-- Perform classifier performance tests. In order to establish a solid base evaluation model to compare with, there wil be necessary to undertake several experiments for fine tuning appropriately the model to our data.
-- Research, develop, implement and train a series of GANs-based models to be able to demonstrate how much we can improve the performance of the classifier.
-- Carried out a series of experiments comparing the performance of the classifier using standard augmentation over the training data with respect to the performance obtained using the synthetic data from the differents GANs.
+And both of them will be put together by constructing a pipeline with the following structure:
+<p align="center">
+  <img src="readme_images/pipeline_diagram.png">
+</p>
+
 - Draw final conclusions from all the experiments conducted and the different improvements attempted.
 
 ## 2. Tools and technologies <a name="2_toolstechnologies"></a>
 
 
 
-<p align="center">
-  <img src="Data/images-sagan/data-tree-background.png">
-</p>
+
 
 ### 2.1. Software  <a name="21_software"></a>
 
