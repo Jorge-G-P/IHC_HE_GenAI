@@ -161,7 +161,6 @@ During training, we used an Adam optimizer with beta1=0.5 and beta2=0.999. Our e
 
 - #### Transfer Learning to final dataset
 
-By incorporating CycleGAN with these architectural and training optimizations, we achieved effective and visually appealing results in our image translation tasks, showcasing the model's versatility and robustness.
 
 
 
