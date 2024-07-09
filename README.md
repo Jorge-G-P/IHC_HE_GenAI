@@ -82,6 +82,8 @@ The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and
 
 Due to the high resolution of the original dataset and in order to accelerate the training process, we built the dataset class with a dynamic cropping feature to be able to work with smaller images. Before feeding them to the network, they are divided into smaller patches, yielding a total of 38984 images (19492 pairs) with a resolution of 512x512 pixels. The dataset is subsequently split into training, validation, and test sets, adhering to a ratio of 60%, 20%, and 20%, respectively.
 
+Below follows an example of how we cropped the original dataset:
+
 ![BCI crops](readme_images/BCI_crops.png)
 
 
@@ -102,43 +104,6 @@ For further reduction of the training time, we resized the images to 256*256. To
 
 
 ## 3. Methodology <a name="3_-_methodology"></a>
-
-Under this section we present all the GAN versions implemented. We approach to the proble with our own variation of implementation of the technique and methodology first introduced in [Frid-Adar et al.](https://arxiv.org/abs/1803.01229) in 2018.
-
-### 3.1. Time costs  <a name="31_timecosts"></a>
-
-Since we lack from any medical expertise for assessing the quality of the generated images, we have implemented several metrics to measure traits of our output pictures.
-
-- #### Peak Signal-to-Noise Ratio (PSNR)
-
-This metric is used to measure the quality of a given image (noise), which underwent some transformation, compared to the its original (signal). In our case, the original picture is the real batch of images feeded into our network and the noise is represented by a given generated image.
-
-- #### Structural Similarity (SSIM)
-
-SSIM aims to predict the perceived the quality of a digital image. It is a perception based model that computes the degradation in an image comparison as in the preceived change in the structural information. This metric captures the perceptual changes in traits such as luminance and contrast.
-
-- #### Multi-Scale Gradient Magnitude Similarity Deviation (MS GMSD)
-
-MS-GMSD works on a similar version as SSIM, but it also accounts for different scales for computing luminance and incorporates chromatic distortion support.
-
-- #### Mean Deviation Similarity Index (MDSI)
-
-MDSI computes the joint similarity map of two chromatic channels through standard deviation pooling, which serves as an estimate of color changes. 
-
-- #### Haar Perceptural Similarity Index (HaarPSI)
-
-HaarPSI works on the Haar wavelet decomposition and assesses local similarities between two images and the relative importance of those local regions. This metric is the current state-of-the-art as for the agreement with human opinion on image quality. 
-
-- #### Measure Assessment
-
-Measure | Bar | 
-:------: | :------:|
-PSNR   | Context dependant, generally the higher the better.  | 
-SSIM   |  Ranges from 0 to 1, being 1 the best value.     | 
-MS-GMSD |  Ranges from 0 to 1, being 1 the best value.    |  
-MDSI   |   Ranges from 0 to inf, being 0 the best value.    |
-HaarPSI |   Ranges from 0 to 1, being 1 the best value.   |
-
 
 
 ## 4. Environment Requirements <a name="4_env_reqs"></a>
@@ -172,12 +137,28 @@ For accessing the VM and conducting our work, we established an SSH connection a
 
 ## 5. Experiment's Design and Results <a name="5_experimentsdesignandresults"></a>
 
-### 5.1. cycleGAN  <a name="51_cyclegan"></a> 
-- [Data preprocessing]<a name="511_datapreprocessing"></a>
-- [Model architecture](512_modelarchitecture)<a name="512_modelarchitecture"></a>
-- [Training configuration](513_trainingconfiguration)
-- [Fine_tuning procedure](514_finetuningprocedure)
-- [Test results](515_testresults)
+### 5.1. CycleGAN  <a name="51_cyclegan"></a> 
+
+For our image-to-image translation tasks, we implemented CycleGAN, an innovative model introduced by _Jun-Yan Zhu et al._ on this [paper](https://arxiv.org/pdf/1703.10593). This architecture leverages a cycle-consistency loss to enable the transformation of images from one domain to another without direct correspondence between the datasets.
+
+Here is a visual explanation of the overall pipeline of the CycleGAN:
+
+![CycleGAN Pipeline](readme_images/gan_pipeline.png)
+
+- #### Architecture
+
+Our CycleGAN model's generator architecture includes two downsampling layers, nine residual blocks, and two upsampling layers. The discriminator architecture ias a 70 X 70 PatchGAN, consisting of a series of convolutional layers without downsampling or upsampling, progressively reducing the spatial dimensions to make real or fake predictions. The activation functions used in these networks are pivotal for their performance. Leaky ReLU is employed in the discriminator to allow a small gradient when the unit is not active, mitigating the issue of vanishing gradients. For the generator, ReLU is used in the residual blocks to facilitate efficient training and stable gradient flow. At the output layer of the generator, a Tanh activation function is used to scale the output to the range [-1, 1].
+
+
+
+- #### Hyperparameter Tuning
+
+During training, we used an Adam optimizer with beta1=0.5 and beta2=0.999. Our early experiments involved a batch size of 1 and 6 residual blocks in the generator, which yielded moderate results. However, after increasing the batch size to 2 and the number of residual blocks to 9, we observed a smoother convergence and a lower loss from the beginning. We estimate that this improvement can be attributed to the larger batch size providing more stable gradient estimates, and the increased number of residual blocks allowing the model to capture more intricate details in the images. Additionally, we incorporated identity loss with a lambda of 0.5, helping to preserve the format and characteristics of the original domain during translation. These adjustments significantly enhanced the stability and quality of the generated images, demonstrating the importance of hyperparameter tuning in training deep learning models.
+
+- #### Transfer Learning to final dataset
+
+By incorporating CycleGAN with these architectural and training optimizations, we achieved effective and visually appealing results in our image translation tasks, showcasing the model's versatility and robustness.
+
 ### 5.2. Pannuke Dataset  <a name="43-pannukedataset"></a> 
 ### 5.3. Endonuke Dataset  <a name="43-endonukedataset"></a> 
 
