@@ -77,6 +77,7 @@ Some sample HE-IHC image pairs are shown below:
 
 The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and 977 for test, covering a variety of HER2 expression levels, each with a resolution of 1024x1024 pixels. To optimize the training process, these images are divided into smaller sections, yielding a total of 38984 images with a resolution of 512x512 pixels. The dataset is subsequently split into training, validation, and test sets, adhering to a ratio of 60%, 20%, and 20%, respectively.
 
+![BCI crops](readme_images/BCI_crops.png)
 
 
 ### 2.2. Endonuke Dataset  <a name="22_endonukedataset"></a> 
