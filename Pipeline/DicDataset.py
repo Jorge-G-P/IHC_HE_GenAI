@@ -3,8 +3,6 @@ import json
 import torch
 from torch.utils.data import Dataset
 
-from celldet import CellDetectionMetric
-
 class DicDataset(Dataset):
     def __init__(self, txt_path, json_path):
         self.txt_path = txt_path
