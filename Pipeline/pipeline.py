@@ -7,9 +7,10 @@ from torchvision import transforms
 from celldet import CellDetectionMetric
 from import_gan import pretrained_generator, process_image
 from DicDataset import DicDataset
+import config
 
-data_folder = r'C:\Users\amaia\Documents\GitHub\IHC_HE_GenAI\Pipeline\endonuke_data\data'
-run_infer_path = r'C:\Users\amaia\Documents\GitHub\IHC_HE_GenAI\Image_segmentation\Hover_net\hover_net2\run_infer.py'
+data_folder = config.path_to_endonuke_data_folder
+run_infer_path = config.path_to_Hover_net_run_infer
 
 #Create paths to folders
 crop_images_folder = os.path.join(data_folder, 'crop_images')
@@ -37,11 +38,11 @@ for filename in os.listdir(crop_images_folder):
 # Define the command to be executed
 command = [
     'python', run_infer_path,
-    '--model_path=C:\\Users\\amaia\\Documents\\GitHub\\IHC_HE_GenAI\\Image_segmentation\\Hover_net\\hover_net2\\checkpoint\\01\\net_epoch=1.tar',
+    '--model_path='+config.path_to_Hover_net_weights,
     '--model_mode=fast',
     'tile',
-    '--input_dir=C:\\Users\\amaia\\Documents\\GitHub\\IHC_HE_GenAI\\Pipeline\\endonuke_data\\data\\Results',
-    '--output_dir=C:\\Users\\amaia\\Documents\\GitHub\\IHC_HE_GenAI\\Pipeline\\endonuke_data\\data\\results_hover',
+    '--input_dir='+gan_results_folder,
+    '--output_dir='+results_hover_folder,
     '--draw_dot'
 ]
 
