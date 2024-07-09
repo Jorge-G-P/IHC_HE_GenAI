@@ -156,15 +156,12 @@ Our CycleGAN model's generator architecture includes two downsampling layers, ni
 
 During training, we used an Adam optimizer with beta1=0.5 and beta2=0.999. Our early experiments involved a batch size of 1 and 6 residual blocks in the generator, which yielded moderate results. However, after increasing the batch size to 2 and the number of residual blocks to 9, we observed a smoother convergence and a lower loss from the beginning. We estimate that this improvement can be attributed to the larger batch size providing more stable gradient estimates, and the increased number of residual blocks allowing the model to capture more intricate details in the images. Additionally, we incorporated identity loss with a lambda of 0.5, helping to preserve the format and characteristics of the original domain during translation. These adjustments significantly enhanced the stability and quality of the generated images, demonstrating the importance of hyperparameter tuning in training deep learning models.
 
-![CycleGAN Training](readme_images/gan_training_1.png)
+![CycleGAN Training](readme_images/gan_training.png)
 
 
 - #### Transfer Learning to final dataset
 
 By incorporating CycleGAN with these architectural and training optimizations, we achieved effective and visually appealing results in our image translation tasks, showcasing the model's versatility and robustness.
-
-### 5.2. Pannuke Dataset  <a name="43-pannukedataset"></a> 
-### 5.3. Endonuke Dataset  <a name="43-endonukedataset"></a> 
 
 
 
@@ -174,29 +171,6 @@ By incorporating CycleGAN with these architectural and training optimizations, w
 
 ## 7. Conclusions and Future Work  <a name="7_conclusionsandfuturework"></a>
 
-* **Training GANs** proved to be a **hard task**.
-    * Requires a vest amount of **resources**.
-    * **Training process** is **not straightforward**.
-
-* **SNGAN outperformed** DCGAN, ACGAN and WGAN.
-    * Even though **after huge amount of experimentation** metrics were still far from initial goal.
-
-* On the **GAN training parametrization**:
-    * **Batch size** is among the most relevant parameters to reduce training times and improve image quality. The reasonale behind this effect could come from the _Discriminator_ having less examples to generalize its classification of real and fake images.
-    * The number of **training epochs** also affects the quality of the generated images. Longer traning usually ends up producing better images even though the two losses did not converge.
-    * Another parameter tweak that comes handy when training these architectures is the **size of the latent vector**. With higher sizes the quality of images did not improve, but it did reduce the training time.
-    * **Label smoothing** has another critical change that was done in our GANs. It did produce better images and also it did stabilize the training. Mathematically, the class probabilities of the discriminator are, in general, lower when using this technique and thus, it balances the performance of the _Discriminator_ and the _Generator_.
-    * **Spectral normalization**, which deals with exploding gradients, did also increase the quality of the generated images. It gave out a new architecture purely based on a DCGAN.
-    * **Different learning rates**, more specifically with higher values for the _Discriminator_, did stabilize training and also increased the quality of the images. The explanation behind this behavior is that setting bigger steps for optimizing the loss function of the _Discriminator_  makes this agent more imprecise at the classification task whereas the smaller steps for the _Generator_ gives it a more precise approach to image generation.
-
-* **Different metrics** are sensible to **different aspects** of image quality.
-    * Best practice to **use a set** of them to assess the generated images.
-    * **Include a metric** based on **human perception**.
- 
-* Good results for a **lack** of **resources**.
-    * Fine-tuned **EfficientNet** achieves **high accuracy** with **reduced dataset**.
-    * Dataset with **sysnthetic images** does **not improve accuracy**.
-    * **Balanced dataset** with **synthetic images** and no augmentations achieves **good results**.
 
 ## 8. Acknowledgements <a name="8_acknowledgements"></a>
 
