@@ -51,36 +51,14 @@ Advised by [Oscar Pina]()
  
 ## 1. Introduction <a name="1_intro"></a>
 
-Over the last decade Deep Neural Networks have produced unprecedented performance on a number of tasks,
-
-On the other hand, since their introduction by [Goodfellowet al.](https://papers.nips.cc/paper/5423-generative-adversarial-nets), Generative Adversarial Networks (GANs) have become the defacto standard for high quality image synthesis. There are two general ways in which GANs have been used in medical imaging. The first is focused on the generative aspect and the second one is on the discriminative aspect. Focusing on the first one, GANs can help in exploring and discovering the underlying structure of training data and learning to generate new images. This property makes GANs very promising in coping with data scarcity and patient privacy.
-
 
 ### 1.1. Motivation <a name="11_motivation"></a>
-
-Breast cancer is a leading cause of death for women. Histopathological checking is a gold standard to identify breast cancer.  To achieve this, the tumor materials are first made into hematoxylin and eosin (HE) stained slices (Figure 1). Then, the diagnosis is performed by pathologists by observing the HE slices under the microscope or analyzing the digitized whole slide images (WSI).
-
-For diagnosed breast cancer, it is essential to formulate a precise treatment plan by checking the expression of specific proteins, such as human epidermal growth factor receptor 2 (HER2). The routine evaluation of HER2 expression is conducted with immunohistochemical techniques (IHC). An IHC-stained slice is shown in Figure 1. Intuitively, the higher the level of HER2 expression, the darker the color of the IHC image (Figure 2).
-
-??foto
-
-
-However, there are certain limitations in assessing the level of HER2 expression by IHC technology: 1)The preparation of IHC-stained slices is expensive. 2)Tumors are heterogeneous, however, IHC staining is usually performed on only one pathological slice in clinical applications, which may not entirely reflect the status of the tumor.
-
-Therefore, we hope to be able to directly generate IHC images based on HE images.  In this way, we can save the cost of IHC staining, and can generate IHC images of multiple pathological tissues of the same patient to comprehensively assess HER2 expression levels.
 
 
 ### 1.2. Objectives <a name="12_objectives"></a>
 
-The main purpose of this project is to demonstrate the potential solution to the problem of insufficiency data volume in the medical domain. The proposed solution consists of using GANs for synthetic medical data augmentation for improving a CNN-based classifier's performance. To tackle this task, it can be further broken down into the following sub-objectives:
-- Explore, clean and process the data that will be used for training and evaluating the implemented Deep Neural Networks.
-- Research, develop, implement and train a classifier model. This classifier will be based on a scaled up CNN whose function will be to detect malign dermathological lesions from the different augmented images.
-- Perform classifier performance tests. In order to establish a solid base evaluation model to compare with, there wil be necessary to undertake several experiments for fine tuning appropriately the model to our data.
-- Research, develop, implement and train a series of GANs-based models to be able to demonstrate how much we can improve the performance of the classifier.
-- Carried out a series of experiments comparing the performance of the classifier using standard augmentation over the training data with respect to the performance obtained using the synthetic data from the differents GANs.
-- Draw final conclusions from all the experiments conducted and the different improvements attempted.
 
-## 2. Tools and technologies <a name="2_toolstechnologies"></a>
+## 2. Corpora <a name="2_corpora"></a>
 
 We have trained and tested two different models for our final pipeline. First, our task was a medical image-to-image translation task using a cycleGAN architecture and second an instance segmentation of cells nuclei of medical images. 
 
