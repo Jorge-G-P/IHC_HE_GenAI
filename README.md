@@ -59,25 +59,25 @@ Advised by [Oscar Pina]()
 
 ## 2. Corpora <a name="2_corpora"></a>
 
-We have trained and tested two different models for our final pipeline. First, our task was a medical image-to-image translation task using a cycleGAN architecture and second an instance segmentation of cells nuclei of medical images. 
+We have trained and tested two different models for our final pipeline. First, we needed to perform a medical image-to-image translation task using a cycleGAN architecture. Then, an instance segmentation of cells nuclei task for medical images. 
 
 For that we used the [BCI Dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge, the [Endonuke Dataset](https://endonuke.ispras.ru/) and the [Pannuke Dataset]().
 These 3 datasets are explained more in detail in section XXX.
 
-<p align="center">
-  <img src="Data/images-sagan/data-tree-background.png">
-</p>
 
 ### 2.1. BCI Dataset  <a name="21_bcidataset"></a>
 
-For training our model, we used the [BCI dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge. This dataset is specifically designed for medical imaging tasks and is well-suited for our project's objectives.
-
-It proposes a breast cancer immunohistochemical (BCI) benchmark attempting to synthesize IHC data directly with the paired hematoxylin and eosin (HE) stained images. BCI dataset contains **9746 images (4873 pairs), 3896 pairs for train and 977 for test**, covering a variety of HER2 expression levels. 
+For training our cycleGAN model, we used the [BCI dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge. This dataset is specifically designed for medical imaging tasks and is well-suited for our project's objectives. 
+It proposes a breast cancer immunohistochemical (BCI) benchmark attempting to synthesize IHC data directly with the paired hematoxylin and eosin (HE) stained images. 
 
 Some sample HE-IHC image pairs are shown below:
 
 ![BCI dataset example](readme_images/BCIdatasetpreview.png)
- 
+
+
+The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and 977 for test, covering a variety of HER2 expression levels, each with a resolution of 1024x1024 pixels. To optimize the training process, these images are divided into smaller sections, yielding a total of 38984 images with a resolution of 512x512 pixels. The dataset is subsequently split into training, validation, and test sets, adhering to a ratio of 60%, 20%, and 20%, respectively.
+
+
 
 ### 2.2. Endonuke Dataset  <a name="22_endonukedataset"></a> 
 
