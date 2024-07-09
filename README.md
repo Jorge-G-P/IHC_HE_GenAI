@@ -19,16 +19,15 @@ Advised by [Oscar Pina]()
 - [1. Introduction](#1_intro)
     - [1.1. Motivation](#11_motivation)
     - [1.2. Objectives](#12_objectives)
-- [2. Tools and technologies](#2_toolstechnologies)
-    - [2.1. Software](#21_software)
-    - [2.2. Hardware](#22_hardware) 
+- [2. Corpora](#2_corpora)
+    - [2.1. BCI Dataset](#21_bcidataset)
+    - [2.2. Endonuke Dataset](#22_endonukedataset)
+    - [2.3. Pannuke Dataset](#23_pannukeedataset) 
 - [3. Methodology??](#3_methodology)
     - [3.1. Time costs](#31_timecosts)
-- [4. Data Overview](#4_dataoverview)
-    - [4.1. Biological context](#41_biologicalcontext)
-    - [4.2. BCI dataset](#42_bcidataset)
-    - [4.3. Pannuke dataset](#43_pannukedataset)
-    - [4.4. Endonuke dataset](#44_endonukedataset) 
+- [4. Environment Requirements](#4_envreqs)
+    - [4.1. Software](#41_software)
+    - [4.2. Hardware](#42_hardware)
 - [5. Experiment's design and results](#5_experimentsdesignandresults)    
     - [5.1. cycleGAN](#51_cycleGAN)
         - [Data preprocessing](#511_datapreprocessing)
@@ -80,9 +79,9 @@ Some sample HE-IHC image pairs are shown below:
 ![BCI dataset example](readme_images/BCIdatasetpreview.png)
  
 
-### 2.2. Endonuke Dataset  <a name="22_hardware"></a> 
+### 2.2. Endonuke Dataset  <a name="22_endonukedataset"></a> 
 
-To enhance performance and efficiency, we carefully selected and configured our hardware resources in alignment with the demands of our model and the size of our dataset.
+### 2.3. Pannuke Dataset  <a name="22_pannukedataset"></a> 
 
 
 
