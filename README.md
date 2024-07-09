@@ -143,17 +143,21 @@ For our image-to-image translation tasks, we implemented CycleGAN, an innovative
 
 Here is a visual explanation of the overall pipeline of the CycleGAN:
 
-![CycleGAN Pipeline](readme_images/gan_pipelin.png)
+![CycleGAN Pipeline](readme_images/gan_pipeline2.png)
 
 - #### Architecture
 
 Our CycleGAN model's generator architecture includes two downsampling layers, nine residual blocks, and two upsampling layers. The discriminator architecture ias a 70 X 70 PatchGAN, consisting of a series of convolutional layers without downsampling or upsampling, progressively reducing the spatial dimensions to make real or fake predictions. The activation functions used in these networks are pivotal for their performance. Leaky ReLU is employed in the discriminator to allow a small gradient when the unit is not active, mitigating the issue of vanishing gradients. For the generator, ReLU is used in the residual blocks to facilitate efficient training and stable gradient flow. At the output layer of the generator, a Tanh activation function is used to scale the output to the range [-1, 1].
 
+![CycleGAN Architecture](readme_images/gan_architecture.png)
 
 
 - #### Hyperparameter Tuning
 
 During training, we used an Adam optimizer with beta1=0.5 and beta2=0.999. Our early experiments involved a batch size of 1 and 6 residual blocks in the generator, which yielded moderate results. However, after increasing the batch size to 2 and the number of residual blocks to 9, we observed a smoother convergence and a lower loss from the beginning. We estimate that this improvement can be attributed to the larger batch size providing more stable gradient estimates, and the increased number of residual blocks allowing the model to capture more intricate details in the images. Additionally, we incorporated identity loss with a lambda of 0.5, helping to preserve the format and characteristics of the original domain during translation. These adjustments significantly enhanced the stability and quality of the generated images, demonstrating the importance of hyperparameter tuning in training deep learning models.
+
+![CycleGAN Training](readme_images/gan_training_1.png)
+
 
 - #### Transfer Learning to final dataset
 
