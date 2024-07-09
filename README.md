@@ -143,7 +143,7 @@ For our image-to-image translation tasks, we implemented CycleGAN, an innovative
 
 Here is a visual explanation of the overall pipeline of the CycleGAN:
 
-![CycleGAN Pipeline](readme_images/gan_pipeline.png)
+![CycleGAN Pipeline](readme_images/gan_pipelin.png)
 
 - #### Architecture
 
