@@ -91,29 +91,20 @@ These 3 datasets are explained more in detail in section XXX.
   <img src="Data/images-sagan/data-tree-background.png">
 </p>
 
-### 2.1. Software  <a name="21_software"></a>
+### 2.1. BCI Dataset  <a name="21_bcidataset"></a>
 
-Through the API available in the ISIC home page we have been able to download all the images collection with its descriptions associated. The whole database is about 110 gigabytes (GB). The format of the colour images is both JPEG and PNG with a high variety of resolution sizes. Each image has a corresponding JSON-based description file with the image metadata information. From these metadata files we have been conducted a quick Exploratory Data Analysis (EDA) to acquire more awareness of how distributed it is. Initially, there were 27 metadata fields from which we later filtered out and kept only 8 of them. Some meaningful classes worthy to mention are the dcm_name field which identifies the image associated; the benign_malignant class from which we later classify; and finally the diagnosis class which details the diagnosis of the dermatological image lesion is referred to.
+For training our model, we used the [BCI dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge. This dataset is specifically designed for medical imaging tasks and is well-suited for our project's objectives.
 
+It proposes a breast cancer immunohistochemical (BCI) benchmark attempting to synthesize IHC data directly with the paired hematoxylin and eosin (HE) stained images. BCI dataset contains **9746 images (4873 pairs), 3896 pairs for train and 977 for test**, covering a variety of HER2 expression levels. 
 
-We selected PyTorch as framwork for our scientific computing package to develop our project. Regarding the image transformations used for standard augmentations, we have selected both Torchvision and Albumentation packages. To approach the imbalance dataset issue we used Torchsampler’s Imbalanced Dataset Sampler library. For visualization, we also used both classical Pyplot and Seaborn packages. For the dataset preprocessing, we made use of the modules available in Scikit-Learn library. Some of the GANs-based implementations developed make use of YAML as the preferred language for defining its configuration parameters files. Lastly, the package Pytorch Image Quality Assessment (PIQA) is used to generate the metrics that evaluate the quality of the synthetic images. And finally, for the model we made use of lukemelas EfficientNet architecture. 
+Some sample HE-IHC image pairs are shown below:
+
+![BCI dataset example](readme_images/BCIdatasetpreview.png)
  
 
-
-
-
-### 2.2. Hardware  <a name="22_hardware"></a> 
+### 2.2. Endonuke Dataset  <a name="22_hardware"></a> 
 
 To enhance performance and efficiency, we carefully selected and configured our hardware resources in alignment with the demands of our model and the size of our dataset.
-
-
-- **Google Cloud Platform**
-
-To start, we utilized a VM from Google Cloud Platform (GCP) with an Ubuntu Image, equipped with 1 NVIDIA L4 GPU, and a machine type of n1-standard-4 (4 vCPUs, 15 GB memory). As the computational demands increased for model training and to expedite the process, we upgraded to a VM from GCP with an Ubuntu Image, featuring 1 NVIDIA L4 GPU and a machine type of g2-standard-8 (8 vCPUs, 32 GB memory).
-
-To leverage GPU acceleration, we employed CUDA, significantly enhancing our processing capabilities. We used Google Cloud Buckets to store and import raw dataset files to the VM. Additionally, we utilized the gcloud SDK for seamless data import/export to and from the VM.
-
-For accessing the VM and conducting our work, we established an SSH connection and utilized Visual Studio Code with the remote-ssh extension. This setup provided an efficient and flexible environment for developing and training our AI models.
 
 
 
@@ -157,54 +148,25 @@ HaarPSI |   Ranges from 0 to 1, being 1 the best value.   |
 
 
 
-## 4. Data overview <a name="4_dataoverview"></a>
-### 4.1. Biological Context  <a name="41_biologicalcontext"></a>
+## 4. Environment Requirements <a name="4_env_reqs"></a>
+### 4.1. Software  <a name="41_software"></a>
 
 We selected PyTorch as framwork for our scientific computing package to develop our project. Regarding the image transformations used for standard augmentations, we have selected both Torchvision and Albumentation packages. To approach the imbalance dataset issue we used Torchsampler’s Imbalanced Dataset Sampler library. For visualization, we also used both classical Pyplot and Seaborn packages. For the dataset preprocessing, we made use of the modules available in Scikit-Learn library. Some of the GANs-based implementations developed make use of YAML as the preferred language for defining its configuration parameters files. Lastly, the package Pytorch Image Quality Assessment (PIQA) is used to generate the metrics that evaluate the quality of the synthetic images. And finally, for the model we made use of lukemelas EfficientNet architecture. 
  
 
+### 4.2. Hardware  <a name="42_hardware"></a> 
 
-#### CSV files
+- **Google Cloud Platform**
 
-As mentioned before, every image comes with a JSON files with relevant information regarding the patient and the skin spot. This files were all put into a CSV file where each column stands for a field from the JSON file. 
-In addition to the initial fields, we added “dcm_name” to store the name of the image the data belongs to, and “target” which is set to 0 if the skin spot is benign and to 1 in case it is malignant.
+To start, we utilized a VM from Google Cloud Platform (GCP) with an Ubuntu Image, equipped with 1 NVIDIA L4 GPU, and a machine type of n1-standard-4 (4 vCPUs, 15 GB memory). As the computational demands increased for model training and to expedite the process, we upgraded to a VM from GCP with an Ubuntu Image, featuring 1 NVIDIA L4 GPU and a machine type of g2-standard-8 (8 vCPUs, 32 GB memory).
 
-#### Dataset reduction
+To leverage GPU acceleration, we employed CUDA, significantly enhancing our processing capabilities. We used Google Cloud Buckets to store and import raw dataset files to the VM. Additionally, we utilized the gcloud SDK for seamless data import/export to and from the VM.
 
-We reduced the dataset to 5K images to diminish the training cost, keeping the malignant/benign ratio so the results can be escalated to the complete dataset.
-
-Given the size of the image’s directory, we modified it so it only contained the images that were going to be fed into the network, in order not to use more storage than necessary in GCP. We did this through a series of automated functions in python.
-
-#### Data augmentation
-
-We applied several transformations to avoid overfitting when training our network with the reduced dataset. To do that, we have used albumentations’ library due to the large number of augmentations it has available.
-
-The images input size was variable and with a bigger resolution, we resized them to 128x128 to fit the synthetically generated images. Furthermore, we applied techniques involving changing the image’s contrast and brightness scale and rotations. We also normalized its mean and standard deviation and finally we converted the images ton tensors so they can be feed into our model.
-
-Here are some of the images before and after applying the transformations.
+For accessing the VM and conducting our work, we established an SSH connection and utilized Visual Studio Code with the remote-ssh extension. This setup provided an efficient and flexible environment for developing and training our AI models.
 
 
-
-
-
-
-### 4.2. BCI Dataset  <a name="42_bcidataset"></a> 
-
-For training our model, we used the [BCI dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge. This dataset is specifically designed for medical imaging tasks and is well-suited for our project's objectives.
-
-It proposes a breast cancer immunohistochemical (BCI) benchmark attempting to synthesize IHC data directly with the paired hematoxylin and eosin (HE) stained images. BCI dataset contains **9746 images (4873 pairs), 3896 pairs for train and 977 for test**, covering a variety of HER2 expression levels. 
-
-Some sample HE-IHC image pairs are shown below:
-
-![BCI dataset example](readme_images/BCIdatasetpreview.png)
-
-### 4.3. Pannuke Dataset  <a name="43_pannukedataset"></a> 
-
-### 4.4. Endonuke Dataset  <a name="44_endonukedataset"></a> 
 
 ## 5. Experiment's Design and Results <a name="5_experimentsdesignandresults"></a>
-
-
 
 ### 5.1. cycleGAN  <a name="51_cyclegan"></a> 
 - [Data preprocessing]<a name="511_datapreprocessing"></a>
