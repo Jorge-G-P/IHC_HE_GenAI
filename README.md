@@ -21,6 +21,7 @@ Advised by [Oscar Pina]()
     - [1.2. Objectives](#12_objectives)
 - [2. Corpora](#2_corpora)
     - [2.1. BCI Dataset](#21_bcidataset)
+        - [2.1.1. Pre-processing](#211_preprocess)   
     - [2.2. Endonuke Dataset](#22_endonukedataset)
     - [2.3. Pannuke Dataset](#23_pannukeedataset) 
 - [3. Methodology??](#3_methodology)
@@ -70,14 +71,28 @@ These 3 datasets are explained more in detail in section XXX.
 For training our cycleGAN model, we used the [BCI dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge. This dataset is specifically designed for medical imaging tasks and is well-suited for our project's objectives. 
 It proposes a breast cancer immunohistochemical (BCI) benchmark attempting to synthesize IHC data directly with the paired hematoxylin and eosin (HE) stained images. 
 
-Some sample HE-IHC image pairs are shown below:
+The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and 977 for test, covering a variety of HER2 expression levels, each with a resolution of 1024x1024 pixels. Some sample HE-IHC image pairs are shown below:
 
 ![BCI dataset example](readme_images/BCIdatasetpreview.png)
 
 
-The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and 977 for test, covering a variety of HER2 expression levels, each with a resolution of 1024x1024 pixels. To optimize the training process, these images are divided into smaller sections, yielding a total of 38984 images with a resolution of 512x512 pixels. The dataset is subsequently split into training, validation, and test sets, adhering to a ratio of 60%, 20%, and 20%, respectively.
+#### 2.1.1. Pre-processing  <a name="211_preprocess"></a>
+
+- #### Dataset Resolution
+
+Due to the high resolution of the original dataset and in order to accelerate the training process, we built the dataset class with a dynamic cropping feature to be able to work with smaller images. Before feeding them to the network, they are divided into smaller patches, yielding a total of 38984 images (19492 pairs) with a resolution of 512x512 pixels. The dataset is subsequently split into training, validation, and test sets, adhering to a ratio of 60%, 20%, and 20%, respectively.
 
 ![BCI crops](readme_images/BCI_crops.png)
+
+
+- #### Dataset Reduction
+
+We used just 50% of our training and validation sets, to reduce training costs, while keeping a representative sample size for good generalization. Finally, the model was trained with 15592 images (7796 pairs).
+
+- #### Data Augmentation
+
+In order to increase diversity on the training set, we applied several transformations to it, using Albumentations library.
+For further reduction of the training time, we resized the images to 256*256. To avoid overfitting, techniques like flips and rotations were applied. Also, we applied normalization of mean and standard deviation and finally we converted the images to tensors so they can be processed by the model.
 
 
 ### 2.2. Endonuke Dataset  <a name="22_endonukedataset"></a> 
@@ -129,19 +144,30 @@ HaarPSI |   Ranges from 0 to 1, being 1 the best value.   |
 ## 4. Environment Requirements <a name="4_env_reqs"></a>
 ### 4.1. Software  <a name="41_software"></a>
 
-We selected PyTorch as framwork for our scientific computing package to develop our project. Regarding the image transformations used for standard augmentations, we have selected both Torchvision and Albumentation packages. To approach the imbalance dataset issue we used Torchsampler’s Imbalanced Dataset Sampler library. For visualization, we also used both classical Pyplot and Seaborn packages. For the dataset preprocessing, we made use of the modules available in Scikit-Learn library. Some of the GANs-based implementations developed make use of YAML as the preferred language for defining its configuration parameters files. Lastly, the package Pytorch Image Quality Assessment (PIQA) is used to generate the metrics that evaluate the quality of the synthetic images. And finally, for the model we made use of lukemelas EfficientNet architecture. 
- 
+We selected PyTorch as the framework for our AI project development due to its robust capabilities in scientific computing and deep learning. Our project leverages several key libraries and tools to enhance its functionality and performance:
+
+**Image Transformations and Augmentations:** We utilized both Torchvision and Albumentations packages for standard augmentations and image transformations, ensuring diverse and effective training data.
+
+**Dataset Preprocessing:** Custom functions and classes were developed for specific preprocessing needs, complemented by the skimage library for additional image processing utilities.
+
+**Architectures and Models:** Our implementations include advanced models such as CycleGAN for image-to-image translation tasks and HoverNet for nuclear segmentation in biomedical images.
+
+**Metrics and Evaluation:** For evaluating the quality of the synthetic images generated by CycleGAN, we employed the Fréchet Inception Distance (FID) metric, ensuring rigorous and accurate assessment of our model's performance.
+
+This combination of powerful libraries and custom solutions has enabled the development of a robust and efficient AI system tailored to our project's requirements.
+
 
 ### 4.2. Hardware  <a name="42_hardware"></a> 
 
+On an initial phase we started by training our models locally on our laptops but as the project architecture expanded, we rapidly looked for another approach due to the high computing demands.
+
 - **Google Cloud Platform**
 
-To start, we utilized a VM from Google Cloud Platform (GCP) with an Ubuntu Image, equipped with 1 NVIDIA L4 GPU, and a machine type of n1-standard-4 (4 vCPUs, 15 GB memory). As the computational demands increased for model training and to expedite the process, we upgraded to a VM from GCP with an Ubuntu Image, featuring 1 NVIDIA L4 GPU and a machine type of g2-standard-8 (8 vCPUs, 32 GB memory).
+To start, we utilized a VM from Google Cloud Platform (GCP) with an Ubuntu Image, equipped with 1 NVIDIA T4 GPU, and a machine type of n1-standard-4 (4 vCPUs, 15 GB memory). As the computational demands increased for model training and to expedite the process, we upgraded to a VM from GCP with an Ubuntu Image, featuring 1 NVIDIA L4 GPU and a machine type of g2-standard-8 (8 vCPUs, 32 GB memory).
 
 To leverage GPU acceleration, we employed CUDA, significantly enhancing our processing capabilities. We used Google Cloud Buckets to store and import raw dataset files to the VM. Additionally, we utilized the gcloud SDK for seamless data import/export to and from the VM.
 
 For accessing the VM and conducting our work, we established an SSH connection and utilized Visual Studio Code with the remote-ssh extension. This setup provided an efficient and flexible environment for developing and training our AI models.
-
 
 
 ## 5. Experiment's Design and Results <a name="5_experimentsdesignandresults"></a>
