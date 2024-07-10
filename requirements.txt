@@ -9,5 +9,5 @@ tqdm
 Pillow
 torch
 albumentations
-
+torch-tb-profiler
 
