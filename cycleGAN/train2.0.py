@@ -13,7 +13,6 @@ from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
 
-
 def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, disc_loss, ident_loss, loader, epoch, writer):
     
     '''Set the generators and discriminators to training mode'''
@@ -307,7 +306,7 @@ def main():
     best_epoch = 0
     # Training loop
     for epoch in range(start_epoch, config.NUM_EPOCHS):
-        print(f"TRAINING MODEL [Epoch {epoch}]:")
+        print(f"\nTRAINING MODEL [Epoch {epoch}]:")
         gen_train_loss, disc_train_loss = train_func(
                                             disc_HE, disc_IHC, 
                                             gen_HE, gen_IHC, 
@@ -350,7 +349,8 @@ def main():
                 save_checkpoint(epoch, disc_IHC, optim_disc, filename=config.CHECKPOINT_DISC_IHC, log_dir=log_dir, loss=best_val_loss)
         else:
             epochs_no_improve += 1
-            print(f"Best epoch so far was {epoch}\n")
+            print(f"Best epoch so far was {best_epoch}\n")
+            print(f"Nº of epochs without improvement: {epochs_no_improve}\n")
 
         # Check for early stopping
         if epochs_no_improve >= patience:

@@ -55,27 +55,32 @@ TEST_DIR_HE = parent_path / "BCI_dataset/HE/test"
 ENDONUKE_ORIGINAL = parent_path / "endonuke_dataset/data/clean_images"
 ENDONUKE_CROPPED = parent_path / "endonuke_dataset/data/crop_images"
 
+PANNUKE_ORIGINAL = parent_path / "pannuke_dataset"
+
 IMG_ORIGINAL_SIZE = 256
 PATCHES_SIZE = 256
-SUBSET_PERCENTAGE = 100
-SHUFFLE_DATASET = False
+SUBSET_PERCENTAGE = 50
+SHUFFLE_DATASET = True
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-BATCH_SIZE = 2
-LEARNING_RATE = 1e-5
-LAMBDA_IDENTITY = 0
-LAMBDA_CYCLE = 10
 NUM_EPOCHS = 150
 NUM_WORKERS = 4
-D_FEATURES = [64, 128, 256, 512]
+
+BATCH_SIZE = 2
+LEARNING_RATE = 1e-5
+LAMBDA_IDENTITY = 0.3
+LAMBDA_CYCLE = 10
 IN_CH = 3
+
+D_FEATURES = [64, 128, 256, 512]
 N_RES_BLOCKS = 6
-EARLY_STOP = 15
+
+EARLY_STOP = 20
 FID_FREQUENCY = 5
-FID_BATCH_SIZE = 32
+FID_BATCH_SIZE = 50
 
 transforms = A.Compose([
-                # A.Resize(width=256, height=256),
+                A.Resize(width=256, height=256),
                 A.HorizontalFlip(p=0.5),
                 A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
                 ToTensorV2(),

@@ -13,7 +13,7 @@ def save_checkpoint(epoch, model, optimizer, filename, log_dir=None, loss=None):
         "log_dir": log_dir,
         "loss": loss,
     }
-    # os.makedirs(os.path.dirname(filename), exist_ok=True)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     torch.save(checkpoint, filename)
 
 

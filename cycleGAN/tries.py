@@ -14,10 +14,12 @@ original = config.ENDONUKE_ORIGINAL
 cropped = config.ENDONUKE_CROPPED
 data1 = parent_path / "endonuke_dataset/data/dataset/images"
 data2 = parent_path / "endonuke_dataset/data/dataset/images_context"
+data3 = config.ENDONUKE_CROPPED
+data4 = config.PANNUKE_ORIGINAL
 
 def test_dataset_class():
     myclass = GanDataset(
-        config.ENDONUKE_CROPPED,
+        config.PANNUKE_ORIGINAL,
         config.ENDONUKE_CROPPED,
         config.SUBSET_PERCENTAGE,
         config.IMG_ORIGINAL_SIZE,
@@ -26,7 +28,10 @@ def test_dataset_class():
         shuffle=config.SHUFFLE_DATASET
     )
 
-    x = glob.glob(os.path.join(data1, '*'))
+    x = glob.glob(os.path.join(data4, '*'))
+    y = glob.glob(os.path.join(data3, '*'))
+    
+    print("")
     print(myclass.img_size)
     print(myclass.patch_size)
     print(myclass.num_patches_per_image)
@@ -34,7 +39,7 @@ def test_dataset_class():
     sample = myclass[0]
     sample2 = myclass[10]
 
-    print(f'Original dataset size: {len(x)}')
+    print(f'Original dataset size: {len(x)}, {len(y)}')
     print(f'Dataset size: {len(myclass)}')
     print('\n' f'Index Image A: {sample["A_index"]}', '\n' f'Index Image B: {sample["B_index"]}', '\n' f'Index Image A before shuffle: {sample["A_initial_index"]}', '\n' f'Index Image B before shuffle: {sample["B_initial_index"]}')
     print('\n' f'Index Image A2: {sample2["A_index"]}', '\n' f'Index Image B2: {sample2["B_index"]}', '\n' f'Index Image A2 before shuffle: {sample2["A_initial_index"]}', '\n' f'Index Image B2 before shuffle: {sample2["B_initial_index"]}')
@@ -42,6 +47,7 @@ def test_dataset_class():
 def check_endonuke_size():
     x = glob.glob(os.path.join(data1, '*'))
     y = glob.glob(os.path.join(data2, '*'))
+    z = glob.glob(os.path.join(data3, '*'))
 
     A = 0
     B = 0
@@ -90,5 +96,34 @@ def check_endonuke_size():
             print(f"Img {path} has width {width} and height {height}")
     print(f"\nIn path: {data2}")
     print(f"200*200: {A}\n", f"400*400: {B}\n", f"600*600: {C}\n", f"1200*1200: {D}\n", f"Other: {E}\n", f"Total: {total}")
+
+    A = 0
+    B = 0
+    C = 0
+    D = 0
+    E = 0
+    F = 0
+    total = 0
+    for path in z:
+        with Image.open(path) as img:
+            width, height = img.size
+        total += 1
+        if width == 200 and height == 200:
+            A += 1
+        elif width == 400 and height == 400:
+            B += 1
+        elif width == 600 and height == 600:
+            C += 1
+        elif width == 1200 and height == 1200:
+            D += 1
+        elif width == 256 and height == 256:
+            E += 1
+        else:
+            F += 1
+            print(f"Img {path} has width {width} and height {height}")
+    print(f"\nIn path: {data3}")
+    print(f"200*200: {A}\n", f"400*400: {B}\n", f"600*600: {C}\n", f"1200*1200: {D}\n", f"256*156: {E}\n", f"Total: {total}")
+
+check_endonuke_size()
 
 test_dataset_class()

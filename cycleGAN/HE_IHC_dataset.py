@@ -48,9 +48,9 @@ class GanDataset(data.Dataset):
         if self.subset_percentage is not None:
             if not (0 < self.subset_percentage <= 100):
                 raise ValueError("subset_percentage must be in range [0, 100]")
-            self.subset_size = int(self.subset_percentage / 100.0 * max(self.A_size, self.B_size) * self.num_patches_per_image)
+            self.subset_size = int(self.subset_percentage / 100.0 * min(self.A_size, self.B_size) * self.num_patches_per_image)
         else:
-            self.subset_size = max(self.A_size, self.B_size) * self.num_patches_per_image
+            self.subset_size = min(self.A_size, self.B_size) * self.num_patches_per_image
     
 
     def split_image_into_patches(self, image) -> list:   # returns a list of 4 smaller images of patch_size
@@ -86,6 +86,9 @@ class GanDataset(data.Dataset):
         # Check if index is within the subset size
         if index >= len(self):
             raise IndexError("Index out of range. Dataset subset size reached")
+
+        if self.A_size == 0 or self.B_size == 0:
+            raise ZeroDivisionError("Not possible to get dataset sample because at least one of them is empty")
 
         image_index = index // self.num_patches_per_image
         patch_index = index % self.num_patches_per_image
