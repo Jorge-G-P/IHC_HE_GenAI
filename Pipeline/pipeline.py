@@ -8,16 +8,15 @@ from celldet import CellDetectionMetric
 from import_gan import pretrained_generator, process_image
 from Hover_net.hover_net2.run_tile import command
 from DicDataset import DicDataset
-import config
+from config import (path_to_endonuke_data_folder, path_to_Hover_net_run_infer, path_to_Hover_net_weights)
 
-data_folder = config.path_to_endonuke_data_folder
-run_infer_path = config.path_to_Hover_net_run_infer
+
 
 #Create paths to folders
-crop_images_folder = os.path.join(data_folder, 'crop_images')
-crop_txt_folder = os.path.join(data_folder, 'crop_txt')
-gan_results_folder = os.path.join(data_folder, 'Results')
-results_hover_folder = os.path.join(data_folder, 'results_hover')
+crop_images_folder = os.path.join(path_to_endonuke_data_folder, 'crop_images')
+crop_txt_folder = os.path.join(path_to_endonuke_data_folder, 'crop_txt')
+gan_results_folder = os.path.join(path_to_endonuke_data_folder, 'Results')
+results_hover_folder = os.path.join(path_to_endonuke_data_folder, 'results_hover')
 
 if not os.path.exists(results_hover_folder):
     os.makedirs(results_hover_folder)
@@ -38,8 +37,8 @@ for filename in os.listdir(crop_images_folder):
 
 # Define the command to be executed
 command = [
-    'python', run_infer_path,
-    '--model_path='+config.path_to_Hover_net_weights,
+    'python', path_to_Hover_net_run_infer,
+    '--model_path='+path_to_Hover_net_weights,
     '--model_mode=fast',
     'tile',
     '--input_dir='+gan_results_folder,
