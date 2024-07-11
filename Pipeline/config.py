@@ -4,10 +4,11 @@ from albumentations.pytorch import ToTensorV2
 import os
 from pathlib import Path
 from datetime import datetime
+from Datasets.Endonuke.config import path_to_endonuke_data_folder 
 
-path_to_endonuke_data_folder='../IHC_HE_GenAI/Datasets/Endonuke/data/'
-path_to_Hover_net_run_infer='../IHC_HE_GenAI/Hover_net/hover_net2/run_infer.py'
-path_to_Hover_net_weights='../IHC_HE_GenAI/Hover_net/hover_net2/checkpoint/pretrained/hovernet_fast_pannuke_type_tf2pytorch.tar'
+path_to_endonuke_data_folder = path_to_endonuke_data_folder
+path_to_Hover_net_run_infer = '../IHC_HE_GenAI/Hover_net/hover_net2/run_infer.py'
+path_to_Hover_net_weights = '../IHC_HE_GenAI/Hover_net/hover_net2/checkpoint/pretrained/hovernet_fast_pannuke_type_tf2pytorch.tar'
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 repo_path = dir_path.parent
 parent_path = repo_path.parent
