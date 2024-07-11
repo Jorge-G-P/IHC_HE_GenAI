@@ -86,7 +86,7 @@ if __name__ == '__main__':
                     version='HoVer-Net Pytorch Inference v1.0')
     sub_cmd = args.pop('<command>')
     sub_cmd_args = args.pop('<args>')
-    # ! TODO: where to save logging
+    # Where to save logging
     logging.basicConfig(
         level=logging.INFO,
         format='|%(asctime)s.%(msecs)03d| [%(levelname)s] %(message)s',datefmt='%Y-%m-%d|%H:%M:%S',
