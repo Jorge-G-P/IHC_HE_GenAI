@@ -8,12 +8,9 @@ import glob
 import os
 import tqdm
 import pathlib
-
 import numpy as np
-
 from misc.patch_extractor import PatchExtractor
 from misc.utils import rm_n_mkdir
-
 from dataset import get_dataset
 
 # -------------------------------------------------------------------------------------
