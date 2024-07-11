@@ -5,11 +5,11 @@ import numpy as np
 import shutil
 from crop import read_coordinates, specific_crops_with_centroids, copy_txt_files, copy_images, delete_images_without_txt
 from resize import resize_image, save_image, read_coordinates, save_coordinates, resize_coordinates
-import config
+from config import (path_to_endonuke_data_folder)
 
 
 # Define the paths
-endonuke_dataset = config.PATH
+endonuke_dataset = path_to_endonuke_data_folder
 
 #Group txt files
 copy_txt_files(endonuke_dataset)
