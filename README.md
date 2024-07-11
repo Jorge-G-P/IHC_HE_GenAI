@@ -5,7 +5,7 @@ This repository contains
 ### About
 Final Project for the UPC [Artificial Intelligence with Deep Learning Postgraduate Course](https://www.talent.upc.edu/ing/estudis/formacio/curs/310402/postgraduate-course-artificial-intelligence-deep-learning/) 2020-2021 online edition, authored by:
 
-* [Amaia](linkedin??)
+* [Amaia] (linkedin??)
 * [João Pedro Vieira](www.linkedin.com/in/joão-pedro-vieira-1369a51b6)
 * [Josep Baradat]()
 * [Jorge G. Pombo]()
@@ -139,6 +139,7 @@ For accessing the VM and conducting our work, we established an SSH connection a
 
 
 - **Students' personal laptops**
+
 MacBook Pro
 Procesador: 2,6 GHz Intel Core i7
 Grafica: Intel UHD Graphics 630 1536 MB
