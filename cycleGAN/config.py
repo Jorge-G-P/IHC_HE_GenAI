@@ -59,7 +59,7 @@ PANNUKE_ORIGINAL = parent_path / "pannuke_dataset"
 
 IMG_ORIGINAL_SIZE = 256
 PATCHES_SIZE = 256
-SUBSET_PERCENTAGE = 50
+SUBSET_PERCENTAGE = 70
 SHUFFLE_DATASET = True
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -77,10 +77,10 @@ N_RES_BLOCKS = 6
 
 EARLY_STOP = 20
 FID_FREQUENCY = 5
-FID_BATCH_SIZE = 50
+FID_BATCH_SIZE = 32
 
 transforms = A.Compose([
-                A.Resize(width=256, height=256),
+                # A.Resize(width=256, height=256),
                 A.HorizontalFlip(p=0.5),
                 A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
                 ToTensorV2(),
@@ -106,10 +106,10 @@ if not LOAD_MODEL:    # If LOAD_MODEL = True, must define manually current_time 
 else:
     current_time = "20240628"
 
-CHECKPOINT_GEN_HE = parent_path / f"training-models/genHE_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
-CHECKPOINT_GEN_IHC = parent_path / f"training-models/genIHC_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
-CHECKPOINT_DISC_HE = parent_path / f"training-models/discHE_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
-CHECKPOINT_DISC_IHC = parent_path / f"training-models/discIHC_{NUM_EPOCHS}_epochs_{current_time}.pth.tar"
+CHECKPOINT_GEN_HE = parent_path / f"training-models/genHE_{NUM_EPOCHS}_epochs_{current_time}_3.pth.tar"
+CHECKPOINT_GEN_IHC = parent_path / f"training-models/genIHC_{NUM_EPOCHS}_epochs_{current_time}_3.pth.tar"
+CHECKPOINT_DISC_HE = parent_path / f"training-models/discHE_{NUM_EPOCHS}_epochs_{current_time}_3.pth.tar"
+CHECKPOINT_DISC_IHC = parent_path / f"training-models/discIHC_{NUM_EPOCHS}_epochs_{current_time}_3.pth.tar"
 
 PRETRAINED_GEN_HE = parent_path / f"pretrained-models/genHE_{SUFFIX1}_epochs_{SUFFIX2}.pth.tar"
 PRETRAINED_GEN_IHC = parent_path / f"pretrained-models/genIHC_{SUFFIX1}_epochs_{SUFFIX2}.pth.tar"

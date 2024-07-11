@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from discriminator import Discriminator
 from generator import Generator
-from evaluate import evaluate_fid_scores, evaluate_fid_scores_2
+from evaluate import evaluate_fid_scores
 from utils import load_checkpoint, save_checkpoint, set_seed, custom_collate
 from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
@@ -41,83 +41,48 @@ def load_pretrained_model():
 
     return disc_HE, gen_HE, disc_IHC, gen_IHC, optim_gen, optim_disc
 
-def new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers, disc_frozen_layers):
+def reset_last_layer(layer):
+    if isinstance(layer, (nn.Conv2d, nn.ConvTranspose2d)):
+        nn.init.normal_(layer.weight, mean=0.0, std=0.2)
+    elif isinstance(layer, nn.Linear):
+        nn.init.normal_(layer.weight, mean=0.0, std=0.2)
+    if layer.bias is not None:
+        nn.init.zeros_(layer.bias)
 
-    features_discHE = disc_HE.get_features(0)
-    features_genHE = gen_HE.get_features(0)
-    features_discIHC = disc_IHC.get_features(0)
-    features_genIHC = gen_IHC.get_features(0)
-    
-    # # print(f"\nGenerators Structure:\n {features_genIHC}")
-    
-    # gen_last_layer = gen_HE.clone_layer(gen_HE.last_layer, last_activation=False)
-    # disc_last_layer = disc_HE.clone_layer(disc_HE.model[-1], last_activation=False)
-    # # print("\n", disc_last_layer, "\n")
-
-    model_genHE = features_genHE
-    model_discHE = features_discHE
-    model_genIHC = features_genIHC
-    model_discIHC = features_discIHC
-
-    # model_genHE.append(gen_last_layer)
-    # model_discHE.append(disc_last_layer)
-    # model_genIHC.append(gen_last_layer)
-    # model_discIHC.append(disc_last_layer)
-
-    # print(f"\nGenerator Object Structure :\n {gen_HE}\n\n")
-    # print(f"\nNew Generator Features:\n {model_genHE}\n\n")
-    # print(f"\nDiscriminator Object Structure :\n {disc_HE}\n\n")
-    # print(f"\nNew Discriminator Features:\n {model_discHE}\n\n")
-
-    model_genHE.to(config.DEVICE)
-    model_discHE.to(config.DEVICE)
-    model_genIHC.to(config.DEVICE)
-    model_discIHC.to(config.DEVICE)
+def new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC):
 
     # Freeze pre-trained model layers
-    for layer in model_genHE[:gen_frozen_layers]:     
-        for param in layer.parameters():
-            param.requires_grad = False
+    for param in disc_HE.parameters():         
+        param.requires_grad = False
 
-    for layer in model_genHE[gen_frozen_layers:]:   
-        for param in layer.parameters():
-            param.requires_grad = True
+    for param in gen_HE.parameters():         
+        param.requires_grad = False
 
-    for layer in model_genIHC[:gen_frozen_layers]:    
-        for param in layer.parameters():
-            param.requires_grad = False
+    for param in disc_IHC.parameters():         
+        param.requires_grad = False
 
-    for layer in model_genIHC[gen_frozen_layers:]:       
-        for param in layer.parameters():
-            param.requires_grad = True
+    for param in gen_IHC.parameters():         
+        param.requires_grad = False
 
-    for layer in model_discHE[:disc_frozen_layers]:       
-        for param in layer.parameters():
-            param.requires_grad = False
+    # reset_last_layer(disc_HE.model[-1])
+    # reset_last_layer(gen_HE.last_layer)
+    # reset_last_layer(disc_IHC.model[-1])
+    # reset_last_layer(gen_IHC.last_layer)
 
-    for layer in model_discHE[disc_frozen_layers:]:    
-        for param in layer.parameters():
-            param.requires_grad = True
+    # Unfreeze the last layers for fine-tuning
+    for param in disc_HE.model[-1].parameters():         
+        param.requires_grad = True
 
-    for layer in model_discIHC[:disc_frozen_layers]:  
-        for param in layer.parameters():
-            param.requires_grad = False
+    for param in gen_HE.last_layer.parameters():         
+        param.requires_grad = True
 
-    for layer in model_discIHC[disc_frozen_layers:]:  
-        for param in layer.parameters():
-            param.requires_grad = True
+    for param in disc_IHC.model[-1].parameters():         
+        param.requires_grad = True
 
-    # for layer in model_discHE[3:]:     
-    #     print(layer)
+    for param in gen_IHC.last_layer.parameters():         
+        param.requires_grad = True
 
-    # # Print to confirm if weights of new layer created with clone_layer() are not the same as the layer from the loaded pretrained model
-    # for param1, param2 in zip(disc_HE.parameters(), model_discHE.parameters()):
-    #     if torch.equal(param1.data, param2.data):
-    #         print("Weights are the same")
-    #     else:
-    #         print("Weights are different")
-
-    return model_discHE, model_genHE, model_discIHC, model_genIHC
+    return disc_HE, gen_HE, disc_IHC, gen_IHC
 
 def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, disc_loss, ident_loss, loader, epoch, writer):
     
@@ -162,13 +127,10 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
             writer.add_scalars("[TRAIN] - HE/IHC Discriminator Loss", {"HE": D_HE_loss, "IHC": D_IHC_loss}, epoch)
             writer.add_scalar("[TRAIN] - Total Discriminator Loss", D_loss, epoch)
 
-            # print(f"D_loss: {D_loss}, D_scaler: {D_scaler.get_scale()}")
-
         optim_D.zero_grad()
         D_scaler.scale(D_loss).backward()
         D_scaler.step(optim_D)
         D_scaler.update()
-
 
         with torch.cuda.amp.autocast():         # For mixed precision training
             '''Train the Generator of HE and IHC images'''
@@ -303,7 +265,7 @@ def main():
 
     disc_HE, gen_HE, disc_IHC, gen_IHC, optim_gen, optim_disc = load_pretrained_model()
 
-    finetuned_discHE, finetuned_genHE, finetuned_discIHC, finetuned_genIHC = new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers=4, disc_frozen_layers=4)
+    finetuned_discHE, finetuned_genHE, finetuned_discIHC, finetuned_genIHC = new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC)
 
     # Losses used during training
     cycle_loss = nn.L1Loss()

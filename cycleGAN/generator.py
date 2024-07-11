@@ -140,23 +140,22 @@ class Generator(nn.Module):
         return torch.tanh(self.last_layer(x))
 
 
-    def get_features(self, all=False):     # Used for fine-tuning on small dataset after training with bigger dataset
-        return nn.Sequential(
-                            self.initial_layer,
-                            *self.downsampling_layers,
-                            self.residual_layers,
-                            *self.upsampling_layers
-                        ) if not all else nn.Sequential(
-                                                        self.initial_layer,
-                                                        *self.downsampling_layers,
-                                                        self.residual_layers,
-                                                        *self.upsampling_layers,
-                                                        self.last_layer,
-                                                        nn.Tanh(),
-                                                    )
+    def get_features(self, exclude_last_n=0):    # Used for fine-tuning on smaller dataset after training with bigger dataset
+        layers = [
+            self.initial_layer,
+            *self.downsampling_layers,
+            self.residual_layers,
+            *self.upsampling_layers,
+            self.last_layer,
+        ]
+        if exclude_last_n > 0:
+            return nn.Sequential(*layers[:-exclude_last_n])
+        else:
+            return nn.Sequential(*layers)
+
 
     @staticmethod
-    def clone_layer(layer, last_layer=True):
+    def clone_layer(layer, last_activation=False):  
 
         cloned_layer = nn.Sequential(
                             type(layer)(
@@ -167,7 +166,7 @@ class Generator(nn.Module):
                                     padding=layer.padding,
                                     padding_mode=layer.padding_mode
                             ),
-                            nn.Tanh() if last_layer else nn.Identity(),
+                            nn.Tanh() if last_activation else nn.Identity(),
                         )
         
         return cloned_layer
