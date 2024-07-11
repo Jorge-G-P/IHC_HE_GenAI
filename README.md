@@ -139,17 +139,18 @@ For accessing the VM and conducting our work, we established an SSH connection a
 
 
 - **Students' personal laptops**
-- MacBook Pro
+MacBook Pro
 Procesador: 2,6 GHz Intel Core i7
 Grafica: Intel UHD Graphics 630 1536 MB
 Memoria: 16 GB 2667 MHz DDR4
-- 
+
+Asus Vivobook
 Procesador:	i7-13700H 2.40 GHz
 RAM: 32,0 GB
 OS: Windows 11
 Grafica: Nvidia RTX 4060
-- 
-- 
+
+
 
 
 ## 3. Methodology <a name="3_-_methodology"></a>
@@ -226,7 +227,7 @@ The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and
 
 
 <p align="center">
-  <img src="readme_images/BCIsamples.png">
+  <img src="readme_images/BCIsamples.png"  width="48">
 </p>
 
 
