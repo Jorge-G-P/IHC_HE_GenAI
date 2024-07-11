@@ -6,6 +6,7 @@ import subprocess
 from torchvision import transforms
 from celldet import CellDetectionMetric
 from import_gan import pretrained_generator, process_image
+from Hover_net.hover_net2.run_tile import command
 from DicDataset import DicDataset
 import config
 
