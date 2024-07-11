@@ -1,74 +1,43 @@
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2
-import seaborn
-import cv2
+import shutil
 from PIL import Image
 from tqdm import tqdm
+from Datasets.Pannuke.config import (
+    image_paths, mask_paths, out_dir, directory_name_train, zip_file_name_train, directory_name_val, zip_file_name_val, directory_name_test, zip_file_name_test)
 
 
-
-import numpy as np
-
-# Rutas de las imágenes
-image_paths = [
-    '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/Fold 1/images/fold1/images.npy',
-    '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/Fold 2/images/fold2/images.npy',
-    '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/Fold 3/images/fold3/images.npy'
-]
-
-# Lista para almacenar los datos cargados
 images_list = []
 
-# Cargar cada archivo .npy y añadir los datos a la lista
+
 for image_path in image_paths:
     images = np.load(image_path, allow_pickle=True)
     images_list.append(images)
 
-# Combinar todos los datos en un solo arreglo
-# Puedes usar np.concatenate si los arreglos tienen la misma forma
 images = np.concatenate(images_list, axis=0)
 
 
-# Rutas de las máscaras
-mask_paths = [
-    '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/Fold 1/masks/fold1/masks.npy',
-    '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/Fold 2/masks/fold2/masks.npy',
-    '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/Fold 3/masks/fold3/masks.npy'
-]
-
-# Lista para almacenar los datos cargados
 masks_list = []
 
-# Cargar cada archivo .npy y añadir los datos a la lista
+
 for mask_path in mask_paths:
     masks = np.load(mask_path, allow_pickle=True)
     masks_list.append(masks)
 
-# Combinar todos los datos en un solo arreglo
-# Puedes usar np.concatenate si los arreglos tienen la misma forma
+
 masks = np.concatenate(masks_list, axis=0)
-
-# images = np.load('/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/Fold 1/images/fold1/images.npy',allow_pickle=True)
-# masks = np.load('/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/Fold 1/masks/fold1/masks.npy',allow_pickle=True)
-
 print(images.shape)
 print(masks.shape)
 
-# data_dir = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/'  # ubicación de los datos extraídos
-# output_dir = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/Folds/'  # ubicación para guardar los datos de salida
 
-out_dir = "/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/"
-
-# A helper function to map 2d numpy array
 def flat_for(a, f):
     a = a.reshape(-1)
     for i, v in enumerate(a):
         a[i] = f(v)
 
 
-# A helper function to unique PanNuke instances indexes to [0..N] range where 0 is background
+
 def map_inst(inst):
     seg_indexes = np.unique(inst)
     new_indexes = np.array(range(0, len(seg_indexes)))
@@ -124,28 +93,12 @@ transform(images, masks, 'train', out_dir=out_dir, start=0, finish=0.6)
 transform(images, masks, 'val', out_dir=out_dir, start=0.6, finish=0.8)
 transform(images, masks, 'test', out_dir=out_dir, start=0.8, finish=1)
 
-import shutil
-import os
-
-# Define the directory and zip file names
-directory_name_train = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/train/'
-zip_file_name_train = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/train.zip'
 
 # Create a zip file of the directory
 shutil.make_archive(zip_file_name_train.replace('.zip', ''), 'zip', directory_name_train)
 
-# Remove the original directory
-#shutil.rmtree(directory_name)
-
-directory_name_val = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/val/'
-zip_file_name_val = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/val.zip'
-
 # Create a zip file of the directory
 shutil.make_archive(zip_file_name_val.replace('.zip', ''), 'zip', directory_name_val)
-
-
-directory_name_test = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/test/'
-zip_file_name_test = '/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/test.zip'
 
 # Create a zip file of the directory
 shutil.make_archive(zip_file_name_test.replace('.zip', ''), 'zip', directory_name_test)
