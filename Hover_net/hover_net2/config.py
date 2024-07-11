@@ -1,10 +1,7 @@
 import importlib
-import random
-
-import cv2
-import numpy as np
-
 from dataset import get_dataset
+from Datasets.Pannuke.config import (
+    directory_name_train, directory_name_val)
 
 
 class Config(object):
@@ -49,10 +46,10 @@ class Config(object):
 
         # paths to training and validation patches
         self.train_dir_list = [
-            "/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/train/"
+            directory_name_train
         ]
         self.valid_dir_list = [
-            "/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Image_segmentation/dataset/PanNuke_dataset/val/"
+            directory_name_val
         ]
 
         self.shape_info = {
