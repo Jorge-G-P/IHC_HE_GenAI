@@ -7,15 +7,20 @@ from torchvision import transforms
 from celldet import CellDetectionMetric
 from import_gan import pretrained_generator, process_image
 from DicDataset import DicDataset
-from config import (path_to_endonuke_data_folder, path_to_Hover_net_run_infer, path_to_Hover_net_weights)
+import config
+# datasets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# sys.path.insert(0, datasets_dir)
+# from Datasets.Endonuke.preprocessing import preprocess_endonuke
 
 
+# if config.PREPROCESS_ENDONUKE:
+#     preprocess_endonuke()
 
 #Create paths to folders
-crop_images_folder = os.path.join(path_to_endonuke_data_folder, 'crop_images')
-crop_txt_folder = os.path.join(path_to_endonuke_data_folder, 'crop_txt')
-gan_results_folder = os.path.join(path_to_endonuke_data_folder, 'Results')
-results_hover_folder = os.path.join(path_to_endonuke_data_folder, 'results_hover')
+crop_images_folder = os.path.join(config.path_to_endonuke_data_folder, 'crop_images')
+crop_txt_folder = os.path.join(config.path_to_endonuke_data_folder, 'crop_txt')
+gan_results_folder = os.path.join(config.path_to_endonuke_data_folder, 'Results')
+results_hover_folder = os.path.join(config.path_to_endonuke_data_folder, 'results_hover')
 results_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Results'))
 
 if not os.path.exists(results_folder):
@@ -40,8 +45,8 @@ for filename in os.listdir(crop_images_folder):
 
 # Define the command to be executed
 command = [
-    'python', path_to_Hover_net_run_infer,
-    '--model_path='+path_to_Hover_net_weights,
+    'python', config.path_to_Hover_net_run_infer,
+    '--model_path='+config.path_to_Hover_net_weights,
     '--model_mode=fast',
     'tile',
     '--input_dir='+gan_results_folder,
