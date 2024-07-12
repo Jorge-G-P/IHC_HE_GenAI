@@ -16,6 +16,10 @@ crop_images_folder = os.path.join(path_to_endonuke_data_folder, 'crop_images')
 crop_txt_folder = os.path.join(path_to_endonuke_data_folder, 'crop_txt')
 gan_results_folder = os.path.join(path_to_endonuke_data_folder, 'Results')
 results_hover_folder = os.path.join(path_to_endonuke_data_folder, 'results_hover')
+results_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Results'))
+
+if not os.path.exists(results_folder):
+    os.makedirs(results_folder)
 
 if not os.path.exists(results_hover_folder):
     os.makedirs(results_hover_folder)
@@ -72,3 +76,8 @@ for i in range(len(dataset)):
 metric.update(predicted_centroids, real_centroids)
 results = metric.compute()
 print(results)
+
+
+results_path = os.path.join(results_folder, 'results.txt')
+with open(results_path, 'w') as f:
+    f.write(str(results))
