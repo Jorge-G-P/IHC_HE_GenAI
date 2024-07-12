@@ -9,5 +9,7 @@ tqdm
 Pillow
 torch
 albumentations
-
-
+psutil
+imgaug
+docopt
+tensorboardX
