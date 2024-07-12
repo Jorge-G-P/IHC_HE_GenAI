@@ -1,8 +1,8 @@
 import torch
-import config
+import Pipeline.config as config
 import torch.nn as nn
 import torch.optim as optim
-from generator import Generator
+from Pipeline.generator import Generator
 import matplotlib.pyplot as plt
 from PIL import Image 
 import torch
@@ -21,10 +21,10 @@ def load_model_weights(checkpoint_file, model):
         print(f"=> Failed to load checkpoint {checkpoint_file}: {str(e)}")
         raise
 
-def pretrained_generator():
-    gen_HE = Generator(img_channels=3, num_residuals=6).to(config.DEVICE)
-    load_model_weights("C:/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Pipeline/checkpoint/genHE_200_epochs_20240628.pth.tar", gen_HE) #Put correct path to model weights
-    return gen_HE
+# def pretrained_generator():
+#     gen_HE = Generator(img_channels=3, num_residuals=6).to(config.DEVICE)
+#     load_model_weights("C:/Users/amaia/Documents/GitHub/IHC_HE_GenAI/Pipeline/checkpoint/genHE_200_epochs_20240628.pth.tar", gen_HE) #Put correct path to model weights
+#     return gen_HE
 
 
 def process_image(image_path, generatorHE, transform, output_dir):

@@ -1,5 +1,5 @@
 import torch
-import config
+import cycleGAN.config as config
 import os
 import random
 import numpy as np
