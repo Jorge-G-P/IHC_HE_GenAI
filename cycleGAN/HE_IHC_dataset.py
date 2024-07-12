@@ -14,15 +14,15 @@ IMG_EXTENSIONS = [
 
 class GanDataset(data.Dataset):
 
-    def __init__(self, A_dir, B_dir, subset_percentage=100, patch_size=512, transform=None, target_transform=None, shuffle=False):
+    def __init__(self, A_dir, B_dir, subset_percentage=100, img_size=1024, patch_size=512, transform=None, shuffle=False):
         super().__init__()
         self.A_dir = A_dir
         self.B_dir = B_dir
         self.subset_percentage = subset_percentage
+        self.img_size = img_size
         self.patch_size = patch_size
         self.transform = transform
-        self.target_transform = target_transform
-        self.num_patches_per_image = (1024 // self.patch_size) ** 2  # 4 patches per image assuming 1024x1024 images
+        self.num_patches_per_image = (self.img_size // self.patch_size) ** 2 
 
         self.A_paths = []
         self.B_paths = []
@@ -40,14 +40,17 @@ class GanDataset(data.Dataset):
             np.random.shuffle(self.B_paths)
         
         self.A_size = len(self.A_paths)
-        self.B_size = len(self.B_paths)        
+        self.B_size = len(self.B_paths)
+
+        if self.patch_size > self.img_size:
+            raise ValueError("patch_size > img_size. Patch size must be equal or lower than image size or len(dataset) will be zero")        
 
         if self.subset_percentage is not None:
             if not (0 < self.subset_percentage <= 100):
-                raise ValueError("subset_percentage must be in range (0, 100]")
-            self.subset_size = int(self.subset_percentage / 100.0 * max(self.A_size, self.B_size) * self.num_patches_per_image)
+                raise ValueError("subset_percentage must be in range [0, 100]")
+            self.subset_size = int(self.subset_percentage / 100.0 * min(self.A_size, self.B_size) * self.num_patches_per_image)
         else:
-            self.subset_size = max(self.A_size, self.B_size) * self.num_patches_per_image
+            self.subset_size = min(self.A_size, self.B_size) * self.num_patches_per_image
     
 
     def split_image_into_patches(self, image) -> list:   # returns a list of 4 smaller images of patch_size
@@ -82,7 +85,10 @@ class GanDataset(data.Dataset):
 
         # Check if index is within the subset size
         if index >= len(self):
-            raise IndexError("Index out of range. Dataset subset size reached.")
+            raise IndexError("Index out of range. Dataset subset size reached")
+
+        if self.A_size == 0 or self.B_size == 0:
+            raise ZeroDivisionError("Not possible to get dataset sample because at least one of them is empty")
 
         image_index = index // self.num_patches_per_image
         patch_index = index % self.num_patches_per_image
@@ -132,10 +138,14 @@ def main():
     A_paths = []
     A_paths.extend(glob.glob(os.path.join(x, '*')))
 
-    myclass = GanDataset(x, y, subset_percentage=None, shuffle=False)
+    myclass = GanDataset(x, y, img_size=600, patch_size=200, subset_percentage=80, shuffle=False)
+    print(myclass.img_size)
+    print(myclass.patch_size)
+    print(myclass.num_patches_per_image)
+
     sample = myclass[0]
     sample2 = myclass[10]
-
+    
     print(f'Original dataset size: {len(A_paths)}')
     print(f'Dataset size: {len(myclass)}')
     print('\n' f'Index Image A: {sample["A_index"]}', '\n' f'Index Image B: {sample["B_index"]}', '\n' f'Index Image A before shuffle: {sample["A_initial_index"]}', '\n' f'Index Image B before shuffle: {sample["B_initial_index"]}')
@@ -143,3 +153,4 @@ def main():
 
 if __name__=="__main__":
     main()
+

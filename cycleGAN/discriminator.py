@@ -30,8 +30,7 @@ class ConvInstanceNormLeakyReLUBlock(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self, in_channels=3, features=[64, 128, 256, 512]):
         """
-        Let Ck denote a 4 × 4 Convolution-InstanceNorm-LeakyReLU layer with 
-        k filters and stride 2. Discriminator architecture is: C64-C128-C256-C512. 
+        Discriminator architecture is: C64-C128-C256-C512. 
         
         After the last layer, we apply a convolution to produce a 1-dimensional 
         output. 
@@ -76,24 +75,26 @@ class Discriminator(nn.Module):
         )
         self.model = nn.Sequential(*layers)
 
+
     def forward(self, x):
         x = self.initial_layer(x)
         # feed the model output into a sigmoid function to make a 1/0 label
         return torch.sigmoid(self.model(x))
 
 
-    def get_features(self, all=False):     # Used for fine-tuning on small dataset after training with bigger dataset
-        return nn.Sequential(
-                            self.initial_layer,
-                            *self.model[:-1]
-                        ) if not all else nn.Sequential(
-                                                        self.initial_layer,
-                                                        *self.model,
-                                                        nn.Sigmoid()
-                                                    )
+    def get_features(self, exclude_last_n=0):     # For feature extraction excluding N layers starting from the end
+        layers = [
+            self.initial_layer,
+            *self.model,
+        ]
+        if exclude_last_n > 0:
+            return nn.Sequential(*layers[:-exclude_last_n])
+        else:
+            return nn.Sequential(*layers)
+
 
     @staticmethod
-    def clone_layer(layer, last_layer=True):
+    def clone_layer(layer, last_activation=False):    # To replicate layer of generator instance without trained parameters
 
         cloned_layer = nn.Sequential(
                             type(layer)(
@@ -104,23 +105,24 @@ class Discriminator(nn.Module):
                                     padding=layer.padding,
                                     padding_mode=layer.padding_mode
                             ),
-                            nn.Sigmoid() if last_layer else nn.Identity(),
+                            nn.Sigmoid() if last_activation else nn.Identity(),
                         )
         
         return cloned_layer
     
 def test():  
     
-    """ Just used to test some features, not applied to training of the model """
+    """ Just used to test some features, not applied to model training """
 
-    x = torch.randn((5, 3, 512, 512))
+    x = torch.randn((5, 3, 256, 256))
     model = Discriminator(in_channels=3)
     preds = model(x)
     print(preds.shape)
     
-    new_last_layer = model.clone_layer(model.model[-1], last_layer=False)
-    print(new_last_layer)
+    # new_last_layer = model.clone_layer(model.model[-1], last_activation=False)
+    # print(new_last_layer)
 
-    
+    print(model)
+
 if __name__ == "__main__":
     test()

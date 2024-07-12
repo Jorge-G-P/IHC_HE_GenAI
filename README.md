@@ -5,8 +5,8 @@ This repository contains
 ### About
 Final Project for the UPC [Artificial Intelligence with Deep Learning Postgraduate Course](https://www.talent.upc.edu/ing/estudis/formacio/curs/310402/postgraduate-course-artificial-intelligence-deep-learning/) 2020-2021 online edition, authored by:
 
-* [Amaia](linkedin??)
-* [João Pedro Vieira](www.linkedin.com/in/joão-pedro-vieira-1369a51b6)
+* [Amaia] (linkedin??)
+* [João Pedro Vieira](https://www.linkedin.com/in/joão-pedro-vieira-1369a51b6)
 * [Josep Baradat]()
 * [Jorge G. Pombo]()
 

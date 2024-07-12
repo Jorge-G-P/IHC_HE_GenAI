@@ -1,1 +1,1 @@
-PATH="/Users/josep/Desktop/aidl-2024-spring-mlops/BCI/data"
+path_to_endonuke_data_folder = "../IHC_HE_GenAI/Datasets/Endonuke/data"
