@@ -22,7 +22,7 @@ class GanDataset(data.Dataset):
         self.img_size = img_size
         self.patch_size = patch_size
         self.transform = transform
-        self.num_patches_per_image = (self.img_size // self.patch_size) ** 2  # 4 patches per image assuming 1024x1024 images
+        self.num_patches_per_image = (self.img_size // self.patch_size) ** 2 
 
         self.A_paths = []
         self.B_paths = []

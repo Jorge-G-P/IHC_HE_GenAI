@@ -55,10 +55,10 @@ test_loader = DataLoader(
 g_scaler = torch.cuda.amp.GradScaler()
 d_scaler = torch.cuda.amp.GradScaler()
 
-train_epoch = load_checkpoint(config.CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)[0]
-train_epoch = load_checkpoint(config.CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0]
-train_epoch = load_checkpoint(config.CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0]
-train_epoch = load_checkpoint(config.CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0]
+train_epoch = load_checkpoint(config.LOAD_CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)[0]
+train_epoch = load_checkpoint(config.LOAD_CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0]
+train_epoch = load_checkpoint(config.LOAD_CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0]
+train_epoch = load_checkpoint(config.LOAD_CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0]
 print(f"\nModel loaded for test set was trained during {train_epoch-1} epochs")
 
 def test_performance(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_loss, loader):

@@ -47,27 +47,12 @@ def new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers, disc_fr
     features_genHE = gen_HE.get_features(0)
     features_discIHC = disc_IHC.get_features(0)
     features_genIHC = gen_IHC.get_features(0)
-    
     # # print(f"\nGenerators Structure:\n {features_genIHC}")
-    
-    # gen_last_layer = gen_HE.clone_layer(gen_HE.last_layer, last_activation=False)
-    # disc_last_layer = disc_HE.clone_layer(disc_HE.model[-1], last_activation=False)
-    # # print("\n", disc_last_layer, "\n")
 
     model_genHE = features_genHE
     model_discHE = features_discHE
     model_genIHC = features_genIHC
     model_discIHC = features_discIHC
-
-    # model_genHE.append(gen_last_layer)
-    # model_discHE.append(disc_last_layer)
-    # model_genIHC.append(gen_last_layer)
-    # model_discIHC.append(disc_last_layer)
-
-    # print(f"\nGenerator Object Structure :\n {gen_HE}\n\n")
-    # print(f"\nNew Generator Features:\n {model_genHE}\n\n")
-    # print(f"\nDiscriminator Object Structure :\n {disc_HE}\n\n")
-    # print(f"\nNew Discriminator Features:\n {model_discHE}\n\n")
 
     model_genHE.to(config.DEVICE)
     model_discHE.to(config.DEVICE)
@@ -107,10 +92,16 @@ def new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers, disc_fr
         for param in layer.parameters():
             param.requires_grad = True
 
-    # for layer in model_discHE[3:]:     
-    #     print(layer)
+    for layer in model_genHE[3][-2:]:     # Unfreeze the last two residual blocks for finetuning
+        for param in layer.parameters():
+            param.requires_grad = True
 
-    # # Print to confirm if weights of new layer created with clone_layer() are not the same as the layer from the loaded pretrained model
+    for layer in model_genIHC[3][-2:]:    # Unfreeze the last two residual blocks for finetuning
+        for param in layer.parameters():
+            param.requires_grad = True
+
+
+    # # Print to confirm if weights of new layer/model are the same as the layer/model from the loaded pretrained model
     # for param1, param2 in zip(disc_HE.parameters(), model_discHE.parameters()):
     #     if torch.equal(param1.data, param2.data):
     #         print("Weights are the same")
@@ -161,8 +152,6 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
 
             writer.add_scalars("[TRAIN] - HE/IHC Discriminator Loss", {"HE": D_HE_loss, "IHC": D_IHC_loss}, epoch)
             writer.add_scalar("[TRAIN] - Total Discriminator Loss", D_loss, epoch)
-
-            # print(f"D_loss: {D_loss}, D_scaler: {D_scaler.get_scale()}")
 
         optim_D.zero_grad()
         D_scaler.scale(D_loss).backward()
@@ -222,7 +211,6 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
                     
                     
-
         loop.set_postfix(D_loss=D_loss.item(), G_loss=G_loss.item())
 
     print(f"\nTRAIN EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)}," + f" G_loss: {G_loss}, D_loss: {D_loss}\n")
@@ -238,10 +226,7 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_los
     for idx, sample in enumerate(loop):
         ihc = sample['A'].to(config.DEVICE)
         he = sample['B'].to(config.DEVICE)
-
-        # ihc_initial_index = sample['A_initial_index']
-        # he_initial_index = sample['B_initial_index']
-
+        
         with torch.no_grad():
             with torch.cuda.amp.autocast():   
                 fake_HE = G_HE(ihc)
@@ -303,7 +288,7 @@ def main():
 
     disc_HE, gen_HE, disc_IHC, gen_IHC, optim_gen, optim_disc = load_pretrained_model()
 
-    finetuned_discHE, finetuned_genHE, finetuned_discIHC, finetuned_genIHC = new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers=4, disc_frozen_layers=4)
+    finetuned_discHE, finetuned_genHE, finetuned_discIHC, finetuned_genIHC = new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers=4, disc_frozen_layers=3)
 
     # Losses used during training
     cycle_loss = nn.L1Loss()
@@ -355,11 +340,13 @@ def main():
 
     # Load checkpoints if necessary
     if config.LOAD_MODEL:
-        start_epoch, log_dir, val_loss = load_checkpoint(config.CHECKPOINT_GEN_HE, finetuned_genHE, optim_gen, config.LEARNING_RATE)
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, finetuned_discHE, optim_disc, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_GEN_IHC, finetuned_genIHC, optim_gen, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_IHC, finetuned_discIHC, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch, log_dir, val_loss, fid_he, fid_ihc = load_checkpoint(config.LOAD_CHECKPOINT_GEN_HE, finetuned_genHE, optim_gen, config.LEARNING_RATE)
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_DISC_HE, finetuned_discHE, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_GEN_IHC, finetuned_genIHC, optim_gen, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_DISC_IHC, finetuned_discIHC, optim_disc, config.LEARNING_RATE)[0])
         print(f"Val_loss of loading is {val_loss} from epoch {start_epoch-1}")
+        print(f"HE FID Score of loading is {fid_he} from epoch {start_epoch-1}")
+        print(f"IHC FID Score of loading is {fid_ihc} from epoch {start_epoch-1}")
 
     if log_dir is None:
         log_dir = f"logs/GAN_FT_{config.NUM_EPOCHS}_epochs_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -370,9 +357,11 @@ def main():
 
     # Early stopping parameters
     patience = config.EARLY_STOP
-    best_val_loss = val_loss
+    best_epoch_loss = val_loss
+    best_epoch_fid = fid_he
     epochs_no_improve = 0
     best_epoch = 0
+
     # Training loop
     for epoch in range(start_epoch, config.NUM_EPOCHS):
         print(f"\nTRAINING MODEL [Epoch {epoch}]:")
@@ -406,16 +395,17 @@ def main():
         writer.add_scalars("Generators Losses", {"train": gen_train_loss, "val": gen_val_loss}, epoch)
 
         # Check for improvement
-        if gen_val_loss < best_val_loss:
+        if gen_val_loss < best_epoch_loss:
             best_epoch = epoch
-            best_val_loss = gen_val_loss
+            best_epoch_fid = fid_he
+            best_epoch_loss = gen_val_loss
             epochs_no_improve = 0
             # Save the best model
             if config.SAVE_MODEL:
-                save_checkpoint(epoch, finetuned_genHE, optim_gen, filename=config.CHECKPOINT_GEN_HE, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, finetuned_discHE, optim_disc, filename=config.CHECKPOINT_DISC_HE, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, finetuned_genIHC, optim_gen, filename=config.CHECKPOINT_GEN_IHC, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, finetuned_discIHC, optim_disc, filename=config.CHECKPOINT_DISC_IHC, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, finetuned_genHE, optim_gen, filename=config.SAVE_CHECKPOINT_GEN_HE, log_dir=log_dir, loss=best_epoch_loss, fid_he=fid_he, fid_ihc=fid_ihc)
+                save_checkpoint(epoch, finetuned_discHE, optim_disc, filename=config.SAVE_CHECKPOINT_DISC_HE, log_dir=log_dir, loss=best_epoch_loss, fid_he=fid_he, fid_ihc=fid_ihc)
+                save_checkpoint(epoch, finetuned_genIHC, optim_gen, filename=config.SAVE_CHECKPOINT_GEN_IHC, log_dir=log_dir, loss=best_epoch_loss, fid_he=fid_he, fid_ihc=fid_ihc)
+                save_checkpoint(epoch, finetuned_discIHC, optim_disc, filename=config.SAVE_CHECKPOINT_DISC_IHC, log_dir=log_dir, loss=best_epoch_loss, fid_he=fid_he, fid_ihc=fid_ihc)
         else:
             epochs_no_improve += 1
             print(f"Best epoch so far was {best_epoch}\n")
@@ -424,7 +414,7 @@ def main():
         # Check for early stopping
         if epochs_no_improve >= patience:
             print("Early stopping triggered")
-            print(f"Last model saved was on epoch {best_epoch} with loss: {best_val_loss}")
+            print(f"Last model saved was on epoch {best_epoch} with loss {best_epoch_loss} and FID Score HE {best_epoch_fid}")
             break
 
     writer.close()

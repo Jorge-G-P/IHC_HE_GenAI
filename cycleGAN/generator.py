@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
         
-        
+
 class ConvBlock(nn.Module):
     def __init__(
         self,
@@ -140,7 +140,7 @@ class Generator(nn.Module):
         return torch.tanh(self.last_layer(x))
 
 
-    def get_features(self, exclude_last_n=0):    # Used for fine-tuning on smaller dataset after training with bigger dataset
+    def get_features(self, exclude_last_n=0):    # For feature extraction excluding N layers starting from the end
         layers = [
             self.initial_layer,
             *self.downsampling_layers,
@@ -155,7 +155,7 @@ class Generator(nn.Module):
 
 
     @staticmethod
-    def clone_layer(layer, last_activation=False):  
+    def clone_layer(layer, last_activation=False):  # To replicate layer of generator instance without trained parameters
 
         cloned_layer = nn.Sequential(
                             type(layer)(
@@ -173,24 +173,18 @@ class Generator(nn.Module):
 
 def test():
 
-    """ Just used to test some features, not applied to training of the model """
+    """ Just used to test some features, not applied to model training """
 
     img_channels = 3
     img_size = 512
     x = torch.randn((2, img_channels, img_size, img_size))
-    gen = Generator(img_channels, num_features=64, num_residuals=9)
+    gen = Generator(img_channels, num_features=64, num_residuals=6)
     print(gen(x).shape)
 
-    new_last_layer = gen.clone_layer(gen.last_layer, last_layer=True)
-    print(new_last_layer)
-    print(type(new_last_layer))
+    # y = gen.get_features(2)
+    # print(y)
 
-    # Compare the weights
-    for param1, param2 in zip(gen.last_layer.parameters(), new_last_layer.parameters()):
-        if torch.equal(param1.data, param2.data):
-            print("Weights are the same")
-        else:
-            print("Weights are different")
+    # print(gen)
 
 if __name__ == "__main__":
     test()
