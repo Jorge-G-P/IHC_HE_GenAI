@@ -8,10 +8,11 @@ from tqdm import tqdm
 from discriminator import Discriminator
 from generator import Generator
 from evaluate import evaluate_fid_scores
-from utils import load_checkpoint, save_checkpoint, set_seed, custom_collate
+from utils import load_checkpoint, save_checkpoint, set_seed, custom_collate, create_directories
 from torchvision.utils import save_image
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
+import os
 
 def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, cycle_loss, disc_loss, ident_loss, loader, epoch, writer):
     
@@ -21,21 +22,10 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
     G_HE.train()
     G_IHC.train()
 
-    loop = tqdm(loader, leave=True)         #Loop generates a progress bar while iterating over dataset
+    loop = tqdm(loader, leave=True)     
     for idx, sample in enumerate(loop):
         ihc = sample['A'].to(config.DEVICE)
         he = sample['B'].to(config.DEVICE)
-        # ihc_initial_index = sample['A_initial_index']
-        # he_initial_index = sample['B_initial_index']
-
-        # ## DEBUGGING
-        # # Log the paths and indices
-        # A_path = sample["A_path"]
-        # B_path = sample["B_path"]
-        # A_index = sample['A_index']
-        # B_index = sample['B_index']
-        # patch_index = sample['patch_index']
-        # print(f"Epoch {epoch}, Batch {idx}: A_path: {A_path}, B_path: {B_path}, A_index: {A_index}, B_index: {B_index}, Patch_index: {patch_index}")
 
         with torch.cuda.amp.autocast():     # For mixed precision training
             '''Train the Discriminator of HE images'''
@@ -72,7 +62,7 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
         D_scaler.step(optim_D)
         D_scaler.update()
 
-        with torch.cuda.amp.autocast():         # For mixed precision training
+        with torch.cuda.amp.autocast():   
             '''Train the Generator of HE and IHC images'''
             D_fake_HE = D_HE(fake_HE)
             D_fake_IHC = D_IHC(fake_IHC)
@@ -122,9 +112,6 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
-
-                    # save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/idx[{he_initial_index}]_epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                    # save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/idx[{ihc_initial_index}]_epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
         
         loop.set_postfix(D_loss=D_loss.item(), G_loss=G_loss.item())
 
@@ -141,9 +128,6 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_los
     for idx, sample in enumerate(loop):
         ihc = sample['A'].to(config.DEVICE)
         he = sample['B'].to(config.DEVICE)
-
-        # ihc_initial_index = sample['A_initial_index']
-        # he_initial_index = sample['B_initial_index']
 
         with torch.no_grad():
             with torch.cuda.amp.autocast():   
@@ -194,15 +178,14 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_los
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
 
-                    # save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/idx[{he_initial_index}]_epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                    # save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/idx[{ihc_initial_index}]_epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-
     print(f"\nVALIDATION EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)}," + f" G_loss: {G_loss}\n")
 
     return G_loss
 
 def main():
     set_seed(42) # To ensure reproducibility
+
+    create_directories() # Create paths for saving images during train, val and test
 
     disc_HE = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE) 
     disc_IHC = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE)
@@ -225,23 +208,6 @@ def main():
     cycle_loss = nn.L1Loss()
     identity_loss = nn.L1Loss()
     discrim_loss = nn.MSELoss()
-
-    # train_dataset = GanDataset(
-    #     config.TRAIN_DIR_IHC, 
-    #     config.TRAIN_DIR_HE, 
-    #     config.SUBSET_PERCENTAGE, 
-    #     patch_size=512, 
-    #     transform=config.transforms, 
-    #     shuffle=False
-    # )
-    # val_dataset = GanDataset(
-    #     config.TEST_DIR_IHC, 
-    #     config.TEST_DIR_HE, 
-    #     config.SUBSET_PERCENTAGE, 
-    #     patch_size=512, 
-    #     transform=config.transforms, 
-    #     shuffle=False,
-    # )
 
     my_dataset = GanDataset(
         config.TRAIN_DIR_IHC, 
@@ -286,14 +252,14 @@ def main():
 
     # Load checkpoints if necessary
     if config.LOAD_MODEL:
-        start_epoch, log_dir, val_loss = load_checkpoint(config.CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch, log_dir, val_loss = load_checkpoint(config.LOAD_CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0])
         print(f"Val_loss of loading is {val_loss} from epoch {start_epoch-1}")
 
     if log_dir is None:
-        log_dir = f"logs/GAN_{config.NUM_EPOCHS}_epochs_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        log_dir = config.parent_path / f"logs/GAN_{config.SAVE_SUFFIX1}_epochs_{config.SAVE_SUFFIX2}"
     if val_loss is None:
         val_loss = float('inf')
 
@@ -304,6 +270,7 @@ def main():
     best_val_loss = val_loss
     epochs_no_improve = 0
     best_epoch = 0
+
     # Training loop
     for epoch in range(start_epoch, config.NUM_EPOCHS):
         print(f"\nTRAINING MODEL [Epoch {epoch}]:")
@@ -343,10 +310,10 @@ def main():
             epochs_no_improve = 0
             # Save the best model
             if config.SAVE_MODEL:
-                save_checkpoint(epoch, gen_HE, optim_gen, filename=config.CHECKPOINT_GEN_HE, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, gen_IHC, optim_gen, filename=config.CHECKPOINT_GEN_IHC, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, disc_HE, optim_disc, filename=config.CHECKPOINT_DISC_HE, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, disc_IHC, optim_disc, filename=config.CHECKPOINT_DISC_IHC, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, gen_HE, optim_gen, filename=config.SAVE_CHECKPOINT_GEN_HE, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, gen_IHC, optim_gen, filename=config.SAVE_CHECKPOINT_GEN_IHC, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, disc_HE, optim_disc, filename=config.SAVE_CHECKPOINT_DISC_HE, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, disc_IHC, optim_disc, filename=config.SAVE_CHECKPOINT_DISC_IHC, log_dir=log_dir, loss=best_val_loss)
         else:
             epochs_no_improve += 1
             print(f"Best epoch so far was {best_epoch}\n")
@@ -362,19 +329,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    # # Check if CUDA is available
-    # cuda_available = torch.cuda.is_available()
-
-    # # Print the result
-    # print("CUDA Available:", cuda_available)
-
-    # # If CUDA is available, print the number of GPUs and the current device
-    # if cuda_available:
-    #     num_gpus = torch.cuda.device_count()
-    #     current_device = torch.cuda.current_device()
-    #     device_name = torch.cuda.get_device_name(current_device)
-        
-    #     print("Number of GPUs:", num_gpus)
-    #     print("Current CUDA device:", current_device)
-    #     print("CUDA device name:", device_name)

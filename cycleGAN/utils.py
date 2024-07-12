@@ -56,3 +56,12 @@ def custom_collate(batch):
     batch_dict['B'] = torch.stack(batch_dict['B'])
     
     return batch_dict
+
+def create_directories():
+    os.makedirs(config.parent_path / "gan-img/HE/train/", exist_ok=True)
+    os.makedirs(config.parent_path / "gan-img/HE/val/", exist_ok=True)
+    os.makedirs(config.parent_path / "gan-img/HE/test/", exist_ok=True)
+    os.makedirs(config.parent_path / "gan-img/IHC/train/", exist_ok=True)
+    os.makedirs(config.parent_path / "gan-img/IHC/val/", exist_ok=True)
+    os.makedirs(config.parent_path / "gan-img/IHC/test/", exist_ok=True)
+    os.makedirs(config.parent_path / "logs/", exist_ok=True)
