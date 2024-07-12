@@ -8,10 +8,11 @@ from tqdm import tqdm
 from discriminator import Discriminator
 from generator import Generator
 from evaluate import evaluate_fid_scores_2
-from utils import load_checkpoint, set_seed, custom_collate
+from utils import load_checkpoint, set_seed, custom_collate, create_directories
 from torchvision.utils import save_image
 
-set_seed(42) # To ensure reproducibility
+# set_seed(42) # To ensure reproducibility
+create_directories()
 
 disc_HE = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE) 
 disc_IHC = Discriminator(in_channels=config.IN_CH, features=config.D_FEATURES).to(config.DEVICE)
@@ -38,9 +39,10 @@ test_dataset = GanDataset(
     config.TEST_DIR_IHC, 
     config.TEST_DIR_HE, 
     config.SUBSET_PERCENTAGE, 
-    patch_size=512, 
+    config.IMG_ORIGINAL_SIZE,
+    config.PATCHES_SIZE,
     transform=config.test_transforms, 
-    shuffle=False
+    shuffle=config.SHUFFLE_DATASET
 )
 test_loader = DataLoader(
     test_dataset, 
@@ -55,10 +57,10 @@ test_loader = DataLoader(
 g_scaler = torch.cuda.amp.GradScaler()
 d_scaler = torch.cuda.amp.GradScaler()
 
-train_epoch = load_checkpoint(config.LOAD_CHECKPOINT_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)[0]
-train_epoch = load_checkpoint(config.LOAD_CHECKPOINT_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0]
-train_epoch = load_checkpoint(config.LOAD_CHECKPOINT_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0]
-train_epoch = load_checkpoint(config.LOAD_CHECKPOINT_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0]
+train_epoch = load_checkpoint(config.PRETRAINED_GEN_HE, gen_HE, optim_gen, config.LEARNING_RATE)[0]
+train_epoch = load_checkpoint(config.PRETRAINED_GEN_IHC, gen_IHC, optim_gen, config.LEARNING_RATE)[0]
+train_epoch = load_checkpoint(config.PRETRAINED_DISC_HE, disc_HE, optim_disc, config.LEARNING_RATE)[0]
+train_epoch = load_checkpoint(config.PRETRAINED_DISC_IHC, disc_IHC, optim_disc, config.LEARNING_RATE)[0]
 print(f"\nModel loaded for test set was trained during {train_epoch-1} epochs")
 
 def test_performance(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_loss, loader):
