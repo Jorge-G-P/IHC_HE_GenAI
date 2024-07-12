@@ -14,12 +14,17 @@ parent_path = repo_path.parent
 """ All the flags used for control and to choose before training/testing the model
 
     DATASET:
-            TRAIN_DIR_IHC           -- Directory for [BCI Dataset] IHC stain training data
-            TEST_DIR_IHC            -- Directory for [BCI Dataset] IHC stain test data
-            TRAIN_DIR_HE            -- Directory for [BCI Dataset] HE stain training data
-            TEST_DIR_HE             -- Directory for [BCI Dataset] HE stain test data 
-            ENDONUKE_CROPPED        -- Directory for [Endonuke Dataset] IHC stain data (Resolution: 256x256)
-            PANNUKE_ORIGINAL        -- Directory for [Pannuke Dataset] HE stain data (Resolution: 256x256)
+            bci_dataset_ihc_train   -- training/validation data IHC [BCI Dataset]              (IMG RESOLUTION: 512x512)
+            bci_dataset_ihc_test    -- test data IHC [BCI Dataset]                             (IMG RESOLUTION: 512x512)
+            bci_dataset_he_train    -- training/validation data HE [BCI Dataset]               (IMG RESOLUTION: 512x512)  
+            bci_dataset_he_test     -- test data HE [BCI Dataset]                              (IMG RESOLUTION: 512x512)
+            endonuke_dataset        -- training/validation/test data IHC [Endonuke Dataset]    (IMG RESOLUTION: 256x256)
+            pannuke_dataset         -- training/validation data HE [Pannuke Dataset]           (IMG RESOLUTION: 256x256)
+            
+            TRAIN_DIR_IHC           -- Directory for IHC stain training/validation data
+            TEST_DIR_IHC            -- Directory for IHC stain test data
+            TRAIN_DIR_HE            -- Directory for HE stain training/validation data
+            TEST_DIR_HE             -- Directory for HE stain test data 
             IMG_ORIGINAL_SIZE       -- Resolution of input images
             PATCHES_SIZE            -- Applies N crops to input images based on the dimension of the input images and patch size pretended // self.num_patches_per_image = (self.img_size // self.patch_size) ** 2 )
             SUBSET_PERCENTAGE       -- % of dataset to use for train/val/test (total size of 20k imgs)
@@ -65,22 +70,26 @@ parent_path = repo_path.parent
 
 
 """
+bci_dataset_ihc_train = parent_path / "BCI_dataset/IHC/train"
+bci_dataset_ihc_test =  parent_path / "BCI_dataset/IHC/test"
+bci_dataset_he_train = parent_path / "BCI_dataset/HE/train"
+bci_dataset_he_test =  parent_path / "BCI_dataset/HE/test"
+endonuke_dataset = parent_path / "endonuke_dataset/data/crop_images"
+pannuke_dataset = parent_path / "pannuke_dataset"
 
-TRAIN_DIR_IHC = parent_path / "BCI_dataset/IHC/train"
-TEST_DIR_IHC = parent_path / "BCI_dataset/IHC/test"
-TRAIN_DIR_HE = parent_path / "BCI_dataset/HE/train"
-TEST_DIR_HE = parent_path / "BCI_dataset/HE/test"
-ENDONUKE_CROPPED = parent_path / "endonuke_dataset/data/crop_images"
-PANNUKE_ORIGINAL = parent_path / "pannuke_dataset"
+TRAIN_DIR_IHC = bci_dataset_ihc_train
+TRAIN_DIR_HE = bci_dataset_he_train
+TEST_DIR_IHC = endonuke_dataset
+TEST_DIR_HE = pannuke_dataset
 
 IMG_ORIGINAL_SIZE = 256
 PATCHES_SIZE = 256
-SUBSET_PERCENTAGE = 70
+SUBSET_PERCENTAGE = 100
 SHUFFLE_DATASET = True
 
 IN_CH = 3
 D_FEATURES = [64, 128, 256, 512]
-N_RES_BLOCKS = 6
+N_RES_BLOCKS = 9
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 NUM_EPOCHS = 150
@@ -96,11 +105,8 @@ FID_FREQUENCY = 5
 FID_BATCH_SIZE = 32
 
 
-
-
-
 transforms = A.Compose([
-                # A.Resize(width=256, height=256),
+                A.Resize(width=256, height=256),
                 A.HorizontalFlip(p=0.5),
                 A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
                 ToTensorV2(),
@@ -117,7 +123,7 @@ test_transforms = A.Compose([
         )
 
 LOAD_MODEL = False
-SAVE_MODEL = True
+SAVE_MODEL = False
 
 SAVE_SUFFIX1 = 150
 SAVE_SUFFIX2 = "try_1"
