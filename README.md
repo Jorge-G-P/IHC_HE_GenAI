@@ -335,12 +335,12 @@ However, after increasing the batch size to 2 and the number of residual blocks 
 
 - Fine_tuning procedure<a name="514_modelarchitecture"></a>
 - Test results<a name="515_modelarchitecture"></a>
-### 5.2. Pannuke Dataset  <a name="52-pannukedataset"></a>
+### 5.2. Hovernet  <a name="52-pannukedataset"></a>
 - Data preprocessing<a name="521_datapreprocessing"></a>
 - Model architecture<a name="522_modelarchitecture"></a>
 - Training configuration<a name="523_modelarchitecture"></a>
 - Test results<a name="524_modelarchitecture"></a> 
-### 5.3. Endonuke Dataset  <a name="53-endonukedataset"></a> 
+### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
 - Data preprocessing<a name="531_datapreprocessing"></a>
 
 In our project, we will use the Endonuke dataset for the pipeline. This means that we will create fake HE-images with the CycleGAN model using the images from the Endonuke dataset and then we will calculate the centroids of these fake images using the Hovernet model. Finally, we will compare the predicted and real centroids, as a way of evaluating our models together.
