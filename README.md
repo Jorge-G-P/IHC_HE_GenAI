@@ -382,8 +382,8 @@ Below we also present some of the test results obtained with the BCI Dataset, wh
 Here are some examples with particular focus on comparing the transformation from domain A to domain B with the domain B ground truth:
 
 <div align="center">
-  <img src="readme_images/gen_HE_gt.png" width="350" hspace="40" />
-  <img src="readme_images/gen_IHC_gt.png" width="350" hspace="40" />
+  <img src="readme_images/gen_HE_gt.png" width="300" hspace="25" />
+  <img src="readme_images/gen_IHC_gt.png" width="300" hspace="25" />
   <p><strong>Examples of CycleGAN inference results. Left input image from IHC domain; Right input image from HE domain.</strong></p>
 </div>
 
@@ -392,8 +392,8 @@ Here are some examples with particular focus on comparing the transformation fro
 Here are some examples showcasing the model's cycle consistency. Each example contrasts the original images from domain A with their reconstructions obtained through transformation into domain B and back:
 
 <div align="center">
-  <img src="readme_images/gen_HE_cycle.png" width="350" hspace="40" />
-  <img src="readme_images/gen_IHC_cycle.png" width="350" hspace="40" />
+  <img src="readme_images/gen_HE_cycle.png" width="300" hspace="25" />
+  <img src="readme_images/gen_IHC_cycle.png" width="300" hspace="25" />
   <p><strong>Examples of CycleGAN inference results. Left input image from HE domain; Right input image from IHC domain.</strong></p>
 </div>
 
