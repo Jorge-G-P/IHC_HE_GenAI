@@ -233,6 +233,11 @@ The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and
 
 For the image segmentation model training, validation and testing, we utilize the PanNuke dataset, which is a semi-automatically generated resource designed for the segmentation and classification of nuclei. Models trained on PanNuke can aid in whole slide image tissue type segmentation, and generalize to new tissues. This dataset includes 7753 images spanning 19 different tissue types: adrenal gland, bile duct, bladder, breast, cervix, colon, esophagus, headneck, kidney, liver, lung, ovarian, pancreatic, prostate, skin, stomach, testis, thyroid and uterus. The PanNuke dataset is organized into three folds (fold 1, fold 2, and fold 3), each containing two folders: "image" and "masks." The "image" folder comprises two files: images.npy and types.npy, while the "masks" folder contains a single file: masks.npy.. 
 
+<p align="center">
+  <img src="readme_images/pannuke_samples.png" width="700">
+</p>
+
+
 ### 4.4. Endonuke Dataset  <a name="44_endonukedataset"></a> 
 EndoNuke is a dataset designed for training models to detect nuclei in endometrium samples. It contains over 1600 image tiles, created using the immunohistochemistry technique (IHC). Each image has a physical size of 100μm x 100μm, and includes annotated nuclei locations marked as keypoints for: stroma, epithelium, and other.
 
@@ -377,10 +382,10 @@ Here are some examples showcasing the model's cycle consistency. Each example co
 The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) is a single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
 
 <div align="center">
-  <img src="readme_images/hovernet_architecture.png" width="300" hspace="25" />
+  <img src="readme_images/hovernet_architecture.png" width="900" hspace="25" />
 	
-- Data preprocessing<a name="521_datapreprocessing"></a>
-- Model architecture<a name="522_modelarchitecture"></a>
+### 5.2.1. Data preprocessing<a name="521_datapreprocessing"></a>
+### 5.2.2. Model architecture<a name="522_modelarchitecture"></a>
 
 
 - Training configuration<a name="523_modelarchitecture"></a>
