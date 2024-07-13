@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from discriminator import Discriminator
 from generator import Generator
-from evaluate import evaluate_fid_scores_2
+from evaluate import evaluate_fid_scores, evaluate_fid_scores_2
 from utils import load_checkpoint, set_seed, custom_collate, create_directories
 from torchvision.utils import save_image
 
@@ -115,8 +115,26 @@ def test_performance(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_loss
                 for i in range(len(ihc)): 
                     save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/test/batch[{idx}]_HE[{i}].png")
                     save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/test/batch[{idx}]_HE[{i}]_fake.png")
+
                     save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/test/batch[{idx}]_IHC[{i}].png")
                     save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/test/batch[{idx}]_IHC[{i}]_fake.png")
+
+                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_HE[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_IHC[{i}].png")
+
+                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_HE[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(cycle_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_HE[{i}]_cycle.png")
+
+                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_HE[{i}].png")
+
+                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(cycle_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_IHC[{i}]_cycle.png")
+
     
     print(f"\nCALCULATING FID SCORES:")
     fid_he, fid_ihc = evaluate_fid_scores_2(gen_HE, gen_IHC, test_loader, config.DEVICE, config.FID_BATCH_SIZE)
