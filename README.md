@@ -383,12 +383,14 @@ The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) i
 
 <div align="center">
   <img src="readme_images/hovernet_architecture.png" width="900" hspace="25" />
+</div>
 	
 ### 5.2.1. Data preprocessing<a name="521_datapreprocessing"></a>
 ### 5.2.2. Model architecture<a name="522_modelarchitecture"></a>
 
 
-- Training configuration<a name="523_modelarchitecture"></a>
+### 5.2.3. Training configuration<a name="523_modelarchitecture"></a>
+
 - Test results<a name="524_modelarchitecture"></a>
 - 
 ### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
