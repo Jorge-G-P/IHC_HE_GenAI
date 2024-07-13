@@ -335,7 +335,7 @@ However, after increasing the batch size to 2 and the number of residual blocks 
 
 - Fine_tuning procedure<a name="514_modelarchitecture"></a>
 - Test results<a name="515_modelarchitecture"></a>
-### 5.2. Hovernet  <a name="52-pannukedataset"></a>
+### 5.2. Hovernet  <a name="#52-hovernet"></a>
 - Data preprocessing<a name="521_datapreprocessing"></a>
 - Model architecture<a name="522_modelarchitecture"></a>
 - Training configuration<a name="523_modelarchitecture"></a>
