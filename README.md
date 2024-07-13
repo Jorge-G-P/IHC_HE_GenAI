@@ -234,7 +234,7 @@ The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and
 For the image segmentation model training, validation and testing, we utilize the PanNuke dataset, which is a semi-automatically generated resource designed for the segmentation and classification of nuclei. Models trained on PanNuke can aid in whole slide image tissue type segmentation, and generalize to new tissues. This dataset includes 7753 images spanning 19 different tissue types: adrenal gland, bile duct, bladder, breast, cervix, colon, esophagus, headneck, kidney, liver, lung, ovarian, pancreatic, prostate, skin, stomach, testis, thyroid and uterus. The PanNuke dataset is organized into three folds (fold 1, fold 2, and fold 3), each containing two folders: "image" and "masks." The "image" folder comprises two files: images.npy and types.npy, while the "masks" folder contains a single file: masks.npy.. 
 
 <p align="center">
-  <img src="readme_images/pannuke_samples.png" width="700">
+  <img src="readme_images/pannuke_samples.jpg" width="700">
 </p>
 
 
