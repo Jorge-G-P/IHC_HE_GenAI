@@ -56,8 +56,8 @@ command = [
     '--model_path='+str(config.path_to_Hover_net_weights),
     '--model_mode=fast',
     'tile',
-    '--input_dir='+gan_results_folder,
-    '--output_dir='+results_hover_folder,
+    '--input_dir='+str(gan_results_folder),
+    '--output_dir='+str(hover_results_folder),
     '--draw_dot'
 ]
 
@@ -65,7 +65,7 @@ command = [
 subprocess.run(command)
 
 # In the created subfolder, search for the 'jason' files
-json_hover_folder = os.path.join(results_hover_folder, 'json')
+json_hover_folder = os.path.join(hover_results_folder, 'json')
 
 dataset = DicDataset(crop_txt_folder, json_hover_folder)
 

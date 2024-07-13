@@ -1,16 +1,14 @@
-# AIDL21: GAN-based synthetic medical image augmentation
-
-This repository contains 
+# AIDL24: 
 
 ### About
-Final Project for the UPC [Artificial Intelligence with Deep Learning Postgraduate Course](https://www.talent.upc.edu/ing/estudis/formacio/curs/310402/postgraduate-course-artificial-intelligence-deep-learning/) 2020-2021 online edition, authored by:
+Final Project for the UPC [Artificial Intelligence with Deep Learning Postgraduate Course](https://www.talent.upc.edu/ing/estudis/formacio/curs/310402/postgraduate-course-artificial-intelligence-deep-learning/) 2024 summer semester, authored by:
 
-* [Amaia] (linkedin??)
+* [Amaia Zurinaga](https://www.linkedin.com/in/amaia-zurinaga-gutierrez/)
 * [João Pedro Vieira](https://www.linkedin.com/in/joão-pedro-vieira-1369a51b6)
-* [Josep Baradat]()
-* [Jorge G. Pombo]()
+* [Josep Baradat](https://www.linkedin.com/in/josep-baradat-mar%C3%AD/)
+* [Jorge G. Pombo](https://www.linkedin.com/in/jorge-garc%C3%ADa-pombo-373790225/)
 
-Advised by [Oscar Pina]()
+Advised by [Oscar Pina](https://www.linkedin.com/in/oscar-pina/)
 
 ## Table of Contents <a name="toc"></a>
 
@@ -23,7 +21,6 @@ Advised by [Oscar Pina]()
 - [3. Methodology??](#3_methodology)
     - [3.1. Time costs](#31_timecosts)
 - [4. Data Overview](#4_dataoverview)
-    - [4.1. Biological context](#41_biologicalcontext)
     - [4.2. BCI dataset](#42_bcidataset)
     - [4.3. Pannuke dataset](#43_pannukedataset)
     - [4.4. Endonuke dataset](#44_endonukedataset) 
@@ -39,7 +36,7 @@ Advised by [Oscar Pina]()
         - [Model architecture??](#522_modelarchitecture)
         - [Training configuration](#523_trainingconfiguration)
         - [Test results](#524_testresults)
-    - [5.3. Pipeline ensemble](#53_gans)
+    - [5.3. Pipeline ensemble](#53_pipeline)
         - [Data preprocessing](#531_datapreprocessing)
         - [Ensemble](#532_ensemble)
         - [Test results](#533_testresults)
@@ -49,50 +46,38 @@ Advised by [Oscar Pina]()
  
 ## 1. Introduction <a name="1_intro"></a>
 
-Over the last decade Deep Neural Networks have produced unprecedented performance on a number of tasks,
+In this project, we propose a novel approach that uses **CycleGAN**, a type of Generative Adversarial Network (GAN), to translate **IHC stained images to HE staining** and viceversa. CycleGAN has shown remarkable results in image-to-image translation tasks, even when there are no paired examples in the training set. By training a CycleGAN model on unpaired IHC and HE stained images, we aim to generate synthetic HE images from IHC input. This could potentially save a significant amount of time and resources in the staining process.
 
-On the other hand, since their introduction by [Goodfellowet al.](https://papers.nips.cc/paper/5423-generative-adversarial-nets), Generative Adversarial Networks (GANs) have become the defacto standard for high quality image synthesis. There are two general ways in which GANs have been used in medical imaging. The first is focused on the generative aspect and the second one is on the discriminative aspect. Focusing on the first one, GANs can help in exploring and discovering the underlying structure of training data and learning to generate new images. This property makes GANs very promising in coping with data scarcity and patient privacy.
+After that, a HoverNet model (trained on HE images) was employed to calculate **cell centroids** on the translated HE images. The location of cell centroids can provide valuable information about the spatial distribution of cells, which is often an important factor in disease diagnosis.
 
+Both models were then ensembled in a Pipeline so that it is possible to calculate the centroids in IHC stained images without having a model trained with this kind of staining.
 
 ### 1.1. Motivation <a name="11_motivation"></a>
 
 
 Histopathological imaging plays a **crucial role** in medical diagnosis and research. It provides a detailed view of the biological tissues at a microscopic level, enabling the identification of diseases such as cancer. Two common staining techniques used in histopathology are **Immunohistochemistry (IHC)** and **Hematoxylin and Eosin (HE)** staining.
 
-Using of biopsy method is a reliable method to detect cancer by more confidence than utilizing only radiology. The biopsy is a medical procedure involving extraction of sample cells or tissues for fixing a part of them in formalin and paraffin on a glass microscope slide which is achieved by surgery from a breast tissue. This sample will be stained by combination of hematoxylin and eosin (H&E). This staining standard has been used for more than a century and it is first routine in pathology clinics to diagnose cancers. If the experts need to know more information about exact type of cancer they will use different biomarker such as immunohistochemistry (IHC) images or the other specific biomarker such as in situ hybridization (ISH) [4]. These complementary staining are usually used along with H&E to achieve more accurate diagnosis. ??[2]
+Using of biopsy method is a reliable method to detect cancer with more confidence than utilizing only radiology. The biopsy is a medical procedure involving extraction of sample cells or tissues for fixing a part of them in formalin and paraffin on a glass microscope slide which is achieved by surgery from tissue. 
 
-The before mentioned **IHC staining** is a special staining process used to detect specific antigens in tissues with the help of antibodies. It is particularly useful in the identification of abnormal cells such as those found in cancerous tumors. On the other hand, **HE staining** is the most widely used staining technique in medical diagnosis. It uses hematoxylin, which stains nuclei blue, and eosin, which stains the cytoplasm and extracellular matrix pink. This results in a high contrast image that allows pathologists to distinguish different tissue structures and cell types.
+**Hematoxylin and eosin (HE) staining** is the most widely used staining technique in medical diagnosis. It uses hematoxylin, which stains nuclei blue, and eosin, which stains the cytoplasm and extracellular matrix pink. This results in a high contrast image that allows pathologists to distinguish different tissue structures and cell types.
 
-However, the process of staining is time-consuming and requires expert knowledge to interpret the results. Moreover, each staining technique provides different information, and often, pathologists need to review slides under both stains for accurate diagnosis. This is where **Deep Learning** can make a significant impact.
+If the experts need to know more information about exact type of cancer they will use different biomarker such as  **immunohistochemistry (IHC) staining**. This complementary staining are usually used along with H&E to achieve more accurate diagnosis. ??[2]
+IHC staining is used to detect specific antigens in tissues with the help of antibodies. It is particularly useful in the identification of abnormal cells such as those found in cancerous tumors.
 
-In this project, we propose a novel approach that uses **CycleGAN**, a type of Generative Adversarial Network (GAN), to translate **IHC stained images to HE staining**. CycleGAN has shown remarkable results in image-to-image translation tasks, even when there are no paired examples in the training set. By training a CycleGAN model on unpaired IHC and HE stained images, we aim to generate synthetic HE images from IHC input. This could potentially save a significant amount of time and resources in the staining process.
+However, there are limitations to using IHC technology: 1) The preparation of IHC-stained sections is costly. 2) Tumors are heterogeneous, yet IHC staining is typically performed on a single pathological section in clinical settings, which may not fully represent the tumor's status. Moreover, the process of staining is time-consuming and requires expert knowledge to interpret the results.This is where **Deep Learning** can make a significant impact.
 
-After that, another deep learning model was employed to calculate **cell centroids** from the translated HE images. The location of cell centroids can provide valuable information about the spatial distribution of cells, which is often an important factor in disease diagnosis.
+Therefore, our goal is to directly generate IHC images from HE images and viceversa. This approach would reduce the costs associated with IHC staining and allow the generation of IHC images from multiple pathological tissues of the same patient, providing a more comprehensive assessment of HER2 expression levels.
 
-By leveraging deep learning to translate between different stainings and calculate cell centroids, we aim to enhance the efficiency and accuracy of histopathological imaging analysis. This could lead to faster and more accurate diagnoses, ultimately improving patient outcomes. We believe that our project will contribute significantly to the field of digital pathology and demonstrate the transformative potential of deep learning in medical imaging.
-
---------------------------------
-
-Breast cancer is a leading cause of death for women. Histopathological checking is a gold standard to identify breast cancer.  To achieve this, the tumor materials are first made into hematoxylin and eosin (HE) stained slices (Figure 1). Then, the diagnosis is performed by pathologists by observing the HE slices under the microscope or analyzing the digitized whole slide images (WSI).
-
-For diagnosed breast cancer, it is essential to formulate a precise treatment plan by checking the expression of specific proteins, such as human epidermal growth factor receptor 2 (HER2). The routine evaluation of HER2 expression is conducted with immunohistochemical techniques (IHC). An IHC-stained slice is shown in Figure 1. Intuitively, the higher the level of HER2 expression, the darker the color of the IHC image (Figure 2).
-
-??foto
-
-However, there are limitations to using IHC technology for assessing HER2 expression: 1) The preparation of IHC-stained sections is costly. 2) Tumors are heterogeneous, yet IHC staining is typically performed on a single pathological section in clinical settings, which may not fully represent the tumor's status.
-
-Therefore, our goal is to directly generate IHC images from HE images. This approach would reduce the costs associated with IHC staining and allow the generation of IHC images from multiple pathological tissues of the same patient, providing a more comprehensive assessment of HER2 expression levels.Additionally, we will transform the real IHC stained images into fake HE images. This transformation will enable us to compare cell and centroid predictions between the real and fake images, ensuring the accuracy and reliability of our generated images in reflecting true pathological features.
+Additionally, after transforming the real IHC stained images into fake HE images, cell and centroid predictions between the real and fake images can be compared, ensuring the accuracy and reliability of our generated images in reflecting true pathological features.
 
 
 ### 1.2. Objectives <a name="12_objectives"></a>
 
 The main purpose of this project is to elaborate a method that 
+
 - Translate IHC images to HE and viceversa, getting the most reliable and trustworthy results as possible. 
 
-- Build a pipeline that receives IHC images and predicts cell centroids location. But instead of training a classifier on IHC images, it will be trained exclusively on HE images, because HE images are much more abundant and, therefore, a better model can be obtained.
-In order to achieve it, two models will conform the pipeline:
-    - The cycleGAN created for the first objective will be fine-tuned.
-    - HoverNet [??cite] will be the model trained on HE images.
+- Build a pipeline that receives IHC images and predicts cell centroids locations. But instead of training an instance segmentation model on IHC images, it will be trained exclusively on HE images, because HE images are much more abundant and, therefore, a better model can be obtained. In order to achieve it, two models will conform the pipeline: The cycleGAN created for the first objective, and a HoverNet model, trained on HE images, to predict cell centroids present in the generated images.
 
 Consequently, the pipeline will have the following structure:
 
@@ -100,26 +85,23 @@ Consequently, the pipeline will have the following structure:
   <img src="readme_images/pipeline_diagram.png">
 </p>
 
-- Draw final conclusions from the obtained results.
+- And finally, draw conclusions from the obtained results.
 
 ## 2. Tools and technologies <a name="2_toolstechnologies"></a>
 
 ### 2.1. Software  <a name="21_software"></a>
 
-We selected PyTorch as the framework for our AI project development due to its robust capabilities in scientific computing and deep learning. Our project leverages several key libraries and tools to enhance its functionality and performance:
+PyTorch was selected as the framework for our AI project development due to its robust capabilities in scientific computing and deep learning. Our project leverages several key libraries and tools to enhance its functionality and performance:
 
-**Image Transformations and Augmentations:** We utilized both Torchvision and Albumentations packages for standard augmentations and image transformations, ensuring diverse and effective training data.
+**Image Transformations and Augmentations:** Both Torchvision and Albumentations packages were utilized for standard augmentations and image transformations, ensuring diverse and effective training data.
 
 **Dataset Preprocessing:** Custom functions and classes were developed for specific preprocessing needs, complemented by the skimage library for additional image processing utilities.
 
-**Architectures and Models:** Our implementations include advanced models such as CycleGAN for image-to-image translation tasks and HoverNet for nuclear segmentation in biomedical images.
+**Architectures and Models:** Advanced models, such as CycleGAN for image-to-image translation tasks and HoverNet for nuclear segmentation in biomedical images, were included.
 
 **Metrics and Evaluation:** For evaluating the quality of the synthetic images generated by CycleGAN, we employed the Fréchet Inception Distance (FID) metric, ensuring rigorous and accurate assessment of our model's performance.
 
 This combination of powerful libraries and custom solutions has enabled the development of a robust and efficient AI system tailored to our project's requirements.
-
-
-
 
 
 ### 2.2. Hardware  <a name="22_hardware"></a> 
@@ -151,10 +133,10 @@ RAM: 32,0 GB
 OS: Windows 11
 Grafica: Nvidia RTX 4060
 
+??
 
 
-
-## 3. Methodology <a name="3_-_methodology"></a>
+## 3. Methodology <a name="3_methodology"></a>
 
 One-hour meetings were held weekly between the team and the advisor. Besides from that, another two two-hour meetings were held weekly by the team without the advisor.
 Moreover two sprints were done during the development procedure. The last week before the critical review, and three weeks before the final presentation. During those sprints, the amount of time spent by each student on the project was roughly doubled.
@@ -165,24 +147,6 @@ Moreover two sprints were done during the development procedure. The last week b
 <p align="center">
   <img src="readme_images/gantt.jpg">
 </p>
-
-
---------------------??métricas??
-- #### ?? (FID)
-
-
-
-
-- #### Measure Assessment
-
-Measure | Bar | 
-:------: | :------:|
-PSNR   | Context dependant, generally the higher the better.  | 
-SSIM   |  Ranges from 0 to 1, being 1 the best value.     | 
-MS-GMSD |  Ranges from 0 to 1, being 1 the best value.    |  
-MDSI   |   Ranges from 0 to inf, being 0 the best value.    |
-HaarPSI |   Ranges from 0 to 1, being 1 the best value.   |
-
 
 
 ## 4. Data overview <a name="4_dataoverview"></a>
@@ -286,7 +250,7 @@ Our CycleGAN model's generator architecture includes two downsampling layers, ni
   <img src="readme_images/gan_architecture.png">
 </p>
 
-- Training configuration<a name="513_modelarchitecture"></a>
+- Training configuration<a name="513_trainingconfiguration"></a>
 We trained our network from scratch and for that we used the Adam optimizer with a learning rate of 0.00001. Our early experiments involved training with a batch size of 1 and 6 residual blocks in the generator, which yielded good results but started overfitting after ~90 epochs. 
 
 <p align="center">
@@ -301,14 +265,14 @@ However, after increasing the batch size to 2 and the number of residual blocks 
 
 
 
-- Fine_tuning procedure<a name="514_modelarchitecture"></a>
-- Test results<a name="515_modelarchitecture"></a>
-### 5.2. Pannuke Dataset  <a name="52-pannukedataset"></a>
+- Fine_tuning procedure<a name="514_finetuningprocedure"></a>
+- Test results<a name="515_testresults"></a>
+### 5.2. HoverNet  <a name="52-hovernet"></a>
 - Data preprocessing<a name="521_datapreprocessing"></a>
 - Model architecture<a name="522_modelarchitecture"></a>
 - Training configuration<a name="523_modelarchitecture"></a>
-- Test results<a name="524_modelarchitecture"></a> 
-### 5.3. Endonuke Dataset  <a name="53-endonukedataset"></a> 
+- Test results<a name="524_testresults"></a> 
+### 5.3. Pipeline  <a name="53-pipeline"></a> 
 - Data preprocessing<a name="531_datapreprocessing"></a>
 
 In our project, we will use the Endonuke dataset for the pipeline. This means that we will create fake HE-images with the CycleGAN model using the images from the Endonuke dataset and then we will calculate the centroids of these fake images using the Hovernet model. Finally, we will compare the predicted and real centroids, as a way of evaluating our models together.
@@ -383,8 +347,9 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
 ## 6. How to Run <a name="6_howtorun"></a>
 
 - clone the repository.
-- Create new environment using python 3.8??
+- Create new environment.
 - run: pip install -r requirements.txt 
+- install CUDA??
 
 ### Pipeline:
 
@@ -398,8 +363,8 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
                          - resize.py
 
 - Download weights from both cycleGAN and HoverNet models [here.](https://drive.google.com/drive/folders/1_51IjiAmS7YoofXW-xpsaui44lC46Ko8?usp=drive_link) 
-- Extract both weight files (hovernet_fast_pannuke_type_tf2pytorch.tar and pretrained-cycleGAN.zip) in IHC_HE_GenAI/pretrained_models. The folder should end up like this:
-  IHC_HE_GenAI/pretrained_models/ - hovernet_fast_pannuke_type_tf2pytorch
+- Place the five weight files in IHC_HE_GenAI/pretrained_models. The folder should end up like this:
+  IHC_HE_GenAI/pretrained_models/ - hovernet_fast_pannuke_type_tf2pytorch.tar
                                   - discriminator_HE.tar
                                   - discriminator_IHC.tar
                                   - generator_HE.tar
