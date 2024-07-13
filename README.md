@@ -151,6 +151,12 @@ RAM: 32,0 GB
 OS: Windows 11
 Grafica: Nvidia RTX 4060
 
+Lenovo Legion Pro 5
+Procesador:	 AMD Ryzen™ 9 7945HX (2,50 GHz hasta 5,40 GHz)
+RAM: 32 GB DDR5-5200MHz (SODIMM) - (2 x 16 GB)
+OS: Windows 11
+Grafica: NVIDIA® GeForce RTX™ 4070 8 GB GDDR6
+
 
 
 
