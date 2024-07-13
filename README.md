@@ -338,6 +338,8 @@ However, after increasing the batch size to 2 and the number of residual blocks 
 ### 5.2. Hovernet  <a name="#52-hovernet"></a>
 - Data preprocessing<a name="521_datapreprocessing"></a>
 - Model architecture<a name="522_modelarchitecture"></a>
+
+The HoVer-Net single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
 - Training configuration<a name="523_modelarchitecture"></a>
 - Test results<a name="524_modelarchitecture"></a> 
 ### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
