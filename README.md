@@ -1,5 +1,5 @@
 # AIDL21: GAN-based synthetic medical image augmentation
-Click here to download the [Endonuke dataset](https://www.ispras.ru/conf/endonuke/data.zip) (source: [https://endonuke.ispras.ru/)](https://endonuke.ispras.ru/))
+
 This repository contains 
 
 ### About
@@ -408,9 +408,20 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
 
 ## 6. How to Run <a name="6_howtorun"></a>
 
-
+- clone the repository.
+- Create new environment using python 3.8??
+- run: pip install -r requirements.txt 
 
 ### Pipeline:
+
+- Download the Endonuke dataset [here.](https://www.ispras.ru/conf/endonuke/data.zip) (source: [https://endonuke.ispras.ru/)](https://endonuke.ispras.ru/))
+
+- Place the extracted data in IHC_HE_GenAI/
+
+- Download weights from both cycleGAN and HoverNet models [here.](https://drive.google.com/drive/folders/1_51IjiAmS7YoofXW-xpsaui44lC46Ko8?usp=drive_link )
+
+-Place both weight files (  and  ) in IHC_HE_GenAI/pretrained_models
+
 -Endonuke preprocessing:
     Download Endonuke dataset [here.](https://endonuke.ispras.ru)
     Change path in Dataset/Endonuke/config.py to “Data” folder
@@ -424,7 +435,7 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
 
 -Execute Pipeline/pipeline.py
 
-
+w
 This steps will execute the whole pipeline procediment. If it is intended to run only cycleGAN or HoverNet, the following steps can be taken:
 
 ### CycleGAN:
