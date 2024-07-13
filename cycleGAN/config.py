@@ -66,8 +66,8 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 NUM_EPOCHS = 150
 NUM_WORKERS = 4
 
-BATCH_SIZE = 2
-LEARNING_RATE = 1e-5
+BATCH_SIZE = 4
+LEARNING_RATE = 2e-5
 LAMBDA_IDENTITY = 0.3
 LAMBDA_CYCLE = 10
 IN_CH = 3
@@ -96,7 +96,7 @@ test_transforms = A.Compose([
                 additional_targets={"image0": "image"},
         )
 
-LOAD_MODEL = False
+LOAD_MODEL = True
 SAVE_MODEL = True
 SUFFIX1 = 200
 SUFFIX2 = "20240628"
@@ -104,12 +104,17 @@ SUFFIX2 = "20240628"
 if not LOAD_MODEL:    # If LOAD_MODEL = True, must define manually current_time variable name to match an existing file with model learned parameters
     current_time = datetime.now().strftime("%Y%m%d") 
 else:
-    current_time = "20240628"
+    current_time = "20240711"
 
-CHECKPOINT_GEN_HE = parent_path / f"training-models/genHE_{NUM_EPOCHS}_epochs_{current_time}_3.pth.tar"
-CHECKPOINT_GEN_IHC = parent_path / f"training-models/genIHC_{NUM_EPOCHS}_epochs_{current_time}_3.pth.tar"
-CHECKPOINT_DISC_HE = parent_path / f"training-models/discHE_{NUM_EPOCHS}_epochs_{current_time}_3.pth.tar"
-CHECKPOINT_DISC_IHC = parent_path / f"training-models/discIHC_{NUM_EPOCHS}_epochs_{current_time}_3.pth.tar"
+SAVE_CHECKPOINT_GEN_HE = parent_path / f"training-models/genHE_{NUM_EPOCHS}_epochs_{current_time}_3.2.pth.tar"
+SAVE_CHECKPOINT_GEN_IHC = parent_path / f"training-models/genIHC_{NUM_EPOCHS}_epochs_{current_time}_3.2.pth.tar"
+SAVE_CHECKPOINT_DISC_HE = parent_path / f"training-models/discHE_{NUM_EPOCHS}_epochs_{current_time}_3.2.pth.tar"
+SAVE_CHECKPOINT_DISC_IHC = parent_path / f"training-models/discIHC_{NUM_EPOCHS}_epochs_{current_time}_3.2.pth.tar"
+
+LOAD_CHECKPOINT_GEN_HE = parent_path / f"training-models/genHE_{NUM_EPOCHS}_epochs_{current_time}_3.1.pth.tar"
+LOAD_CHECKPOINT_GEN_IHC = parent_path / f"training-models/genIHC_{NUM_EPOCHS}_epochs_{current_time}_3.1.pth.tar"
+LOAD_CHECKPOINT_DISC_HE = parent_path / f"training-models/discHE_{NUM_EPOCHS}_epochs_{current_time}_3.1.pth.tar"
+LOAD_CHECKPOINT_DISC_IHC = parent_path / f"training-models/discIHC_{NUM_EPOCHS}_epochs_{current_time}_3.1.pth.tar"
 
 PRETRAINED_GEN_HE = parent_path / f"pretrained-models/genHE_{SUFFIX1}_epochs_{SUFFIX2}.pth.tar"
 PRETRAINED_GEN_IHC = parent_path / f"pretrained-models/genIHC_{SUFFIX1}_epochs_{SUFFIX2}.pth.tar"

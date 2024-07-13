@@ -107,7 +107,15 @@ def new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers, disc_fr
         for param in layer.parameters():
             param.requires_grad = True
 
-    # for layer in model_discHE[3:]:     
+    for layer in model_genHE[3][-2:]:
+        for param in layer.parameters():
+            param.requires_grad = True
+
+    for layer in model_genIHC[3][-2:]:
+        for param in layer.parameters():
+            param.requires_grad = True
+
+    # for layer in model_discHE[3]:     
     #     print(layer)
 
     # # Print to confirm if weights of new layer created with clone_layer() are not the same as the layer from the loaded pretrained model
@@ -303,7 +311,7 @@ def main():
 
     disc_HE, gen_HE, disc_IHC, gen_IHC, optim_gen, optim_disc = load_pretrained_model()
 
-    finetuned_discHE, finetuned_genHE, finetuned_discIHC, finetuned_genIHC = new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers=4, disc_frozen_layers=4)
+    finetuned_discHE, finetuned_genHE, finetuned_discIHC, finetuned_genIHC = new_gan_model(disc_HE, gen_HE, disc_IHC, gen_IHC, gen_frozen_layers=4, disc_frozen_layers=3)
 
     # Losses used during training
     cycle_loss = nn.L1Loss()
@@ -355,11 +363,13 @@ def main():
 
     # Load checkpoints if necessary
     if config.LOAD_MODEL:
-        start_epoch, log_dir, val_loss = load_checkpoint(config.CHECKPOINT_GEN_HE, finetuned_genHE, optim_gen, config.LEARNING_RATE)
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_HE, finetuned_discHE, optim_disc, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_GEN_IHC, finetuned_genIHC, optim_gen, config.LEARNING_RATE)[0])
-        start_epoch = max(start_epoch, load_checkpoint(config.CHECKPOINT_DISC_IHC, finetuned_discIHC, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch, log_dir, val_loss, fid_he, fid_ihc = load_checkpoint(config.LOAD_CHECKPOINT_GEN_HE, finetuned_genHE, optim_gen, config.LEARNING_RATE)
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_DISC_HE, finetuned_discHE, optim_disc, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_GEN_IHC, finetuned_genIHC, optim_gen, config.LEARNING_RATE)[0])
+        start_epoch = max(start_epoch, load_checkpoint(config.LOAD_CHECKPOINT_DISC_IHC, finetuned_discIHC, optim_disc, config.LEARNING_RATE)[0])
         print(f"Val_loss of loading is {val_loss} from epoch {start_epoch-1}")
+        print(f"HE FID Score of loading is {fid_he} from epoch {start_epoch-1}")
+        print(f"IHC FID Score of loading is {fid_ihc} from epoch {start_epoch-1}")
 
     if log_dir is None:
         log_dir = f"logs/GAN_FT_{config.NUM_EPOCHS}_epochs_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -370,7 +380,8 @@ def main():
 
     # Early stopping parameters
     patience = config.EARLY_STOP
-    best_val_loss = val_loss
+    best_epoch_loss = val_loss
+    best_epoch_fid = fid_he
     epochs_no_improve = 0
     best_epoch = 0
     # Training loop
@@ -406,16 +417,17 @@ def main():
         writer.add_scalars("Generators Losses", {"train": gen_train_loss, "val": gen_val_loss}, epoch)
 
         # Check for improvement
-        if gen_val_loss < best_val_loss:
+        if gen_val_loss < best_epoch_loss:
             best_epoch = epoch
-            best_val_loss = gen_val_loss
+            best_epoch_fid = fid_he
+            best_epoch_loss = gen_val_loss
             epochs_no_improve = 0
             # Save the best model
             if config.SAVE_MODEL:
-                save_checkpoint(epoch, finetuned_genHE, optim_gen, filename=config.CHECKPOINT_GEN_HE, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, finetuned_discHE, optim_disc, filename=config.CHECKPOINT_DISC_HE, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, finetuned_genIHC, optim_gen, filename=config.CHECKPOINT_GEN_IHC, log_dir=log_dir, loss=best_val_loss)
-                save_checkpoint(epoch, finetuned_discIHC, optim_disc, filename=config.CHECKPOINT_DISC_IHC, log_dir=log_dir, loss=best_val_loss)
+                save_checkpoint(epoch, finetuned_genHE, optim_gen, filename=config.SAVE_CHECKPOINT_GEN_HE, log_dir=log_dir, loss=best_epoch_loss, fid_he=fid_he, fid_ihc=fid_ihc)
+                save_checkpoint(epoch, finetuned_discHE, optim_disc, filename=config.SAVE_CHECKPOINT_DISC_HE, log_dir=log_dir, loss=best_epoch_loss, fid_he=fid_he, fid_ihc=fid_ihc)
+                save_checkpoint(epoch, finetuned_genIHC, optim_gen, filename=config.SAVE_CHECKPOINT_GEN_IHC, log_dir=log_dir, loss=best_epoch_loss, fid_he=fid_he, fid_ihc=fid_ihc)
+                save_checkpoint(epoch, finetuned_discIHC, optim_disc, filename=config.SAVE_CHECKPOINT_DISC_IHC, log_dir=log_dir, loss=best_epoch_loss, fid_he=fid_he, fid_ihc=fid_ihc)
         else:
             epochs_no_improve += 1
             print(f"Best epoch so far was {best_epoch}\n")
@@ -424,7 +436,7 @@ def main():
         # Check for early stopping
         if epochs_no_improve >= patience:
             print("Early stopping triggered")
-            print(f"Last model saved was on epoch {best_epoch} with loss: {best_val_loss}")
+            print(f"Last model saved was on epoch {best_epoch} with loss {best_epoch_loss} and FID Score HE {best_epoch_fid}")
             break
 
     writer.close()

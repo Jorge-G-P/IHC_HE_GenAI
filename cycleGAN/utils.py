@@ -4,7 +4,7 @@ import os
 import random
 import numpy as np
 
-def save_checkpoint(epoch, model, optimizer, filename, log_dir=None, loss=None):
+def save_checkpoint(epoch, model, optimizer, filename, log_dir=None, loss=None, fid_he=None, fid_ihc=None):
     print(f"=> Saving checkpoint for Epoch: {epoch}")
     checkpoint = {
         "epoch": epoch,
@@ -12,6 +12,8 @@ def save_checkpoint(epoch, model, optimizer, filename, log_dir=None, loss=None):
         "optimizer": optimizer.state_dict(),
         "log_dir": log_dir,
         "loss": loss,
+        "fid_he": fid_he,
+        "fid_ihc": fid_ihc
     }
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     torch.save(checkpoint, filename)
@@ -25,7 +27,7 @@ def load_checkpoint(checkpoint_file, model, optimizer, lr):
         optimizer.load_state_dict(checkpoint["optimizer"])
         for param_group in optimizer.param_groups:
             param_group["lr"] = lr
-        return checkpoint["epoch"] + 1 , checkpoint.get("log_dir", None), checkpoint.get("loss", None)
+        return checkpoint["epoch"] + 1 , checkpoint.get("log_dir", None), checkpoint.get("loss", None), checkpoint.get("fid_he", None), checkpoint.get("fid_ihc", None)
     except Exception as e:
         print(f"=> Failed to load checkpoint {checkpoint_file}: {str(e)}")
         raise
