@@ -375,6 +375,10 @@ Here are some examples showcasing the model's cycle consistency. Each example co
 ### 5.2. Hovernet  <a name="#52-hovernet"></a>
 
 The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) is a single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
+
+<div align="center">
+  <img src="readme_images/hovernet_architecture.png" width="300" hspace="25" />
+	
 - Data preprocessing<a name="521_datapreprocessing"></a>
 - Model architecture<a name="522_modelarchitecture"></a>
 
