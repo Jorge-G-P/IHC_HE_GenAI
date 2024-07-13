@@ -102,6 +102,7 @@ Consequently, the pipeline will have the following structure:
 
 - Draw final conclusions from the obtained results.
 
+
 ## 2. Tools and technologies <a name="2_toolstechnologies"></a>
 
 ### 2.1. Software  <a name="21_software"></a>
@@ -124,39 +125,56 @@ This combination of powerful libraries and custom solutions has enabled the deve
 
 ### 2.2. Hardware  <a name="22_hardware"></a> 
 
-- **Google Cloud Platform**
+- ### **Collaborator's Laptops Configurations**
 
-On an initial phase we started by training our models locally on our laptops but as the project architecture expanded, we rapidly looked for another approach due to the high computing demands.
+**MacBook Pro**
+- Procesador: 2,6 GHz Intel Core i7
 
-- **Google Cloud Platform**
+- Grafica: Intel UHD Graphics 630 1536 MB
+  
+- Memoria: 16 GB 2667 MHz DDR4
+
+
+**Asus Vivobook**
+ - Procesador: i7-13700H 2.40 GHz
+
+ - RAM: 32,0 GB
+ 
+ - OS: Windows 11
+ 
+ - Grafica: Nvidia RTX 4060
+
+
+**Lenovo Legion Pro 5**
+- Procesador: AMD Ryzen™ 9 7945HX (2,50 GHz hasta 5,40 GHz)
+  
+- RAM: 32 GB DDR5-5200MHz (SODIMM) - (2 x 16 GB)
+  
+- OS: Windows 11
+  
+- Grafica: NVIDIA® GeForce RTX™ 4070 8 GB GDDR6
+
+
+**Lenovo Legion Y720**
+- Procesador: Intel Core i7-7700HQ (Quad-Core, 2.8 GHz, up to 3.8 GHz with Turbo Boost)
+  
+- RAM: Up to 16 GB DDR4 (2400 MHz)
+  
+- OS: Windows 10
+  
+- Grafica: NVIDIA® GeForce GTX 1060 (6 GB GDDR5 VRAM)
+
+
+On an initial phase we started by training our models locally on our laptops but as the project architecture expanded, we rapidly looked for another approach due to the high computing demands, opting for [Google Cloud Platform](https://cloud.google.com/).
+
+
+- ### **Google Cloud Platform**
 
 To start, we utilized a VM from Google Cloud Platform (GCP) with an Ubuntu Image, equipped with 1 NVIDIA T4 GPU, and a machine type of n1-standard-4 (4 vCPUs, 15 GB memory). As the computational demands increased for model training and to expedite the process, we upgraded to a VM from GCP with an Ubuntu Image, featuring 1 NVIDIA L4 GPU and a machine type of g2-standard-8 (8 vCPUs, 32 GB memory).
 
 To leverage GPU acceleration, we employed CUDA, significantly enhancing our processing capabilities. We used Google Cloud Buckets to store and import raw dataset files to the VM. Additionally, we utilized the gcloud SDK for seamless data import/export to and from the VM.
 
 For accessing the VM and conducting our work, we established an SSH connection and utilized Visual Studio Code with the remote-ssh extension. This setup provided an efficient and flexible environment for developing and training our AI models.
-
-
-
-- **Students' personal laptops**
-
-MacBook Pro
-Procesador: 2,6 GHz Intel Core i7
-Grafica: Intel UHD Graphics 630 1536 MB
-Memoria: 16 GB 2667 MHz DDR4
-
-Asus Vivobook
-Procesador:	i7-13700H 2.40 GHz
-RAM: 32,0 GB
-OS: Windows 11
-Grafica: Nvidia RTX 4060
-
-Lenovo Legion Pro 5
-Procesador:	 AMD Ryzen™ 9 7945HX (2,50 GHz hasta 5,40 GHz)
-RAM: 32 GB DDR5-5200MHz (SODIMM) - (2 x 16 GB)
-OS: Windows 11
-Grafica: NVIDIA® GeForce RTX™ 4070 8 GB GDDR6
-
 
 
 
@@ -218,10 +236,9 @@ HaarPSI |   Ranges from 0 to 1, being 1 the best value.   |
 
 
 ## 4. Data overview <a name="4_dataoverview"></a>
-We have trained and tested two different models for our final pipeline. First, we needed to perform a medical image-to-image translation task using a cycleGAN architecture. Then, an instance segmentation of cells nuclei task for medical images. 
+We have trained and tested two different models for our final pipeline. First, we needed to perform a medical image-to-image translation task using a cycleGAN architecture. Then, an instance segmentation task of cells nuclei for medical images. 
 
 For that we used the [BCI Dataset](https://bci.grand-challenge.org/) obtained from the Grand Challenge, the [Endonuke Dataset](https://endonuke.ispras.ru/) and the [Pannuke Dataset]().
-These 3 datasets are explained more in detail in section XXX.
 
 ### 4.1. Biological Context  <a name="41_biologicalcontext"></a>
 
@@ -234,19 +251,19 @@ The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and
 
 
 <p align="center">
-  <img src="readme_images/BCIsamples.png"  width="48">
+  <img src="readme_images/BCIsamples.png"  width="700">
 </p>
 
 
 ### 4.3. Pannuke Dataset  <a name="43_pannukedataset"></a> 
 
-For the image segmentation model training, validation and testing, we utilize the PanNuke dataset, which is a semi-automatically generated resource designed for the segmentation and classification of nuclei.Models trained on PanNuke can aid in whole slide image tissue type segmentation, and generalize to new tissues. This dataset includes 7753 images spanning 19 different tissue types: adrenal gland, bile duct, bladder, breast, cervix, colon, esophagus, headneck, kidney, liver, lung, ovarian, pancreatic, prostate, skin, stomach, testis, thyroid and uterus. The PanNuke dataset is organized into three folds (fold 1, fold 2, and fold 3), each containing two folders: "image" and "masks." The "image" folder comprises two files: images.npy and types.npy, while the "masks" folder contains a single file: masks.npy.. 
+For the image segmentation model training, validation and testing, we utilize the PanNuke dataset, which is a semi-automatically generated resource designed for the segmentation and classification of nuclei. Models trained on PanNuke can aid in whole slide image tissue type segmentation, and generalize to new tissues. This dataset includes 7753 images spanning 19 different tissue types: adrenal gland, bile duct, bladder, breast, cervix, colon, esophagus, headneck, kidney, liver, lung, ovarian, pancreatic, prostate, skin, stomach, testis, thyroid and uterus. The PanNuke dataset is organized into three folds (fold 1, fold 2, and fold 3), each containing two folders: "image" and "masks." The "image" folder comprises two files: images.npy and types.npy, while the "masks" folder contains a single file: masks.npy.. 
 
 ### 4.4. Endonuke Dataset  <a name="44_endonukedataset"></a> 
 EndoNuke is a dataset designed for training models to detect nuclei in endometrium samples. It contains over 1600 image tiles, created using the immunohistochemistry technique (IHC). Each image has a physical size of 100μm x 100μm, and includes annotated nuclei locations marked as keypoints for: stroma, epithelium, and other.
 
 <p align="center">
-  <img src="readme_images/endosamples.jpg">
+  <img src="readme_images/endosamples.jpg" width="700">
 </p>
 
 As for the dataset structure, all the data is located in a directory called “Data”. The structure is:
@@ -278,8 +295,27 @@ The dataset can be downloaded [here.](https://endonuke.ispras.ru)
 
 
 
-### 5.1. cycleGAN  <a name="51_cyclegan"></a> 
-- Data preprocessing<a name="511_datapreprocessing"></a>
+### 5.1. CycleGAN  <a name="51_cyclegan"></a>
+
+For our image-to-image translation tasks, we implemented CycleGAN, an innovative model introduced by _Jun-Yan Zhu et al._ on this [paper](https://arxiv.org/pdf/1703.10593). This architecture leverages a cycle-consistency loss to enable the transformation of images from one domain to another without direct correspondence between the datasets.
+
+Here is a visual explanation of the overall pipeline of the CycleGAN:
+
+<p align="center">
+  <img src="readme_images/gan_pipeline2.png" width="700">
+</p>
+
+
+### 5.1.1. Model Architecture <a name="512_modelarchitecture"></a>
+
+
+Our CycleGAN model's generator architecture includes two downsampling layers, nine residual blocks, and two upsampling layers. The discriminator architecture ias a 70 X 70 PatchGAN, consisting of a series of convolutional layers without downsampling or upsampling, progressively reducing the spatial dimensions to make real or fake predictions. The activation functions used in these networks are pivotal for their performance. Leaky ReLU is employed in the discriminator to allow a small gradient when the unit is not active, mitigating the issue of vanishing gradients. For the generator, ReLU is used in the residual blocks to facilitate efficient training and stable gradient flow. At the output layer of the generator, a Tanh activation function is used to scale the output to the range [-1, 1].
+
+<p align="center">
+  <img src="readme_images/gan_architecture_2.png" width="700">
+</p>
+
+### 5.1.2. Data Preprocessing <a name="511_datapreprocessing"></a>
 
 - #### Dataset Resolution
 
@@ -288,7 +324,7 @@ Due to the high resolution of the original dataset and in order to accelerate th
 Below follows an example of how we cropped the original dataset:
 
 <p align="center">
-  <img src="readme_images/BCI_crops.png">
+  <img src="readme_images/BCI_crops.png" width="700">
 </p>
 
 - #### Dataset Reduction
@@ -302,46 +338,74 @@ For further reduction of the training time, we resized the images to 256*256. To
 
 
 
+### 5.1.3. Training Configuration <a name="513_modelarchitecture"></a>
 
-- Model architecture<a name="512_modelarchitecture"></a>
-For our image-to-image translation tasks, we implemented CycleGAN, an innovative model introduced by _Jun-Yan Zhu et al._ on this [paper](https://arxiv.org/pdf/1703.10593). This architecture leverages a cycle-consistency loss to enable the transformation of images from one domain to another without direct correspondence between the datasets.
+- #### First Approach
+First, we trained our network from scratch and for that we used the Adam optimizer with a learning rate of 0.00001. Our early experiments involved training with a batch size of 1, 6 residual blocks in the generator and a cycle_lambda=10, which yielded good results but started overfitting after 87 epochs. 
 
-Here is a visual explanation of the overall pipeline of the CycleGAN:
-
-<p align="center">
-  <img src="readme_images/gan_pipeline2.png">
-</p>
-
-Our CycleGAN model's generator architecture includes two downsampling layers, nine residual blocks, and two upsampling layers. The discriminator architecture ias a 70 X 70 PatchGAN, consisting of a series of convolutional layers without downsampling or upsampling, progressively reducing the spatial dimensions to make real or fake predictions. The activation functions used in these networks are pivotal for their performance. Leaky ReLU is employed in the discriminator to allow a small gradient when the unit is not active, mitigating the issue of vanishing gradients. For the generator, ReLU is used in the residual blocks to facilitate efficient training and stable gradient flow. At the output layer of the generator, a Tanh activation function is used to scale the output to the range [-1, 1].
+Below we present the generators loss during the first training process:
 
 <p align="center">
-  <img src="readme_images/gan_architecture.png">
+  <img src="readme_images/train_gan_1.png" width="900">
 </p>
 
-- Training configuration<a name="513_modelarchitecture"></a>
-We trained our network from scratch and for that we used the Adam optimizer with a learning rate of 0.00001. Our early experiments involved training with a batch size of 1 and 6 residual blocks in the generator, which yielded good results but started overfitting after ~90 epochs. 
+- #### Second Approach
+
+However, after increasing the batch size to 2 and the number of residual blocks to 9, while maintaining the same lr and cycle_lambda, we observed a smoother convergence and a lower loss from the beginning. Additionally, we incorporated identity loss with a lambda=0.5, helping to preserve the format and characteristics of the original domain during translation. These adjustments significantly enhanced the stability and quality of the generated images. After 123 epochs the model started to overfit.
+
+Below we present the generators loss during the second training process:
 
 <p align="center">
-  <img src="readme_images/train_gan_1.png">
+  <img src="readme_images/train_gan_2.png" width="900">
 </p>
 
-However, after increasing the batch size to 2 and the number of residual blocks to 9, while maintaining the same lr, we observed a smoother convergence and a lower loss from the beginning. We estimate that this improvement can be attributed to the larger batch size providing more stable gradient estimates, and the increased number of residual blocks allowing the model to capture more intricate details in the images. Additionally, we incorporated identity loss with a lambda=0.5, helping to preserve the format and characteristics of the original domain during translation. These adjustments significantly enhanced the stability and quality of the generated images. After ~125epochs the model started to overfit.
-
-<p align="center">
-  <img src="readme_images/train_gan_2.png">
-</p>
+We estimate that this improvement can be attributed to the larger batch size providing more stable gradient estimates, and the increased number of residual blocks allowing the model to capture more intricate details in the images.
 
 
+### 5.1.4 Fine-Tuning <a name="514_modelarchitecture"></a>
 
-- Fine_tuning procedure<a name="514_modelarchitecture"></a>
-- Test results<a name="515_modelarchitecture"></a>
+
+### 5.1.5. Test Results <a name="515_modelarchitecture"></a>
+
+After training our CycleGAN model, we evaluated its performance using several metrics on the test set. Among these, the Fréchet Inception Distance (FID) was employed, which is commonly used to assess the fidelity of generated images compared to real images. FID measures the similarity in statistics between generated and real images based on features extracted from a pre-trained Inception model. Additionally, we monitored the generator losses throughout the testing phase to gauge the convergence and stability of our model.
+
+| Metric          | Score |
+|-----------------|-------|
+| FID Score (HE) | 23.22 |
+| FID Score (IHC) | 48.54 |
+| Generators Loss | 1.43 |
+
+Below we also present some of the test results obtained with the BCI Dataset, which has paired images and allowed us to have a better visual perception of the model's ability to perform the pretended image-to-image translation tasks.
+
+- #### Translation from Domain A to Domain B [G(x)]
+
+Here are some examples with particular focus on comparing the transformation from domain A to domain B with the domain B ground truth:
+
+<div align="center">
+  <img src="readme_images/gen_HE_gt.png" width="350" hspace="40" />
+  <img src="readme_images/gen_IHC_gt.png" width="350" hspace="40" />
+  <p><strong>Examples of CycleGAN inference results. Left input image from IHC domain; Right input image from HE domain.</strong></p>
+</div>
+
+- #### Reconstruction Translation [F(G(x))]
+
+Here are some examples showcasing the model's cycle consistency. Each example contrasts the original images from domain A with their reconstructions obtained through transformation into domain B and back:
+
+<div align="center">
+  <img src="readme_images/gen_HE_cycle.png" width="350" hspace="40" />
+  <img src="readme_images/gen_IHC_cycle.png" width="350" hspace="40" />
+  <p><strong>Examples of CycleGAN inference results. Left input image from HE domain; Right input image from IHC domain.</strong></p>
+</div>
+
+
 ### 5.2. Hovernet  <a name="#52-hovernet"></a>
 - Data preprocessing<a name="521_datapreprocessing"></a>
 - Model architecture<a name="522_modelarchitecture"></a>
 
 The HoVer-Net single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
 - Training configuration<a name="523_modelarchitecture"></a>
-- Test results<a name="524_modelarchitecture"></a> 
+- Test results<a name="524_modelarchitecture"></a>
+- 
 ### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
 - Data preprocessing<a name="531_datapreprocessing"></a>
 
