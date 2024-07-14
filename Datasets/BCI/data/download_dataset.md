@@ -1,0 +1,1 @@
+Click here to download the [BCI dataset](https://drive.google.com/drive/folders/1jApbId20lX8AY0tIsoX2_2BHBLPoxD4L?usp=sharing) (source: [https://github.com/bupt-ai-cz/BCI/blob/main/download_dataset.md](https://github.com/bupt-ai-cz/BCI/blob/main/download_dataset.md)
