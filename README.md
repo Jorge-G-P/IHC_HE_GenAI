@@ -544,7 +544,7 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
 - Test results<a name="533_modelarchitecture"></a>
 
 <div align="center">
-  <img src="readme_images/pipeline_result.png" width="900" hspace="25" />
+  <img src="readme_images/pipeline_result_final.png" width="900" hspace="25" />
 </div>
 
 
