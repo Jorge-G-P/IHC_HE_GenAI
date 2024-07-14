@@ -19,7 +19,7 @@ results_hover_folder = parent_path/ "IHC_HE_GenAI/Results"
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 IN_CH = 3
-N_RES_BLOCKS = 6
+N_RES_BLOCKS = 9
 PREPROCESS_ENDONUKE = True
 
 SUBSET_PERCENTAGE = 15
