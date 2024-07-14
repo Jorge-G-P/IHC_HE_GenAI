@@ -534,24 +534,24 @@ Note that this comparison method uses a distance threshold and if the distance b
  	python Hover_net\hover_net2\data_prep.py\data_prep.py
  	``` 
 
-	The dataset inside "data" (Fold 1, Fold 2, Fold 3) will be automatically separated in 3 folders:
+   The dataset inside "data" (Fold 1, Fold 2, Fold 3) will be automatically separated in 3 folders:
 
-    	```
+ 	```
 	 IHC_HE_GenAI/Datasets/Pannuke/data/
 	  ├── train
 		├── val
 	  └── test
 	```
 
-4. Run the following command on the terminal:
+5. Run the following command on the terminal:
 	
 	```
  	python Hover_net\hover_net2\run_train.py\run_train.py
   	``` 
 
-5. To acess the train loss, train oupts, validation loss and validation ouput; launch Tensorboard by clickin on "Launch TensorBoard Session" in line 31 of the "run_train.py" file
+6. To acess the train loss, train oupts, validation loss and validation ouput; launch Tensorboard by clickin on "Launch TensorBoard Session" in line 31 of the "run_train.py" file
 
-6. The checkpoints will be stored inside the "checkpoint" folder, in a subfolder called "00".
+7. The checkpoints will be stored inside the "checkpoint" folder, in a subfolder called "00".
 
 	```
 	 \IHC_HE_GenAI\Hover_net\hover_net2\checkpoint\
