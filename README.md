@@ -386,6 +386,9 @@ The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) i
 </div>
 	
 ### 5.2.1. Data preprocessing<a name="521_datapreprocessing"></a>
+
+The data processing was meticulously developed to handle image and mask data from the PanNuke dataset, segmented across multiple folds. Initially, image and mask files stored in NumPy array format were aggregated from three distinct folds (Fold 1, Fold 2, Fold 3) to form comprehensive datasets. These files were accessed from nested directories structured specifically for this purpose and were concatenated to create unified arrays for images and masks. The data was then prepared for training by segmenting it into training, validation, and test subsets, which represent 60% (4740/7901), 20% (1580/7901), and 20% (1581/7901) of the data, respectively. The transformation process included converting instance segmentation masks into a format compatible with the Hover-Net architecture, which involved remapping segmentation indices and encoding cell type information into a five-channel NumPy array per image (7901, 256, 6). Each processed image was saved as a .npy file in designated directories corresponding to their respective data splits. Additionally, for inference, visualization and verification, test images were converted into PNG format and stored, ensuring that the pixel intensity values were properly scaled to the 8-bit range suitable for standard image formats. 
+
 ### 5.2.2. Model architecture<a name="522_modelarchitecture"></a>
 
 
