@@ -480,6 +480,78 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
 
 ## 6. How to Run <a name="6_howtorun"></a>
 
+### How to download and prepare datasets
+
+#### BCI Dataset
+
+1. Download BCI Dataset from [here](https://drive.google.com/file/d/1jPPh-rxUaj_bCB58F9mfg9hjY7JjVt3O/view?usp=drive_link). If it is not possible, you can also enter on [this](https://drive.google.com/drive/folders/1jApbId20lX8AY0tIsoX2_2BHBLPoxD4L) google drive folder and download it from there.
+  
+2. Extract and save the dataset
+
+	After downloading the dataset you will obtain a `.zip` file called `BCI_dataset`. You should extract the content inside that should be a folder called `BCI_dataset`, rename it to `BCI` and save it on the `/path/to/the/repository/Datasets`.
+
+	Once you have done that, the file structure should be like this: 
+
+	```
+	 IHC_HE_GenAI
+	  ├──Datasets
+	       ├── BCI
+		     ├──train
+		     |    ├── 00000_train_1+.png
+		     |    ├── 00001_train_3+.png
+		     |    └── ...
+		     └──test
+			  ├── 00000_test_1+.png
+			  ├── 00001_test_2+.png
+			  └── ...
+	```
+
+### Endonuke Dataset
+
+### Pannuke Dataset
+
+
+### How to train CycleGAN
+
+1. File structure and description
+	```
+	 IHC_HE_GenAI
+	  ├──cycleGAN
+	     ├── __init__.py
+	     ├── config.py
+	     └── ...
+	```
+ 	
+ 	The python scripts inside `/path/to/the/repository/cycleGAN` are as follow:
+	
+ 	| File          | Description |
+	|-----------------|-------|
+	| init.py  | Initializes the package and can include any necessary package-level variables or imports |
+	| config.py | Contains configuration settings and hyperparameters for the CycleGAN model, including paths, image transformations, training parameters, and model parameters |
+	| discriminator.py | Defines the architecture and implementation of the discriminator networks used in the CycleGAN |
+	| generator.py | Defines the architecture and implementation of the generator networks used in the CycleGAN |
+	| HE_IHC_dataset.py | Manages the loading, preprocessing, and augmentation of the HE and IHC datasets for training and testing |
+	| train.py | Contains the training loop and logic for training the CycleGAN model, including loss calculations and model updates |
+	| test.py | Implements the testing and evaluation logic for the trained CycleGAN model on new data |
+	| utils.py | Provides utility functions used throughout the project, such as saving/loading models, and other helper functions |
+	| evaluate.py | Contains functions for evaluating the performance of the CycleGAN model |
+
+
+2. Change configuration settings and hyperparameters for the CycleGAN model
+
+	Open the `/path/to/the/repository/cycleGAN/config.py` and change the `TRAIN_DIR_IHC` and `TRAIN_DIR_HE` variables to these:
+	```
+ 	TRAIN_DIR_IHC = bci_dataset_ihc_train   
+ 	TRAIN_DIR_HE = bci_dataset_he_train
+ 	```
+ 	Then, open the `/path/to/the/repository/cycleGAN/utils.py` file and change `import cycleGAN.config as config` to `import config`
+
+
+3. Run the following command on the terminal to start training the model:
+	```
+ 	python3 /path/to/the/repository/cycleGAN/train.py
+ 	``` 
+	You can monitor and track the model training by opening with tensorboard the `/path/to/the/repository/cycleGAN/logs` folder, where you can find different metrics. Also, you can check some examples of the cycleGAN output images throughout training, validation and test in `/path/to/the/repository/cycleGAN/gan-img/` to have a better visual understanding of the outputs the model is generating.
 
 
 ### Pipeline:
