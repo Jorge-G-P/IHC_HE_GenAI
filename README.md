@@ -422,6 +422,8 @@ Throughout the training process, key metrics were meticulously recorded and save
   <img src="readme_images/hover_result1.png" width="900" hspace="25" />
 </div>
 
+Initially, we commenced training our model using the Pannuke dataset according to the method outlined above. However, to optimize our resource utilization and expedite the development process, we decided to leverage the pretrained model checkpoints shared by the HoVer-Net creators with the community. By starting from these pretrained checkpoints, we significantly reduced the amount of time required for training and fine-tuning our model. This strategic decision not only accelerated our project timeline but also ensured that we maintained high standards of accuracy and efficiency in our model's performance, benefiting from the robust foundation provided by the pretrained model.
+
 ### 5.2.4. Test results<a name="524_modelarchitecture"></a>
 - 
 ### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
