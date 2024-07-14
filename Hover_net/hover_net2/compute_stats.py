@@ -3,7 +3,6 @@ import glob
 import os
 import numpy as np
 import scipy.io as sio
-
 from metrics.stats_utils import (
     get_dice_1,
     get_fast_aji,
@@ -176,16 +175,15 @@ def run_nuclei_type_stat(pred_dir, true_dir, type_uid_list=None, exhaustive=True
 
 def run_nuclei_inst_stat(pred_dir, true_dir, print_img_stats=False, ext=".mat"):
     # print stats of each image
-    print(pred_dir)
+    #print(pred_dir)
 
     file_list = glob.glob("%s/*%s" % (pred_dir, ext))
     file_list.sort()  # ensure same order
-
     metrics = [[], [], [], [], [], []]
     for filename in file_list[:]:
         filename = os.path.basename(filename)
         basename = filename.split(".")[0]
-
+        print(basename)
         true = sio.loadmat(os.path.join(true_dir, basename + ".mat"))
         true = (true["inst_map"]).astype("int32")
 
@@ -195,6 +193,9 @@ def run_nuclei_inst_stat(pred_dir, true_dir, print_img_stats=False, ext=".mat"):
         # to ensure that the instance numbering is contiguous
         pred = remap_label(pred, by_size=False)
         true = remap_label(true, by_size=False)
+        if pred.sum() == true.sum() == 0:
+            print('all empty')
+            continue
 
         pq_info = get_fast_pq(true, pred, match_iou=0.5)[0]
         metrics[0].append(get_dice_1(true, pred))

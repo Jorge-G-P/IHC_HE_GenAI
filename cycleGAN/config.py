@@ -8,8 +8,13 @@ from datetime import datetime
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 repo_path = dir_path.parent
 parent_path = repo_path.parent
-# print(repo_path)
-# print(parent_path)
+
+bci_dataset_ihc_train = repo_path / "Datasets/BCI/IHC/train"
+bci_dataset_ihc_test =  repo_path / "Datasets/BCI/IHC/test"
+bci_dataset_he_train = repo_path / "Datasets/BCI/HE/train"
+bci_dataset_he_test =  repo_path / "Datasets/BCI/HE/test"
+endonuke_dataset = repo_path / "Datasets/Endonuke/data/crop_images"
+pannuke_dataset = repo_path / "Datasets/Pannuke"
 
 """ All the flags used for control and to choose before training/testing the model
 
@@ -68,24 +73,17 @@ parent_path = repo_path.parent
             PRETRAINED_DISC_HE           -- Checkpoint filename of pretrained HE Discriminator for inference/finetuning
             PRETRAINED_DISC_IHC          -- Checkpoint filename of pretrained IHC Discriminator for inference/finetuning
 
-
 """
-bci_dataset_ihc_train = parent_path / "BCI_dataset/IHC/train"
-bci_dataset_ihc_test =  parent_path / "BCI_dataset/IHC/test"
-bci_dataset_he_train = parent_path / "BCI_dataset/HE/train"
-bci_dataset_he_test =  parent_path / "BCI_dataset/HE/test"
-endonuke_dataset = parent_path / "endonuke_dataset/data/crop_images"
-pannuke_dataset = parent_path / "pannuke_dataset"
 
 TRAIN_DIR_IHC = bci_dataset_ihc_train
 TRAIN_DIR_HE = bci_dataset_he_train
-TEST_DIR_IHC = endonuke_dataset
-TEST_DIR_HE = pannuke_dataset
+TEST_DIR_IHC = bci_dataset_ihc_test
+TEST_DIR_HE = bci_dataset_he_test
 
-IMG_ORIGINAL_SIZE = 256
-PATCHES_SIZE = 256
+IMG_ORIGINAL_SIZE = 1024
+PATCHES_SIZE = 512
 SUBSET_PERCENTAGE = 100
-SHUFFLE_DATASET = True
+SHUFFLE_DATASET = False
 
 IN_CH = 3
 D_FEATURES = [64, 128, 256, 512]
@@ -97,7 +95,7 @@ NUM_WORKERS = 4
 
 BATCH_SIZE = 2
 LEARNING_RATE = 1e-5
-LAMBDA_IDENTITY = 0.3
+LAMBDA_IDENTITY = 0
 LAMBDA_CYCLE = 10
 
 EARLY_STOP = 20
@@ -123,29 +121,32 @@ test_transforms = A.Compose([
         )
 
 LOAD_MODEL = False
-SAVE_MODEL = False
+SAVE_MODEL = True
 
-SAVE_SUFFIX1 = 150
+SAVE_SUFFIX1 = NUM_EPOCHS
 SAVE_SUFFIX2 = "try_1"
-SAVE_CHECKPOINT_GEN_HE = parent_path / f"training-models/genHE_{SAVE_SUFFIX1}_epochs_{SAVE_SUFFIX2}.pth.tar"
-SAVE_CHECKPOINT_GEN_IHC = parent_path / f"training-models/genIHC_{SAVE_SUFFIX1}_epochs_{SAVE_SUFFIX2}.pth.tar"
-SAVE_CHECKPOINT_DISC_HE = parent_path / f"training-models/discHE_{SAVE_SUFFIX1}_epochs_{SAVE_SUFFIX2}.pth.tar"
-SAVE_CHECKPOINT_DISC_IHC = parent_path / f"training-models/discIHC_{SAVE_SUFFIX1}_epochs_{SAVE_SUFFIX2}.pth.tar"
+SAVE_CHECKPOINT_GEN_HE = repo_path / f"cycleGAN/training-models/genHE_{SAVE_SUFFIX1}_epochs_{SAVE_SUFFIX2}.pth.tar"
+SAVE_CHECKPOINT_GEN_IHC = repo_path / f"cycleGAN/training-models/genIHC_{SAVE_SUFFIX1}_epochs_{SAVE_SUFFIX2}.pth.tar"
+SAVE_CHECKPOINT_DISC_HE = repo_path / f"cycleGAN/training-models/discHE_{SAVE_SUFFIX1}_epochs_{SAVE_SUFFIX2}.pth.tar"
+SAVE_CHECKPOINT_DISC_IHC = repo_path / f"cycleGAN/training-models/discIHC_{SAVE_SUFFIX1}_epochs_{SAVE_SUFFIX2}.pth.tar"
 
 LOAD_SUFFIX1 = "150"
 LOAD_SUFFIX2 = "try_1"
-LOAD_CHECKPOINT_GEN_HE = parent_path / f"training-models/genHE_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
-LOAD_CHECKPOINT_GEN_IHC = parent_path / f"training-models/genIHC_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
-LOAD_CHECKPOINT_DISC_HE = parent_path / f"training-models/discHE_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
-LOAD_CHECKPOINT_DISC_IHC = parent_path / f"training-models/discIHC_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
+LOAD_CHECKPOINT_GEN_HE = repo_path / f"cycleGAN/training-models/genHE_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
+LOAD_CHECKPOINT_GEN_IHC = repo_path / f"cycleGAN/training-models/genIHC_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
+LOAD_CHECKPOINT_DISC_HE = repo_path / f"cycleGAN/training-models/discHE_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
+LOAD_CHECKPOINT_DISC_IHC = repo_path / f"cycleGAN/training-models/discIHC_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
 
 PRETRAINED_SUFFIX1 = 200
-PRETRAINED_SUFFIX2 = 20240628
-PRETRAINED_GEN_HE = parent_path / f"pretrained-models/genHE_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
-PRETRAINED_GEN_IHC = parent_path / f"pretrained-models/genIHC_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
-PRETRAINED_DISC_HE = parent_path / f"pretrained-models/discHE_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
-PRETRAINED_DISC_IHC = parent_path / f"pretrained-models/discIHC_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
+PRETRAINED_SUFFIX2 = 20240702
+PRETRAINED_GEN_HE = repo_path / f"pretrained-models/genHE_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
+PRETRAINED_GEN_IHC = repo_path / f"pretrained-models/genIHC_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
+PRETRAINED_DISC_HE = repo_path / f"pretrained-models/discHE_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
+PRETRAINED_DISC_IHC = repo_path / f"pretrained-models/discIHC_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
 
 
 if __name__ == "__main__":
+    print(f"Repository path: {repo_path}")
+    print(f"Repository parent path: {parent_path}")
     pass
+        

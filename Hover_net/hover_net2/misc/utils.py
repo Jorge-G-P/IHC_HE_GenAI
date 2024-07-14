@@ -1,9 +1,7 @@
-import glob
 import inspect
 import logging
 import os
 import shutil
-
 import cv2
 import numpy as np
 from scipy import ndimage

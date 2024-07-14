@@ -1,5 +1,5 @@
 import torch
-import config
+import cycleGAN.config as config
 import os
 import random
 import numpy as np
@@ -58,10 +58,18 @@ def custom_collate(batch):
     return batch_dict
 
 def create_directories():
-    os.makedirs(config.parent_path / "gan-img/HE/train/", exist_ok=True)
-    os.makedirs(config.parent_path / "gan-img/HE/val/", exist_ok=True)
-    os.makedirs(config.parent_path / "gan-img/HE/test/", exist_ok=True)
-    os.makedirs(config.parent_path / "gan-img/IHC/train/", exist_ok=True)
-    os.makedirs(config.parent_path / "gan-img/IHC/val/", exist_ok=True)
-    os.makedirs(config.parent_path / "gan-img/IHC/test/", exist_ok=True)
-    os.makedirs(config.parent_path / "logs/", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/realHE_fakeIHC_gt", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/realHE_fakeIHC_cycle", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/realIHC_fakeHE_gt", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/realIHC_fakeHE_cycle", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/HE/train/", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/HE/val/", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/HE/test/", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/IHC/train/", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/IHC/val/", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/gan-img/IHC/test/", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/logs/", exist_ok=True)
+    os.makedirs(config.repo_path / "cycleGAN/training-models/", exist_ok=True)
+
+if __name__ == "__main__":
+    print(config.repo_path / "cycleGAN/training-models")

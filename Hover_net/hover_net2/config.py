@@ -1,8 +1,15 @@
 import importlib
+import os
 from dataset import get_dataset
-from Datasets.Pannuke.config import (
-    directory_name_train, directory_name_val)
+from pathlib import Path
 
+dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
+repo_path = dir_path.parent
+parent_path = repo_path.parent
+
+directory_name_train = parent_path / "Datasets/Pannuke/data/train/"
+directory_name_val = parent_path / "Datasets/Pannuke/data/val/"
+print(directory_name_train)
 
 class Config(object):
     """Configuration file."""

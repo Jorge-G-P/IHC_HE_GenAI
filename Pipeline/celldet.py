@@ -1,14 +1,8 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-import datetime
-import itertools
-import os.path as osp
-from collections import OrderedDict
-from typing import Dict, List, Optional, Sequence, Union
-
+from typing import Dict, List, Optional, Union
 import numpy as np
 import torch
 import torch.distributed as dist
-
 import scipy
 from scipy.optimize import linear_sum_assignment
 
