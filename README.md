@@ -391,9 +391,28 @@ The data processing was meticulously developed to handle image and mask data fro
 
 ### 5.2.2. Model architecture<a name="522_modelarchitecture"></a>
 
+In the "fast" mode of the HoVer-Net model, the architecture is designed for efficiency while maintaining a strong capability for feature extraction and segmentation tasks. The model starts with an initial convolutional layer (conv0) that employs a 7x7 kernel to process the input image, followed by batch normalization and ReLU activation. This layer is prepended with a TFSamepaddingLayer to maintain the dimensionality across convolutions.
+
+The core of the network comprises four sets of residual blocks (d0, d1, d2, d3), which progressively increase the depth and reduce the spatial dimensions of the feature maps. Specifically, the architecture includes:
+
+- d0: 3 residual blocks, transitioning from 64 to 256 channels.
+- d1: 4 residual blocks, increasing channel depth from 256 to 512.
+- d2: 6 residual blocks, further deepening to 1024 channels.
+- d3: 3 residual blocks, culminating in 2048 channels.
+- 
+A convolutional bottleneck layer (conv_bot) then compresses the channel depth from 2048 to 1024 to prepare for the decoding process. The decoder architecture in the "fast" mode uses a kernel size of 3 for all convolutional operations, which is smaller than in the "original" mode, allowing for quicker processing with reduced computational overhead.
+
+The decoder consists of four sequential stages that progressively upsample and concatenate feature maps from corresponding encoder stages, refining details through a series of dense blocks and convolutional layers. Each stage in the decoder is designed to integrate high-level semantic information with lower-level details to generate precise segmentation outputs.
+
+The model concludes with the UpSample2x module, used at each decoder stage to gradually restore the resolution of the output feature maps, culminating in the final segmentation maps corresponding to different types of predictions (nuclear, cytoplasmic, etc.), depending on the configuration.
 
 ### 5.2.3. Training configuration<a name="523_modelarchitecture"></a>
 
+In the training configuration of our project, we adopted a structured multi-phase approach to train the neural network using the HoVer-Net model in its 'fast' mode. The model was equipped with a total of 16 residual blocks distributed across four distinct depth levels: 3 blocks in d0, 4 blocks in d1, 6 blocks in d2, and 3 blocks in d3. This architecture was selected to optimize the model’s learning capabilities for faster execution without compromising the integrity of feature extraction.
+
+Each phase was precisely defined to control the learning process, with an Adam optimizer initiated at a learning rate of 0.0025, fine-tuned through a MultiStepLR scheduler at predetermined epochs to enhance training efficacy. We managed the batch sizes at 2 for both training and validation to ensure a balance between computational resource utilization and model accuracy.
+
+Throughout the training process, key metrics were meticulously recorded and saved using a series of callbacks integrated into the training and validation engines. These included ScalarMovingAverage for tracking moving averages of scalar metrics, TrackLr for monitoring learning rate changes, and PeriodicSaver for saving model states periodically. Additionally, VisualizeOutput and LoggingEpochOutput were employed to log and visualize outputs at each epoch, providing vital feedback on model performance and stability. AccumulateRawOutput and ProcessAccumulatedRawOutput played crucial roles during validation phases, collecting and processing outputs for detailed analysis.
 
 <div align="center">
   <img src="readme_images/hover_result1.png" width="900" hspace="25" />
