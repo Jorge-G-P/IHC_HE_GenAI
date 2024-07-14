@@ -108,10 +108,12 @@ def train_func(D_HE, D_IHC, G_HE, G_IHC, optim_D, optim_G, G_scaler, D_scaler, c
 
         if epoch % 5 == 0 and idx % 1000 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
-                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(he[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/HE/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(ihc[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/IHC/train/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
         
         loop.set_postfix(D_loss=D_loss.item(), G_loss=G_loss.item())
 
@@ -173,10 +175,12 @@ def eval_single_epoch(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_los
         
         if epoch % 5 == 0 and idx % 170 == 0:
                 for i in range(len(ihc)):   # (*0.5 + 0.5) before saving img to be on range [0, 1]
-                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
-                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
-                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
-                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(he[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/HE/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(ihc[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"cycleGAN/gan-img/IHC/val/epoch[{epoch}]_batch[{idx}]_HE[{i}]_fake.png")
 
     print(f"\nVALIDATION EPOCH: {epoch}/{config.NUM_EPOCHS}, batch: {idx+1}/{len(loader)}," + f" G_loss: {G_loss}\n")
 
@@ -259,7 +263,7 @@ def main():
         print(f"Val_loss of loading is {val_loss} from epoch {start_epoch-1}")
 
     if log_dir is None:
-        log_dir = config.parent_path / f"logs/GAN_{config.SAVE_SUFFIX1}_epochs_{config.SAVE_SUFFIX2}"
+        log_dir = config.repo_path / f"cycleGAN/logs/GAN_{config.SAVE_SUFFIX1}_epochs_{config.SAVE_SUFFIX2}"
     if val_loss is None:
         val_loss = float('inf')
 

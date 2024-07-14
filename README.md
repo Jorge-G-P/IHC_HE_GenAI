@@ -618,6 +618,8 @@ This steps will execute the whole pipeline inference procedure using our pretrai
 
 
 
+
+
 The main steps that can be taken in the future to keep improving the project are the following:
 - Perform exhaustive hyperparameter tuning on the cycleGAN model. By utilizing enough computational resources, the model results might be further improved.
 - Instead of using HoverNet on our pipeline, the recent state-of-the-art HoverNext model can be adapted to fit in this project's needs.
@@ -628,3 +630,4 @@ The main steps that can be taken in the future to keep improving the project are
 We are really grateful to the team from the Postgraduate Course on Artificial Intelligence with Deep Learning. Their lectures and explanations gave us everything we needed for this project.
 
 And of course our special thanks go to Oscar, our advisor. His instructions were critical, and the time he spent reviewing our work made a big difference.
+

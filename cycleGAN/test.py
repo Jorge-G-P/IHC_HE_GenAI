@@ -113,27 +113,27 @@ def test_performance(D_HE, D_IHC, G_HE, G_IHC, cycle_loss, disc_loss, ident_loss
 
             if idx % 20 == 0:
                 for i in range(len(ihc)): 
-                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/test/batch[{idx}]_HE[{i}].png")
-                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/HE/test/batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(he[i]*0.5 + 0.5, config.repo_path / f"gan-img/HE/test/batch[{idx}]_HE[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"gan-img/HE/test/batch[{idx}]_HE[{i}]_fake.png")
 
-                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/test/batch[{idx}]_IHC[{i}].png")
-                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/IHC/test/batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(ihc[i]*0.5 + 0.5, config.repo_path / f"gan-img/IHC/test/batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"gan-img/IHC/test/batch[{idx}]_IHC[{i}]_fake.png")
 
-                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_HE[{i}].png")
-                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_IHC[{i}]_fake.png")
-                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_IHC[{i}].png")
+                    save_image(he[i]*0.5 + 0.5, config.repo_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_HE[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(ihc[i]*0.5 + 0.5, config.repo_path / f"gan-img/realHE_fakeIHC_gt/batch[{idx}]_IHC[{i}].png")
 
-                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_HE[{i}].png")
-                    save_image(fake_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_IHC[{i}]_fake.png")
-                    save_image(cycle_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_HE[{i}]_cycle.png")
+                    save_image(he[i]*0.5 + 0.5, config.repo_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_HE[{i}].png")
+                    save_image(fake_IHC[i]*0.5 + 0.5, config.repo_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_IHC[{i}]_fake.png")
+                    save_image(cycle_HE[i]*0.5 + 0.5, config.repo_path / f"gan-img/realHE_fakeIHC_cycle/batch[{idx}]_HE[{i}]_cycle.png")
 
-                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_IHC[{i}].png")
-                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_HE[{i}]_fake.png")
-                    save_image(he[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_HE[{i}].png")
+                    save_image(ihc[i]*0.5 + 0.5, config.repo_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(he[i]*0.5 + 0.5, config.repo_path / f"gan-img/realIHC_fakeHE_gt/batch[{idx}]_HE[{i}].png")
 
-                    save_image(ihc[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_IHC[{i}].png")
-                    save_image(fake_HE[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_HE[{i}]_fake.png")
-                    save_image(cycle_IHC[i]*0.5 + 0.5, config.parent_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_IHC[{i}]_cycle.png")
+                    save_image(ihc[i]*0.5 + 0.5, config.repo_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_IHC[{i}].png")
+                    save_image(fake_HE[i]*0.5 + 0.5, config.repo_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_HE[{i}]_fake.png")
+                    save_image(cycle_IHC[i]*0.5 + 0.5, config.repo_path / f"gan-img/realIHC_fakeHE_cycle/batch[{idx}]_IHC[{i}]_cycle.png")
 
     
     print(f"\nCALCULATING FID SCORES:")
