@@ -377,6 +377,27 @@ Here are some examples showcasing the model's cycle consistency. Each example co
 </div>
 
 
+### 5.1.6. Model Limitations <a name="516_ganLimitations"></a>
+
+There are some limitations regarding our CycleGAN model for image-to-image translation between Hematoxylin and Eosin (HE) and Immunohistochemistry (IHC) stains of medical images of body tissue.
+
+**Color Translation Accuracy:** The model sometimes struggles to accurately translate the colors of the images from one domain to the other. This can result in discrepancies between the generated output and the ground truth images, particularly in the finer details and color gradients that are crucial for medical diagnoses.
+
+<div align="center">
+  <img src="readme_images/gan_limitation_1.png" width="300" />
+  <p><strong>Visualization of translation from IHC to HE stained images. The output generated struggles in obtaining the desired colour. </strong></p>
+</div>
+
+**High HER2 Expression Identification:** Specifically, when translating from HE to IHC stains, the model has difficulty accurately identifying regions with higher expressions of HER2. This can lead to inaccuracies in highlighting cancer areas in the IHC images, which is critical for effective diagnosis and treatment planning.
+
+<div align="center">
+  <img src="readme_images/gan_limitation_2.png" width="300" />
+  <p><strong>Visualization of translation from HE to IHC stained images with high expression levels of HER2. The output generated does not highlight accuratelly the expression levels of HER2. </strong></p>
+</div>
+
+**Potential Artifacts:** In line with the limitations mentioned above, the translation process may introduce artifacts or distortions that are not present in the original images. These artifacts can potentially interfere with the interpretation of the images by pathologists and clinicians.
+
+
 ### 5.2. Hovernet  <a name="#52-hovernet"></a>
 
 The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) is a single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
