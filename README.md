@@ -181,7 +181,7 @@ The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and
 
 
 <p align="center">
-  <img src="readme_images/BCIsamples.png"  width="48">
+  <img src="readme_images/BCIsamples.png"  width=58%>
 </p>
 
 
@@ -195,7 +195,7 @@ EndoNuke is a dataset designed for training models to detect nuclei in endometri
 Each image has a physical size of 100μm x 100μm, and includes annotated nuclei locations marked as keypoints for: stroma, epithelium, and other.
 
 <p align="center">
-  <img src="readme_images/endosamples.jpg">
+  <img src="readme_images/endosamples.jpg" width=80%>
 </p>
 
 
