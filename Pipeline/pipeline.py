@@ -1,14 +1,10 @@
 import os
-import numpy as np
-import torch
-from PIL import Image
 import subprocess
 from torchvision import transforms
 from celldet import CellDetectionMetric
-from import_gan import pretrained_generator, process_image, load_model_weights
+from import_gan import process_image, load_model_weights
 # import cycleGAN.config
 from cycleGAN.generator import Generator
-from cycleGAN.utils import load_checkpoint
 from DicDataset import DicDataset
 import config
 from pathlib import Path

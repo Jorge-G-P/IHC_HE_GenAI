@@ -1,5 +1,4 @@
 import torch.optim as optim
-
 from run_utils.callbacks.base import (
     AccumulateRawOutput,
     PeriodicSaver,
@@ -10,9 +9,8 @@ from run_utils.callbacks.base import (
     VisualizeOutput,
     TriggerEngine,
 )
-from run_utils.callbacks.logging import LoggingEpochOutput, LoggingGradient
+from run_utils.callbacks.logging import LoggingEpochOutput
 from run_utils.engine import Events
-
 from .targets import gen_targets, prep_sample
 from .net_desc import create_model
 from .run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output

@@ -4,6 +4,7 @@ from tqdm import tqdm
 from pathlib import Path
 from PIL import Image
 
+
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 repo_path = dir_path.parent
 parent_path = repo_path.parent
@@ -114,6 +115,7 @@ def transform(images, masks, path, out_dir, start, finish):
 
         np.save(fold_path / f'{i}.npy', np_file)
 
+        
 
 transform(images, masks, 'train', out_dir=out_dir, start=0, finish=0.6)
 transform(images, masks, 'val', out_dir=out_dir, start=0.6, finish=0.8)
@@ -135,4 +137,3 @@ for npy_file in directory_name_test.glob('*.npy'):
 
     img = Image.fromarray(img_array)
     img.save(img_dir / f"{npy_file.stem}.png")
-

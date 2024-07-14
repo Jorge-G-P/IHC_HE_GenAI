@@ -3,15 +3,15 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import os
 from pathlib import Path
-from datetime import datetime
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
 repo_path = dir_path.parent
 parent_path = repo_path.parent
 
 path_to_endonuke_data_folder = parent_path / "IHC_HE_GenAI/Datasets/Endonuke/data"
-path_to_Hover_net_run_infer = parent_path / "IHC_HE_GenAI/Hover_net/hover_net2/run_infer.py"
+path_to_Hover_net_run_infer = parent_path / "IHC_HE_GenAI/Hover_net/hover_net2/infer.py"
 path_to_Hover_net_weights = parent_path / "IHC_HE_GenAI/pretrained_models/hovernet_fast_pannuke_type_tf2pytorch.tar"
+#path_to_Hover_net_weights = parent_path / "IHC_HE_GenAI/Hover_net/hover_net2/checkpoint/00/net_epoch=4.tar.tar"
 path_to_genHE_weights = parent_path / "IHC_HE_GenAI/pretrained_models/generator_HE.tar"
 results_gan_folder = parent_path/ "IHC_HE_GenAI/Results"
 results_hover_folder = parent_path/ "IHC_HE_GenAI/Results"

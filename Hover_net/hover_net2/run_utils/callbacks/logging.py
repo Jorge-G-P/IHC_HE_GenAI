@@ -1,11 +1,9 @@
 import json
 import random
-
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
 from termcolor import colored
-
 from .base import BaseCallbacks
 from .serialize import fig2data, serialize
 

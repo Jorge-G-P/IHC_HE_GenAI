@@ -1,14 +1,7 @@
-import math
 import numpy as np
-
-import torch
-import torch.nn.functional as F
-
-from scipy import ndimage
 from scipy.ndimage import measurements
 from skimage import morphology as morph
 import matplotlib.pyplot as plt
-
 from misc.utils import center_pad_to_shape, cropping_center, get_bounding_box
 from dataloader.augs import fix_mirror_padding
 
