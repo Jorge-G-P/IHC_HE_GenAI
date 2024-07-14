@@ -534,7 +534,7 @@ Note that this comparison method uses a distance threshold and if the distance b
  	python Hover_net\hover_net2\data_prep.py\data_prep.py
  	``` 
 
-The dataset inside "data" (Fold 1, Fold 2, Fold 3) will be automatically separated in 3 folders:
+	The dataset inside "data" (Fold 1, Fold 2, Fold 3) will be automatically separated in 3 folders:
 
     	```
 	 IHC_HE_GenAI/Datasets/Pannuke/data/
