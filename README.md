@@ -409,6 +409,11 @@ The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) i
 
 The data processing was meticulously developed to handle image and mask data from the PanNuke dataset, segmented across multiple folds. Initially, image and mask files stored in NumPy array format were aggregated from three distinct folds (Fold 1, Fold 2, Fold 3) to form comprehensive datasets. These files were accessed from nested directories structured specifically for this purpose and were concatenated to create unified arrays for images and masks. The data was then prepared for training by segmenting it into training, validation, and test subsets, which represent 60% (4740/7901), 20% (1580/7901), and 20% (1581/7901) of the data, respectively. The transformation process included converting instance segmentation masks into a format compatible with the Hover-Net architecture, which involved remapping segmentation indices and encoding cell type information into a five-channel NumPy array per image (7901, 256, 6). Each processed image was saved as a .npy file in designated directories corresponding to their respective data splits. Additionally, for inference, visualization and verification, test images were converted into PNG format (256x256) and stored, ensuring that the pixel intensity values were properly scaled to the 8-bit range suitable for standard image formats. 
 
+<div align="center">
+  <img src="readme_images/hovernet_original_architecture.png" width="900" hspace="25" />
+  <p><strong>HoVer-Net original architecture (Graham et al., 2019)</strong></p>
+</div>
+
 ### 5.2.2. Model architecture<a name="522_modelarchitecture"></a>
 
 In the "fast" mode of the HoVer-Net model, the architecture is designed for efficiency while maintaining a strong capability for feature extraction and segmentation tasks. The model starts with an initial convolutional layer (conv0) that employs a 7x7 kernel to process the input image, followed by batch normalization and ReLU activation. This layer is prepended with a TFSamepaddingLayer to maintain the dimensionality across convolutions.
