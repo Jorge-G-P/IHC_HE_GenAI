@@ -433,7 +433,7 @@ After doing this, we will use the images and txt files from the “crop_images�
 As for the crops, in order to take as much different information from the 400x400 images as possible, we are cropping the right top zone, the left top zone, and the bottom middle zone.
 
 <p align="center">
-  <img src="readme_images/endoprep.jpg">
+  <img src="readme_images/endoprep.jpg" width="700">
 </p>
 
 - Ensemble<a name="532_emsemble"></a>
@@ -544,7 +544,7 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
  	TRAIN_DIR_IHC = bci_dataset_ihc_train   
  	TRAIN_DIR_HE = bci_dataset_he_train
  	```
- 	Then, open the `/path/to/the/repository/cycleGAN/utils.py` file and change `import cycleGAN.config as config` to `import config`
+ 	Then, open the `/path/to/the/repository/cycleGAN/utils.py` file and change `import cycleGAN.config as config` to `import config`. If you want you can change other hyperparameters (e.g. learning rate, batch_size, num_res_blocks, etc), which are all on the `/path/to/the/repository/cycleGAN/config.py`, to compare the difference in training time and results. All the hyperparameters are described on that file, for better understanding of their role in the model.
 
 
 3. Run the following command on the terminal to start training the model:
