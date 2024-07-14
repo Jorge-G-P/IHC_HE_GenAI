@@ -1,9 +1,6 @@
 import importlib
 import os
 from dataset import get_dataset
-# from Datasets.Pannuke.config import (
-#     directory_name_train, directory_name_val)
-
 from pathlib import Path
 
 dir_path = Path(os.path.dirname(os.path.realpath(__file__)))

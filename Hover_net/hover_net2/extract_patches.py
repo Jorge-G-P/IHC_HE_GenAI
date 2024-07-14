@@ -12,8 +12,22 @@ import numpy as np
 from misc.patch_extractor import PatchExtractor
 from misc.utils import rm_n_mkdir
 from dataset import get_dataset
+from pathlib import Path
 
 # -------------------------------------------------------------------------------------
+
+
+dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
+repo_path = dir_path.parent
+parent_path = repo_path.parent
+
+
+out_dir = parent_path / "Datasets/Pannuke/data/"
+
+directory_name_train = parent_path / "Datasets/Pannuke/data/train/"
+directory_name_val = parent_path / "Datasets/Pannuke/data/val/"
+directory_name_test = parent_path / "Datasets/Pannuke/data/test/"
+
 if __name__ == "__main__":
 
     # Determines whether to extract type map (only applicable to datasets with class labels).

@@ -2,6 +2,8 @@ import cv2
 import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
+import pandas as pd
+import skimage as io
 
 # * syn where to set this
 # must use 'Agg' to plot out onto image

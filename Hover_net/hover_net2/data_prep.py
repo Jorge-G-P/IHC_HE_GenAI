@@ -1,11 +1,38 @@
 import os
 import numpy as np
-import cv2
-import shutil
-from PIL import Image
 from tqdm import tqdm
-from Datasets.Pannuke.config import (
-    image_paths, mask_paths, out_dir, directory_name_train, zip_file_name_train, directory_name_val, zip_file_name_val, directory_name_test, zip_file_name_test)
+from pathlib import Path
+from PIL import Image
+
+
+dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
+repo_path = dir_path.parent
+parent_path = repo_path.parent
+
+
+path_pannuke = parent_path / "Datasets/Pannuke/data/"
+
+image_paths = [
+    parent_path / "Datasets/Pannuke/data/Fold 1/images/fold1/images.npy",
+    parent_path / "Datasets/Pannuke/data/Fold 2/images/fold2/images.npy",
+    parent_path / "Datasets/Pannuke/data/Fold 3/images/fold3/images.npy"]
+
+
+mask_paths = [
+    parent_path / "Datasets/Pannuke/data/Fold 1/masks/fold1/masks.npy",
+    parent_path / "Datasets/Pannuke/data/Fold 2/masks/fold2/masks.npy",
+    parent_path / "Datasets/Pannuke/data/Fold 3/masks/fold3/masks.npy"
+]
+
+
+out_dir = parent_path / "Datasets/Pannuke/data/"
+
+directory_name_train = parent_path / "Datasets/Pannuke/data/train/"
+directory_name_val = parent_path / "Datasets/Pannuke/data/val/"
+directory_name_test = parent_path / "Datasets/Pannuke/data/test/"
+
+
+
 
 
 images_list = []
@@ -51,7 +78,7 @@ def map_inst(inst):
 # A helper function to transform PanNuke format to HoverNet data format
 def transform(images, masks, path, out_dir, start, finish):
 
-    fold_path = out_dir+path
+    fold_path = out_dir / path
     try:
         os.mkdir(fold_path)
     except FileExistsError:
@@ -86,19 +113,27 @@ def transform(images, masks, path, out_dir, start, finish):
         np_file[:,:,3] = inst
         np_file[:,:,4] = types
 
-        np.save(fold_path + '/' + '%d.npy' % (i), np_file)
+        np.save(fold_path / f'{i}.npy', np_file)
 
+        
 
 transform(images, masks, 'train', out_dir=out_dir, start=0, finish=0.6)
 transform(images, masks, 'val', out_dir=out_dir, start=0.6, finish=0.8)
 transform(images, masks, 'test', out_dir=out_dir, start=0.8, finish=1)
 
 
-# Create a zip file of the directory
-shutil.make_archive(zip_file_name_train.replace('.zip', ''), 'zip', directory_name_train)
 
-# Create a zip file of the directory
-shutil.make_archive(zip_file_name_val.replace('.zip', ''), 'zip', directory_name_val)
+img_dir = directory_name_test / "images_png"
+img_dir.mkdir(exist_ok=True)
 
-# Create a zip file of the directory
-shutil.make_archive(zip_file_name_test.replace('.zip', ''), 'zip', directory_name_test)
+
+for npy_file in directory_name_test.glob('*.npy'):
+    data = np.load(npy_file)
+    
+    img_array = data[:, :, :3] 
+
+    if img_array.dtype != np.uint8:
+        img_array = (img_array / img_array.max() * 255).astype(np.uint8)
+
+    img = Image.fromarray(img_array)
+    img.save(img_dir / f"{npy_file.stem}.png")

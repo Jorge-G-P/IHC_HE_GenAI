@@ -1,7 +1,3 @@
-import warnings
-
-import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 from scipy.optimize import linear_sum_assignment
@@ -62,6 +58,9 @@ def get_fast_aji(true, pred):
     pairwise_iou = pairwise_inter / (pairwise_union + 1.0e-6)
     # pair of pred that give highest iou for each true, dont care
     # about reusing pred instance multiple times
+    if pairwise_iou.sum() == 0: # TODO AZ verify
+        print('early return')
+        return 0
     paired_pred = np.argmax(pairwise_iou, axis=1)
     pairwise_iou = np.max(pairwise_iou, axis=1)
     # exlude those dont have intersection

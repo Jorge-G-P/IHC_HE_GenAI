@@ -1,17 +1,9 @@
 import os
-import numpy as np
-import torch
-from PIL import Image
 import subprocess
-from torchvision import transforms
 from Pipeline.celldet import CellDetectionMetric
-from Pipeline.utils import process_image, load_model_weights
 # import cycleGAN.config
-from cycleGAN.generator import Generator
-from cycleGAN.utils import load_checkpoint
 from Pipeline.DicDataset import DicDataset
 import Pipeline.config as config
-from pathlib import Path
 # datasets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 # sys.path.insert(0, datasets_dir)
 # from Datasets.Endonuke.preprocessing import preprocess_endonuke
@@ -36,19 +28,19 @@ gan_results_folder = config.parent_path / "IHC_HE_GenAI/Results/gan_results"
 hover_results_folder = config.parent_path / "IHC_HE_GenAI/Results/hover_results"
 results_folder = config.parent_path / "IHC_HE_GenAI/Results"
 
-# Load the pre-trained generator
-# generatorHE = pretrained_generator()
-generatorHE = Generator(img_channels=3, num_residuals=config.N_RES_BLOCKS).to(config.DEVICE)
-load_model_weights(config.path_to_genHE_weights, generatorHE)
-print(generatorHE)
-transform = transforms.ToTensor()
+# # Load the pre-trained generator
+# # generatorHE = pretrained_generator()
+# generatorHE = Generator(img_channels=3, num_residuals=config.N_RES_BLOCKS).to(config.DEVICE)
+# load_model_weights(config.path_to_genHE_weights, generatorHE)
+# print(generatorHE)
+# transform = transforms.ToTensor()
 
-# Process and save each image in the crop_images_folder
-for filename in os.listdir(crop_images_folder):
-    if filename.endswith(".png"):  # Add more extensions if needed
-        image_path = os.path.join(crop_images_folder, filename)
-        process_image(image_path, generatorHE, transform, gan_results_folder)
-        print(f"Processed and saved: {filename}")
+# # Process and save each image in the crop_images_folder
+# for filename in os.listdir(crop_images_folder):
+#     if filename.endswith(".png"):  # Add more extensions if needed
+#         image_path = os.path.join(crop_images_folder, filename)
+#         process_image(image_path, generatorHE, transform, gan_results_folder)
+#         print(f"Processed and saved: {filename}")
 
 # Define the command to be executed
 command = [
@@ -56,8 +48,8 @@ command = [
     '--model_path='+str(config.path_to_Hover_net_weights),
     '--model_mode=fast',
     'tile',
-    '--input_dir='+gan_results_folder,
-    '--output_dir='+results_hover_folder,
+    '--input_dir='+str(gan_results_folder),
+    '--output_dir='+str(hover_results_folder),
     '--draw_dot'
 ]
 
@@ -65,7 +57,7 @@ command = [
 subprocess.run(command)
 
 # In the created subfolder, search for the 'jason' files
-json_hover_folder = os.path.join(results_hover_folder, 'json')
+json_hover_folder = os.path.join(hover_results_folder, 'json')
 
 dataset = DicDataset(crop_txt_folder, json_hover_folder)
 

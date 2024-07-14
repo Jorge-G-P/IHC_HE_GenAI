@@ -1,15 +1,9 @@
 import torch
 import Pipeline.config as config
-import torch.nn as nn
-import torch.optim as optim
-from Pipeline.generator import Generator
-import matplotlib.pyplot as plt
 from PIL import Image 
 import torch
-import torchvision.transforms as transforms
 import numpy as np
 import os
-from skimage import transform
 
 
 def load_model_weights(checkpoint_file, model):
