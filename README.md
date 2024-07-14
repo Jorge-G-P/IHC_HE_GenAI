@@ -381,9 +381,7 @@ Here are some examples showcasing the model's cycle consistency. Each example co
 
 The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) is a single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
 
-<div align="center">
-  <img src="readme_images/hovernet_architecture.png" width="900" hspace="25" />
-</div>
+
 	
 ### 5.2.1. Data preprocessing<a name="521_datapreprocessing"></a>
 
@@ -405,6 +403,11 @@ A convolutional bottleneck layer (conv_bot) then compresses the channel depth fr
 The decoder consists of four sequential stages that progressively upsample and concatenate feature maps from corresponding encoder stages, refining details through a series of dense blocks and convolutional layers. Each stage in the decoder is designed to integrate high-level semantic information with lower-level details to generate precise segmentation outputs.
 
 The model concludes with the UpSample2x module, used at each decoder stage to gradually restore the resolution of the output feature maps, culminating in the final segmentation maps corresponding to different types of predictions (nuclear, cytoplasmic, etc.), depending on the configuration.
+
+<div align="center">
+  <img src="readme_images/hovernet_architecture.png" width="900" hspace="25" />
+  <p><strong>Hovernet "fast" architecture</strong></p>
+</div>
 
 ### 5.2.3. Training configuration<a name="523_modelarchitecture"></a>
 
