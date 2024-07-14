@@ -586,7 +586,7 @@ This steps will execute the whole pipeline inference procedure using our pretrai
 	  ├── hovernet_fast_pannuke_type_tf2pytorch.tar
 	  ├── discriminator_HE.tar
 	  ├── discriminator_IHC.tar
-          ├── generator_HE.tar
+	  ├── generator_HE.tar
 	  └── generator_IHC.tar
 	```
 ´
