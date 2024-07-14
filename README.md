@@ -29,7 +29,8 @@ Advised by [Oscar Pina](https://www.linkedin.com/in/oscar-pina/)
         - [Model architecture](#511_modelarchitecture)
         - [Data preprocessing](#512_datapreprocessing)
         - [Training configuration](#513_trainingconfiguration)
-        - [Test results](#515_testresults)
+        - [Test results](#514_testresults)
+        - [Model limitations](#515_ganLimitations)
     - [5.2. HoverNet](#52_hovernet)
         - [Data preprocessing](#521_datapreprocessing)
         - [Model architecture](#522_modelarchitecture)
@@ -37,7 +38,7 @@ Advised by [Oscar Pina](https://www.linkedin.com/in/oscar-pina/)
         - [Test results](#524_testresults)
     - [5.3. Pipeline](#53_pipeline)
         - [Data preprocessing](#531_datapreprocessing)
-        - [Ensemble](#532_ensemble)
+        - [Ensemble](#532_emsemble)
         - [Test results](#533_testresults)
 - [6. How to Run](#6_howtorun)
 - [7. Conclusions and future work](#7_conclusionsandfuturework) 
@@ -217,7 +218,7 @@ Here is a visual explanation of the overall pipeline of the CycleGAN:
 </p>
 
 
-### 5.1.1. Model Architecture <a name="512_modelarchitecture"></a>
+### 5.1.1. Model Architecture <a name="511_modelarchitecture"></a>
 
 
 Our CycleGAN model's generator architecture includes two downsampling layers, nine residual blocks, and two upsampling layers. The discriminator architecture ias a 70 X 70 PatchGAN, consisting of a series of convolutional layers without downsampling or upsampling, progressively reducing the spatial dimensions to make real or fake predictions. The activation functions used in these networks are pivotal for their performance. Leaky ReLU is employed in the discriminator to allow a small gradient when the unit is not active, mitigating the issue of vanishing gradients. For the generator, ReLU is used in the residual blocks to facilitate efficient training and stable gradient flow. At the output layer of the generator, a Tanh activation function is used to scale the output to the range [-1, 1].
@@ -226,7 +227,7 @@ Our CycleGAN model's generator architecture includes two downsampling layers, ni
   <img src="readme_images/ganpipe.jpg" width="700">
 </p>
 
-### 5.1.2. Data Preprocessing <a name="511_datapreprocessing"></a>
+### 5.1.2. Data Preprocessing <a name="512_datapreprocessing"></a>
 
 - #### Dataset Resolution
 
@@ -249,7 +250,7 @@ For further reduction of the training time, we resized the images to 256*256. To
 
 
 
-### 5.1.3. Training Configuration <a name="513_modelarchitecture"></a>
+### 5.1.3. Training Configuration <a name="513_trainingconfiguration"></a>
 
 - #### First Approach
 First, we trained our network from scratch and for that we used the Adam optimizer with a learning rate of 0.00001. Our early experiments involved training with a batch size of 1, 6 residual blocks in the generator and a cycle_lambda=10, which yielded good results but started overfitting after 87 epochs. 
@@ -272,7 +273,7 @@ Below we present the generators loss during the second training process:
 
 We estimate that this improvement can be attributed to the larger batch size providing more stable gradient estimates, and the increased number of residual blocks allowing the model to capture more intricate details in the images.
 
-### 5.1.5. Test Results <a name="515_modelarchitecture"></a>
+### 5.1.4. Test Results <a name="514_testresults"></a>
 
 After training our CycleGAN model, we evaluated its performance using several metrics on the test set. Among these, the Fréchet Inception Distance (FID) was employed, which is commonly used to assess the fidelity of generated images compared to real images. FID measures the similarity in statistics between generated and real images based on features extracted from a pre-trained Inception model. Additionally, we monitored the generator losses throughout the testing phase to gauge the convergence and stability of our model.
 
@@ -305,7 +306,7 @@ Here are some examples showcasing the model's cycle consistency. Each example co
 </div>
 
 
-### 5.1.6. Model Limitations <a name="516_ganLimitations"></a>
+### 5.1.5. Model Limitations <a name="515_ganLimitations"></a>
 
 There are some limitations regarding our CycleGAN model for image-to-image translation between Hematoxylin and Eosin (HE) and Immunohistochemistry (IHC) stains of medical images of body tissue.
 
@@ -327,7 +328,7 @@ There are some limitations regarding our CycleGAN model for image-to-image trans
 **Potential Artifacts:** In line with the limitations mentioned above, the translation process may introduce artifacts or distortions that are not present in the original images. These artifacts can potentially interfere with the interpretation of the images by pathologists and clinicians.
 
 
-### 5.2. Hovernet  <a name="#52-hovernet"></a>
+### 5.2. Hovernet  <a name="#52_hovernet"></a>
 
 The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) is a single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
 
@@ -362,7 +363,7 @@ The model concludes with the UpSample2x module, used at each decoder stage to gr
   <p><strong>Hovernet "fast" architecture</strong></p>
 </div>
 
-### 5.2.3. Training configuration<a name="523_modelarchitecture"></a>
+### 5.2.3. Training configuration<a name="523_trainingconfiguration"></a>
 
 In the training configuration of our project, we adopted a structured multi-phase approach to train the neural network using the HoVer-Net model in its 'fast' mode. The model was equipped with a total of 16 residual blocks distributed across four distinct depth levels: 3 blocks in d0, 4 blocks in d1, 6 blocks in d2, and 3 blocks in d3. This architecture was selected to optimize the model’s learning capabilities for faster execution without compromising the integrity of feature extraction.
 
@@ -380,7 +381,7 @@ Throughout the training process, key metrics were meticulously recorded and save
 
 Initially, we commenced training our model using the Pannuke dataset according to the method outlined above. However, to optimize our resource utilization and expedite the development process, we decided to leverage the pretrained model checkpoints shared by the HoVer-Net creators with the community. By starting from these pretrained checkpoints, we significantly reduced the amount of time required for training and fine-tuning our model. This strategic decision not only accelerated our project timeline but also ensured that we maintained high standards of accuracy and efficiency in our model's performance, benefiting from the robust foundation provided by the pretrained model.
 
-### 5.2.4. Test results<a name="524_modelarchitecture"></a>
+### 5.2.4. Test results<a name="524_testresults"></a>
 
 We utilized several key metrics to comprehensively evaluate the performance of the HoVer-Net model in the segmentation of cellular nuclei in Pannuke images. The Dice Coefficient (DICE), a metric that measures the overlap between the model’s predictions and the true data, showed a performance of 0.82773, indicating a high degree of precision in pixel-level segmentation. The Average Jaccard Index (AJI), which assesses the intersection over union of predicted and actual instances, was recorded at 0.66529, reflecting the model’s effectiveness in distinguishing individual instances. To evaluate the model's capabilities in both detection and segmentation, we employed the Panoptic Quality (PQ) metric, combining Detection Quality (DQ) and Segmentation Quality (SQ). The PQ score was 0.63851, supported by DQ and SQ scores of 0.76210 and 0.81638 respectively, demonstrating the model’s robustness in accurately detecting and segmenting instances. The enhanced metric Average Jaccard Index Plus (AJI+), which considers additional factors like segmentation fragmentation, further validated the model’s detailed performance with a score of 0.67720.
 
@@ -399,7 +400,7 @@ Below we also present some of the test results obtained with the Pannuke Dataset
 <div align="center">
   <img src="readme_images/hovernet_test_results.png" width="900" hspace="25" />
 </div>
-### 5.3. Pipeline  <a name="53-pipeline"></a> 
+### 5.3. Pipeline  <a name="53_pipeline"></a> 
 
 - Data preprocessing<a name="531_datapreprocessing"></a>
 
@@ -429,7 +430,7 @@ The main objective of the pipeline is to compare the real centroids of Endonuke'
 To do this comparison, “Hungarian Matching” was performed between the real and predicted centroids of each image based on its distance.
 
 
-- Test results<a name="533_modelarchitecture"></a>
+- Test results<a name="533_testresults"></a>
 
 For testing the pipeline's performance, the whole endonuke dataset was provided to the pipeline as input. Here is an example of the obtained results.
 
