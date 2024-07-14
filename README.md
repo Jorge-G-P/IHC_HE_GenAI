@@ -415,7 +415,7 @@ Each phase was precisely defined to control the learning process, with an Adam o
 Throughout the training process, key metrics were meticulously recorded and saved using a series of callbacks integrated into the training and validation engines. These included ScalarMovingAverage for tracking moving averages of scalar metrics, TrackLr for monitoring learning rate changes, and PeriodicSaver for saving model states periodically. Additionally, VisualizeOutput and LoggingEpochOutput were employed to log and visualize outputs at each epoch, providing vital feedback on model performance and stability. AccumulateRawOutput and ProcessAccumulatedRawOutput played crucial roles during validation phases, collecting and processing outputs for detailed analysis.
 
 <div align="center">
-  <img src="readme_images/val_.png" width="900" hspace="25" />
+  <img src="readme_images/train_val_mse_hover.png" width="900" hspace="25" />
 </div>
 
 <div align="center">
