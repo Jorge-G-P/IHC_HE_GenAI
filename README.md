@@ -394,7 +394,12 @@ The data processing was meticulously developed to handle image and mask data fro
 
 ### 5.2.3. Training configuration<a name="523_modelarchitecture"></a>
 
-- Test results<a name="524_modelarchitecture"></a>
+
+<div align="center">
+  <img src="readme_images/hover_result1.png" width="900" hspace="25" />
+</div>
+
+### 5.2.4. Test results<a name="524_modelarchitecture"></a>
 - 
 ### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
 - Data preprocessing<a name="531_datapreprocessing"></a>
