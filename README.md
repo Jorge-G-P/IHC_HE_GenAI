@@ -399,7 +399,7 @@ The core of the network comprises four sets of residual blocks (d0, d1, d2, d3),
 - d1: 4 residual blocks, increasing channel depth from 256 to 512.
 - d2: 6 residual blocks, further deepening to 1024 channels.
 - d3: 3 residual blocks, culminating in 2048 channels.
-- 
+  
 A convolutional bottleneck layer (conv_bot) then compresses the channel depth from 2048 to 1024 to prepare for the decoding process. The decoder architecture in the "fast" mode uses a kernel size of 3 for all convolutional operations, which is smaller than in the "original" mode, allowing for quicker processing with reduced computational overhead.
 
 The decoder consists of four sequential stages that progressively upsample and concatenate feature maps from corresponding encoder stages, refining details through a series of dense blocks and convolutional layers. Each stage in the decoder is designed to integrate high-level semantic information with lower-level details to generate precise segmentation outputs.
