@@ -1,4 +1,4 @@
-# AIDL24:??
+# AIDL24: Enhancing Histopathology: CycleGAN-Based Image Generation and Cell Segmentation with HoverNet
 
 ### About
 Final Project for the UPC [Artificial Intelligence with Deep Learning Postgraduate Course](https://www.talent.upc.edu/ing/estudis/formacio/curs/310402/postgraduate-course-artificial-intelligence-deep-learning/) 2024 summer semester, authored by:
@@ -608,7 +608,7 @@ This steps will execute the whole pipeline inference procedure using our pretrai
 
 ## 7. Conclusions and Future Work  <a name="7_conclusionsandfuturework"></a>
 
-??Las metricas que se consiguen con hovernet son bastante larecidas si no recuerdo mal. Yo pondría que (1) habéis sido capaces de entrenar el modelo en HE, (2) entrenado la cycle gan para pasar de HE a IHC, y esto sois capaces “bridge the gap between exhaustive annotations in HE and the lack of labeled IHC data"
+??Las metricas que se consiguen con hovernet son bastante parecidas si no recuerdo mal. Yo pondría que (1) habéis sido capaces de entrenar el modelo en HE, (2) entrenado la cycle gan para pasar de HE a IHC, y esto sois capaces “bridge the gap between exhaustive annotations in HE and the lack of labeled IHC data"
 
 - When comparing HoverNet metrics on real datasets
 
