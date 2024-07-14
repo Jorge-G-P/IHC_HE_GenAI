@@ -363,7 +363,7 @@ Here are some examples with particular focus on comparing the transformation fro
 <div align="center">
   <img src="readme_images/gen_HE_gt.png" width="300" hspace="25" />
   <img src="readme_images/gen_IHC_gt.png" width="300" hspace="25" />
-  <p><strong>Examples of CycleGAN inference results. Left input image from IHC domain; Right input image from HE domain.</strong></p>
+  <p><sub><strong>Examples of CycleGAN inference results. Left input image from IHC domain; Right input image from HE domain.</strong></sub></p>
 </div>
 
 - #### Reconstruction Translation [F(G(x))]
@@ -373,7 +373,7 @@ Here are some examples showcasing the model's cycle consistency. Each example co
 <div align="center">
   <img src="readme_images/gen_HE_cycle.png" width="300" hspace="25" />
   <img src="readme_images/gen_IHC_cycle.png" width="300" hspace="25" />
-  <p><strong>Examples of CycleGAN inference results. Left input image from HE domain; Right input image from IHC domain.</strong></p>
+  <p><sub><strong>Examples of CycleGAN inference results. Left input image from HE domain; Right input image from IHC domain.</strong></sub></p>
 </div>
 
 
@@ -385,15 +385,16 @@ There are some limitations regarding our CycleGAN model for image-to-image trans
 
 <div align="center">
   <img src="readme_images/gan_limitation_1.png" width="300" />
-  <p><strong>Visualization of translation from IHC to HE stained images. The output generated struggles in obtaining the desired colour. </strong></p>
+  <p><sub><strong>Visualization of translation from IHC to HE stained images. The output generated struggles in obtaining the desired colour.</strong></sub></p>
 </div>
 
 **High HER2 Expression Identification:** Specifically, when translating from HE to IHC stains, the model has difficulty accurately identifying regions with higher expressions of HER2. This can lead to inaccuracies in highlighting cancer areas in the IHC images, which is critical for effective diagnosis and treatment planning.
 
 <div align="center">
   <img src="readme_images/gan_limitation_2.png" width="300" />
-  <p><strong>Visualization of translation from HE to IHC stained images with high expression levels of HER2. The output generated does not highlight accuratelly the expression levels of HER2. </strong></p>
+  <p><sub><strong>Visualization of translation from HE to IHC stained images with high expression levels of HER2. The output generated does not highlight accurately the expression levels of HER2.</strong></sub></p>
 </div>
+
 
 **Potential Artifacts:** In line with the limitations mentioned above, the translation process may introduce artifacts or distortions that are not present in the original images. These artifacts can potentially interfere with the interpretation of the images by pathologists and clinicians.
 
