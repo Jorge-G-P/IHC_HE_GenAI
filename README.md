@@ -454,8 +454,6 @@ Initially, we commenced training our model using the Pannuke dataset according t
 
 ### 5.2.4. Test results<a name="524_modelarchitecture"></a>
 
-
-
 We utilized several key metrics to comprehensively evaluate the performance of the HoVer-Net model in the segmentation of cellular nuclei in Pannuke images. The Dice Coefficient (DICE), a metric that measures the overlap between the model’s predictions and the true data, showed a performance of 0.82773, indicating a high degree of precision in pixel-level segmentation. The Average Jaccard Index (AJI), which assesses the intersection over union of predicted and actual instances, was recorded at 0.66529, reflecting the model’s effectiveness in distinguishing individual instances. To evaluate the model's capabilities in both detection and segmentation, we employed the Panoptic Quality (PQ) metric, combining Detection Quality (DQ) and Segmentation Quality (SQ). The PQ score was 0.63851, supported by DQ and SQ scores of 0.76210 and 0.81638 respectively, demonstrating the model’s robustness in accurately detecting and segmenting instances. The enhanced metric Average Jaccard Index Plus (AJI+), which considers additional factors like segmentation fragmentation, further validated the model’s detailed performance with a score of 0.67720.
 
 | Metric           | Score   |
@@ -467,7 +465,10 @@ We utilized several key metrics to comprehensively evaluate the performance of t
 | Panoptic Quality (PQ) | 0.63851 |
 | Average Jaccard Index Plus (AJI+) | 0.67720 |
 
-
+<div align="center">
+  <img src="readme_images/hovernet_test_results.png" width="900" hspace="25" />
+  <p><strong>Hovernet "fast" architecture</strong></p>
+</div>
 
 ### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
 - Data preprocessing<a name="531_datapreprocessing"></a>
