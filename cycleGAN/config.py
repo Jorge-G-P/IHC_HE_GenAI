@@ -68,8 +68,8 @@ parent_path = repo_path.parent
             PRETRAINED_DISC_HE           -- Checkpoint filename of pretrained HE Discriminator for inference/finetuning
             PRETRAINED_DISC_IHC          -- Checkpoint filename of pretrained IHC Discriminator for inference/finetuning
 
-
 """
+
 bci_dataset_ihc_train = parent_path / "BCI_dataset/IHC/train"
 bci_dataset_ihc_test =  parent_path / "BCI_dataset/IHC/test"
 bci_dataset_he_train = parent_path / "BCI_dataset/HE/train"
@@ -79,13 +79,13 @@ pannuke_dataset = parent_path / "pannuke_dataset"
 
 TRAIN_DIR_IHC = bci_dataset_ihc_train
 TRAIN_DIR_HE = bci_dataset_he_train
-TEST_DIR_IHC = endonuke_dataset
-TEST_DIR_HE = pannuke_dataset
+TEST_DIR_IHC = bci_dataset_ihc_test
+TEST_DIR_HE = bci_dataset_he_test
 
-IMG_ORIGINAL_SIZE = 256
-PATCHES_SIZE = 256
+IMG_ORIGINAL_SIZE = 1024
+PATCHES_SIZE = 512
 SUBSET_PERCENTAGE = 100
-SHUFFLE_DATASET = True
+SHUFFLE_DATASET = False
 
 IN_CH = 3
 D_FEATURES = [64, 128, 256, 512]
@@ -95,7 +95,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 NUM_EPOCHS = 150
 NUM_WORKERS = 4
 
-BATCH_SIZE = 2
+BATCH_SIZE = 1
 LEARNING_RATE = 1e-5
 LAMBDA_IDENTITY = 0.3
 LAMBDA_CYCLE = 10
@@ -140,7 +140,7 @@ LOAD_CHECKPOINT_DISC_HE = parent_path / f"training-models/discHE_{LOAD_SUFFIX1}_
 LOAD_CHECKPOINT_DISC_IHC = parent_path / f"training-models/discIHC_{LOAD_SUFFIX1}_epochs_{LOAD_SUFFIX2}.pth.tar"
 
 PRETRAINED_SUFFIX1 = 200
-PRETRAINED_SUFFIX2 = 20240628
+PRETRAINED_SUFFIX2 = 20240702
 PRETRAINED_GEN_HE = parent_path / f"pretrained-models/genHE_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
 PRETRAINED_GEN_IHC = parent_path / f"pretrained-models/genIHC_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"
 PRETRAINED_DISC_HE = parent_path / f"pretrained-models/discHE_{PRETRAINED_SUFFIX1}_epochs_{PRETRAINED_SUFFIX2}.pth.tar"

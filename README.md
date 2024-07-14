@@ -1,5 +1,5 @@
 # AIDL21: GAN-based synthetic medical image augmentation
-Click here to download the [Endonuke dataset](https://www.ispras.ru/conf/endonuke/data.zip) (source: [https://endonuke.ispras.ru/)](https://endonuke.ispras.ru/))
+
 This repository contains 
 
 ### About
@@ -185,36 +185,10 @@ Moreover two sprints were done during the development procedure. The last week b
 
 ### 3.1. Time costs  <a name="31_timecosts"></a>
 
-??Gantt-diagram
 
-define project scope
-BCI dataset preprocessing
-cycleGAN implementation
-
-Critical review presentation preparation
-
----
-cycleGAN training
-cycleGAN testing
-cycleGAN fine tuning
-
-Pannuke dataset preprocessing
-Unet implementation
-centroid calculation
-HoverNet adaptation
-HoverNet testing??
-
-
-
-Unet implementation
-centroid calculation FAIL
-
-Endonuke preprocessing
-pipeline ensemble
-pipeline testing
-
-README report
-Final presentation preparation
+<p align="center">
+  <img src="readme_images/gantt.jpg">
+</p>
 
 
 --------------------??métricas??
@@ -257,7 +231,12 @@ The original dataset contains 9746 images (4873 pairs), 3896 pairs for train and
 
 ### 4.3. Pannuke Dataset  <a name="43_pannukedataset"></a> 
 
-For the image segmentation model training, validation and testing, we utilize the PanNuke dataset, which is a semi-automatically generated resource designed for the segmentation and classification of nuclei. Models trained on PanNuke can aid in whole slide image tissue type segmentation, and generalize to new tissues. This dataset includes 7753 images spanning 19 different tissue types: adrenal gland, bile duct, bladder, breast, cervix, colon, esophagus, headneck, kidney, liver, lung, ovarian, pancreatic, prostate, skin, stomach, testis, thyroid and uterus. The PanNuke dataset is organized into three folds (fold 1, fold 2, and fold 3), each containing two folders: "image" and "masks." The "image" folder comprises two files: images.npy and types.npy, while the "masks" folder contains a single file: masks.npy.. 
+For the image segmentation model training, validation and testing, we utilize the [PanNuke](https://doi.org/10.48550/arXiv.2003.10778) dataset, which is a semi-automatically generated resource designed for the segmentation and classification of nuclei. Models trained on PanNuke can aid in whole slide image tissue type segmentation, and generalize to new tissues. This dataset includes 7753 images spanning 19 different tissue types: adrenal gland, bile duct, bladder, breast, cervix, colon, esophagus, headneck, kidney, liver, lung, ovarian, pancreatic, prostate, skin, stomach, testis, thyroid and uterus. The PanNuke dataset is organized into three folds (fold 1, fold 2, and fold 3), each containing two folders: "image" and "masks." The "image" folder comprises two files: images.npy and types.npy, while the "masks" folder contains a single file: masks.npy.. 
+
+<p align="center">
+  <img src="readme_images/pannuke_samples.jpg" width="700">
+</p>
+
 
 ### 4.4. Endonuke Dataset  <a name="44_endonukedataset"></a> 
 EndoNuke is a dataset designed for training models to detect nuclei in endometrium samples. It contains over 1600 image tiles, created using the immunohistochemistry technique (IHC). Each image has a physical size of 100μm x 100μm, and includes annotated nuclei locations marked as keypoints for: stroma, epithelium, and other.
@@ -399,12 +378,47 @@ Here are some examples showcasing the model's cycle consistency. Each example co
 
 
 ### 5.2. Hovernet  <a name="#52-hovernet"></a>
-- Data preprocessing<a name="521_datapreprocessing"></a>
-- Model architecture<a name="522_modelarchitecture"></a>
 
-The HoVer-Net single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
-- Training configuration<a name="523_modelarchitecture"></a>
-- Test results<a name="524_modelarchitecture"></a>
+The HoVer-Net [(_Graham et al._)](https://doi.org/10.1016/j.media.2019.101563) is a single network with multiple branches that carries out both nuclear instance segmentation and classification. This network utilizes the horizontal and vertical distances from nuclear pixels to their centers of mass to distinguish between clustered cells. Additionally, a specialized up-sampling branch is employed to classify the type of each nuclear instance segmented.
+
+<div align="center">
+  <img src="readme_images/hovernet_architecture.png" width="900" hspace="25" />
+</div>
+	
+### 5.2.1. Data preprocessing<a name="521_datapreprocessing"></a>
+
+The data processing was meticulously developed to handle image and mask data from the PanNuke dataset, segmented across multiple folds. Initially, image and mask files stored in NumPy array format were aggregated from three distinct folds (Fold 1, Fold 2, Fold 3) to form comprehensive datasets. These files were accessed from nested directories structured specifically for this purpose and were concatenated to create unified arrays for images and masks. The data was then prepared for training by segmenting it into training, validation, and test subsets, which represent 60% (4740/7901), 20% (1580/7901), and 20% (1581/7901) of the data, respectively. The transformation process included converting instance segmentation masks into a format compatible with the Hover-Net architecture, which involved remapping segmentation indices and encoding cell type information into a five-channel NumPy array per image (7901, 256, 6). Each processed image was saved as a .npy file in designated directories corresponding to their respective data splits. Additionally, for inference, visualization and verification, test images were converted into PNG format (256x256) and stored, ensuring that the pixel intensity values were properly scaled to the 8-bit range suitable for standard image formats. 
+
+### 5.2.2. Model architecture<a name="522_modelarchitecture"></a>
+
+In the "fast" mode of the HoVer-Net model, the architecture is designed for efficiency while maintaining a strong capability for feature extraction and segmentation tasks. The model starts with an initial convolutional layer (conv0) that employs a 7x7 kernel to process the input image, followed by batch normalization and ReLU activation. This layer is prepended with a TFSamepaddingLayer to maintain the dimensionality across convolutions.
+
+The core of the network comprises four sets of residual blocks (d0, d1, d2, d3), which progressively increase the depth and reduce the spatial dimensions of the feature maps. Specifically, the architecture includes:
+
+- d0: 3 residual blocks, transitioning from 64 to 256 channels.
+- d1: 4 residual blocks, increasing channel depth from 256 to 512.
+- d2: 6 residual blocks, further deepening to 1024 channels.
+- d3: 3 residual blocks, culminating in 2048 channels.
+  
+A convolutional bottleneck layer (conv_bot) then compresses the channel depth from 2048 to 1024 to prepare for the decoding process. The decoder architecture in the "fast" mode uses a kernel size of 3 for all convolutional operations, which is smaller than in the "original" mode, allowing for quicker processing with reduced computational overhead.
+
+The decoder consists of four sequential stages that progressively upsample and concatenate feature maps from corresponding encoder stages, refining details through a series of dense blocks and convolutional layers. Each stage in the decoder is designed to integrate high-level semantic information with lower-level details to generate precise segmentation outputs.
+
+The model concludes with the UpSample2x module, used at each decoder stage to gradually restore the resolution of the output feature maps, culminating in the final segmentation maps corresponding to different types of predictions (nuclear, cytoplasmic, etc.), depending on the configuration.
+
+### 5.2.3. Training configuration<a name="523_modelarchitecture"></a>
+
+In the training configuration of our project, we adopted a structured multi-phase approach to train the neural network using the HoVer-Net model in its 'fast' mode. The model was equipped with a total of 16 residual blocks distributed across four distinct depth levels: 3 blocks in d0, 4 blocks in d1, 6 blocks in d2, and 3 blocks in d3. This architecture was selected to optimize the model’s learning capabilities for faster execution without compromising the integrity of feature extraction.
+
+Each phase was precisely defined to control the learning process, with an Adam optimizer initiated at a learning rate of 0.0025, fine-tuned through a MultiStepLR scheduler at predetermined epochs to enhance training efficacy. We managed the batch sizes at 2 for both training and validation to ensure a balance between computational resource utilization and model accuracy.
+
+Throughout the training process, key metrics were meticulously recorded and saved using a series of callbacks integrated into the training and validation engines. These included ScalarMovingAverage for tracking moving averages of scalar metrics, TrackLr for monitoring learning rate changes, and PeriodicSaver for saving model states periodically. Additionally, VisualizeOutput and LoggingEpochOutput were employed to log and visualize outputs at each epoch, providing vital feedback on model performance and stability. AccumulateRawOutput and ProcessAccumulatedRawOutput played crucial roles during validation phases, collecting and processing outputs for detailed analysis.
+
+<div align="center">
+  <img src="readme_images/hover_result1.png" width="900" hspace="25" />
+</div>
+
+### 5.2.4. Test results<a name="524_modelarchitecture"></a>
 - 
 ### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
 - Data preprocessing<a name="531_datapreprocessing"></a>
@@ -479,6 +493,10 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
 
 
 ## 6. How to Run <a name="6_howtorun"></a>
+
+- clone the repository.
+- Create new environment using python 3.8??
+- run: pip install -r requirements.txt 
 
 ### How to download and prepare datasets
 
@@ -555,21 +573,36 @@ We use these dictionaries’ lists to update the metric. Finally, we will comput
 
 
 ### Pipeline:
--Endonuke preprocessing:
-    Download Endonuke dataset [here.](https://endonuke.ispras.ru)
-    Change path in Dataset/Endonuke/config.py to “Data” folder
-    Execute Dataset/Endonuke/preprocessing.py
 
-??JOAO: don’t add generator.py
--Change paths in Pipeline/config.py:
-    path_to_endonuke_data_folder to Endonuke’s “Data” folder
-    path_to_Hover_net_run_infer to Hovernet/run_infer.py
-    path_to_Hover_net_weights to Hovernet/checkpoint/01/net_epoch=1.tar
+- Download the Endonuke dataset [here.](https://www.ispras.ru/conf/endonuke/data.zip) (source: [https://endonuke.ispras.ru/)](https://endonuke.ispras.ru/))
+- Extract the downloaded zip folder in IHC_HE_GenAI/Endonuke. The folder should end up like this:
+  IHC_HE_GenAI/Endonuke/ - data/  - dataset/
+                                  - master.ymls
+                         - __init__.py
+                         - crop.py
+                         - preprocessing.py
+                         - resize.py
 
--Execute Pipeline/pipeline.py
+- Download weights from both cycleGAN and HoverNet models [here.](https://drive.google.com/drive/folders/1_51IjiAmS7YoofXW-xpsaui44lC46Ko8?usp=drive_link) 
+- Extract both weight files (hovernet_fast_pannuke_type_tf2pytorch.tar and pretrained-cycleGAN.zip) in IHC_HE_GenAI/pretrained_models. The folder should end up like this:
+  IHC_HE_GenAI/pretrained_models/ - hovernet_fast_pannuke_type_tf2pytorch
+                                  - discriminator_HE.tar
+                                  - discriminator_IHC.tar
+                                  - generator_HE.tar
+                                  - generator_IHC.tar
+´
+- run: Datasets/Endonuke/preprocessing.py if it is the first time you execute it, to generate preprocessed data.
+- run: pipeline_run.py
+
+- The intermediate results (fake HE images generated by the cycleGAN) will be stored in IHC_HE_GenAI/Results/gan_results.
+- The final results (fake HE images with predicted centroids) will be stored in IHC_HE_GenAI/Results/hover_results.
 
 
-This steps will execute the whole pipeline procediment. If it is intended to run only cycleGAN or HoverNet, the following steps can be taken:
+
+
+This steps will execute the whole pipeline inference procedure using our pretrained models. 
+
+If the user intention is to to train cycleGAN or HoverNet, the following steps can be taken:
 
 ### CycleGAN:
 
