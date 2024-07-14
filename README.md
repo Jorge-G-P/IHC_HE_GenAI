@@ -465,9 +465,11 @@ We utilized several key metrics to comprehensively evaluate the performance of t
 | Panoptic Quality (PQ) | 0.63851 |
 | Average Jaccard Index Plus (AJI+) | 0.67720 |
 
+
+Below we also present some of the test results obtained with the Pannuke Dataset after running the inference:
+
 <div align="center">
   <img src="readme_images/hovernet_test_results.png" width="900" hspace="25" />
-  <p><strong>Hovernet "fast" architecture</strong></p>
 </div>
 
 ### 5.3. Pipeline ensemble <a name="53-endonukedataset"></a> 
