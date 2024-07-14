@@ -539,7 +539,7 @@ Note that this comparison method uses a distance threshold and if the distance b
  	```
 	 IHC_HE_GenAI/Datasets/Pannuke/data/
 	  ├── train
-		├── val
+	  ├── val
 	  └── test
 	```
 
@@ -569,11 +569,11 @@ This steps will execute the whole pipeline inference procedure using our pretrai
 	```
 	 IHC_HE_GenAI/Endonuke/
 	  ├──data
-	       ├── dataset/
-		     ├── master.ymls
-		├── __init__.py
-		├── crop.py
-    ├── preprocessing.py
+	        ├── dataset/
+	        ├── master.ymls
+	  ├── __init__.py
+	  ├── crop.py
+  	  ├── preprocessing.py
 	  └── resize.py
 	```
                          
@@ -584,9 +584,9 @@ This steps will execute the whole pipeline inference procedure using our pretrai
   	```
 	 IHC_HE_GenAI/pretrained_models/
 	  ├── hovernet_fast_pannuke_type_tf2pytorch.tar
-		├── discriminator_HE.tar
-		├── discriminator_IHC.tar
-    ├── generator_HE.tar
+	  ├── discriminator_HE.tar
+	  ├── discriminator_IHC.tar
+          ├── generator_HE.tar
 	  └── generator_IHC.tar
 	```
 ´
