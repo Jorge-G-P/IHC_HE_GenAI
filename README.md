@@ -61,7 +61,7 @@ Using of biopsy method is a reliable method to detect cancer with more confidenc
 
 **Hematoxylin and eosin (HE) staining** is the most widely used staining technique in medical diagnosis. It uses hematoxylin, which stains nuclei blue, and eosin, which stains the cytoplasm and extracellular matrix pink. This results in a high contrast image that allows pathologists to distinguish different tissue structures and cell types.
 
-If the experts need to know more information about exact type of cancer they will use different biomarker such as  **immunohistochemistry (IHC) staining**. This complementary staining are usually used along with H&E to achieve more accurate diagnosis. ??[2]
+If the experts need to know more information about exact type of cancer they will use different biomarker such as  **immunohistochemistry (IHC) staining**. This complementary staining are usually used along with H&E to achieve more accurate diagnosis.
 IHC staining is used to detect specific antigens in tissues with the help of antibodies. It is particularly useful in the identification of abnormal cells such as those found in cancerous tumors.
 
 However, there are limitations to using IHC technology: 1) The preparation of IHC-stained sections is costly. 2) Tumors are heterogeneous, yet IHC staining is typically performed on a single pathological section in clinical settings, which may not fully represent the tumor's status. Moreover, the process of staining is time-consuming and requires expert knowledge to interpret the results.This is where **Deep Learning** can make a significant impact.
@@ -611,9 +611,8 @@ This steps will execute the whole pipeline inference procedure using our pretrai
 
 ## 7. Conclusions and Future Work  <a name="7_conclusionsandfuturework"></a>
 
-??Las metricas que se consiguen con hovernet son bastante parecidas si no recuerdo mal. Yo pondría que (1) habéis sido capaces de entrenar el modelo en HE, (2) entrenado la cycle gan para pasar de HE a IHC, y esto sois capaces “bridge the gap between exhaustive annotations in HE and the lack of labeled IHC data"
 
-- When comparing HoverNet metrics on real datasets
+- We managed to train a model that can translate between the HE and IHC domains with reasonably high efficiency. And we were also able to train an instance segmentation model on HE images and to use to to perform instance segmentation on IHC images thanks to the pipeline that was built, again with reasonably high results. Therefore, we can conclude that we were able to fulfill the objectives that we have set at the beginning of the development and that we manage to create a solution that bridges the gap between the exhaustive annotations in HE and the lack of labeled IHC data
 
 - cycleGAN was costly to train. Even though an appropiate and extensive dataset was found, the computational requirements made the training procedure harder.
 
@@ -621,10 +620,9 @@ This steps will execute the whole pipeline inference procedure using our pretrai
 
 
 
-
-
 The main steps that can be taken in the future to keep improving the project are the following:
 - Perform exhaustive hyperparameter tuning on the cycleGAN model. By utilizing enough computational resources, the model results might be further improved.
+-Develop a complementary testing technique for the pipeline, in a way that the same metrics obtained for HoverNet model can be obtained for the pipeline. This way, it can be assesed how HoverNet results fluctuate if the model used on real or fake data.
 - Instead of using HoverNet on our pipeline, the recent state-of-the-art HoverNext model can be adapted to fit in this project's needs.
 
 
