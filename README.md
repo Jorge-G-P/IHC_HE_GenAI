@@ -120,41 +120,41 @@ This setup provided an efficient and flexible environment for developing and tra
 - **Students' personal laptops**
 
 **MacBook Pro**
-- Procesador: 2,6 GHz Intel Core i7
+- Processor: 2,6 GHz Intel Core i7
 
-- Grafica: Intel UHD Graphics 630 1536 MB
+- Graphics: Intel UHD Graphics 630 1536 MB
   
-- Memoria: 16 GB 2667 MHz DDR4
+- RAM: 16 GB 2667 MHz DDR4
 
 
 **Asus Vivobook**
- - Procesador: i7-13700H 2.40 GHz
+ - Processor: i7-13700H 2.40 GHz
 
  - RAM: 32,0 GB
  
  - OS: Windows 11
  
- - Grafica: Nvidia RTX 4060
+ - Graphics: Nvidia RTX 4060
 
 
 **Lenovo Legion Pro 5**
-- Procesador: AMD Ryzen™ 9 7945HX (2,50 GHz hasta 5,40 GHz)
+- Processor: AMD Ryzen™ 9 7945HX (2,50 GHz hasta 5,40 GHz)
   
 - RAM: 32 GB DDR5-5200MHz (SODIMM) - (2 x 16 GB)
   
 - OS: Windows 11
   
-- Grafica: NVIDIA® GeForce RTX™ 4070 8 GB GDDR6
+- Graphics: NVIDIA® GeForce RTX™ 4070 8 GB GDDR6
 
 
 **Lenovo Legion Y720**
-- Procesador: Intel Core i7-7700HQ (Quad-Core, 2.8 GHz, up to 3.8 GHz with Turbo Boost)
+- Processor: Intel Core i7-7700HQ (Quad-Core, 2.8 GHz, up to 3.8 GHz with Turbo Boost)
   
 - RAM: Up to 16 GB DDR4 (2400 MHz)
   
 - OS: Windows 10
   
-- Grafica: NVIDIA® GeForce GTX 1060 (6 GB GDDR5 VRAM)
+- Graphics: NVIDIA® GeForce GTX 1060 (6 GB GDDR5 VRAM)
 
 
 ## 3. Methodology <a name="3_methodology"></a>
