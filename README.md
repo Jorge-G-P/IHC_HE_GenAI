@@ -612,7 +612,7 @@ This steps will execute the whole pipeline inference procedure using our pretrai
 ## 7. Conclusions and Future Work  <a name="7_conclusionsandfuturework"></a>
 
 
-- We managed to train a model that can translate between the HE and IHC domains with reasonably high efficiency. And we were also able to train an instance segmentation model on HE images and to use to to perform instance segmentation on IHC images thanks to the pipeline that was built, again with reasonably high results. Therefore, we can conclude that we were able to fulfill the objectives that we have set at the beginning of the development and that we manage to create a solution that bridges the gap between the exhaustive annotations in HE and the lack of labeled IHC data
+- We managed to train a model that can translate between the HE and IHC domains with reasonably high effectiveness. And we were also able to train an instance segmentation model on HE images and to use to to perform instance segmentation on IHC images thanks to the pipeline that was built, again with reasonably high results. Therefore, we can conclude that we were able to fulfill the objectives that we have set at the beginning of the development and that we manage to create a solution that bridges the gap between the exhaustive annotations in HE and the lack of labeled IHC data
 
 - cycleGAN was costly to train. Even though an appropiate and extensive dataset was found, the computational requirements made the training procedure harder.
 
