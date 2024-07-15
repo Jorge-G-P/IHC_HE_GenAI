@@ -132,13 +132,13 @@ def main():
     ''' Code below is just to make some tests to the dataset class.
         Not necessary for project '''
 
-    x = config.parent_path / "BCI_dataset/HE/train"
-    y = config.parent_path / "BCI_dataset/IHC/test"
+    x = r"/mnt/c/Users/João Pedro Vieira/Downloads/pannuke_dataset"
+    y = r"/mnt/c/Users/João Pedro Vieira/Downloads/endonuke_dataset2/data/crop_images"
 
     A_paths = []
     A_paths.extend(glob.glob(os.path.join(x, '*')))
 
-    myclass = GanDataset(x, y, img_size=600, patch_size=200, subset_percentage=80, shuffle=False)
+    myclass = GanDataset(x, y, img_size=256, patch_size=256, subset_percentage=80, shuffle=False)
     print(myclass.img_size)
     print(myclass.patch_size)
     print(myclass.num_patches_per_image)

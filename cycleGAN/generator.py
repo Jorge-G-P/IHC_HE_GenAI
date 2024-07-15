@@ -184,7 +184,7 @@ def test():
     # y = gen.get_features(2)
     # print(y)
 
-    # print(gen)
+    print(gen)
 
 if __name__ == "__main__":
     test()
